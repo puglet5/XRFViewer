@@ -1,3 +1,14 @@
+/* @import '@uppy/drag-drop/dist/style.min.css';
+@import '@uppy/core/dist/style.min.css'; */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.uppy-c-icon {
+  @apply hidden
+}
+
+.uppy-Root {
+  @apply h-full text-center
+}
