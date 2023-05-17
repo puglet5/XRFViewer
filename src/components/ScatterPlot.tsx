@@ -86,7 +86,8 @@ const options: ChartOptions<"scatter"> = {
         pinch: {
           enabled: false
         },
-        mode: "xy",
+        mode: "x",
+        scaleMode: "y"
       },
       pan: {
         enabled: true
