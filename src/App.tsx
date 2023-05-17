@@ -11,9 +11,15 @@ export default function App() {
   const [fileProps, setFileProps] = useState<FileProps[]>([])
 
   useEffect(() => {
-    console.log(fileProps)
-  }, [fileProps])
+    if (currentPlotData.datasets.length) {
+      localStorage.setItem("currentPlotData", JSON.stringify(currentPlotData))
+    }
+  }, [currentPlotData])
 
+  if (!currentPlotData.datasets.length) {
+    let storageData = localStorage.getItem("currentPlotData")
+    if (storageData) setCurrentPlotData(JSON.parse(storageData))
+  }
 
   return (
     <main className="grid grid-cols-12 overflow-hidden">
