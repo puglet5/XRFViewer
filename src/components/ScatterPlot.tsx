@@ -2,26 +2,14 @@ import { Scatter } from "react-chartjs-2"
 import { Chart, registerables } from 'chart.js';
 import zoomPlugin from "chartjs-plugin-zoom"
 import { Colors } from 'chart.js';
+import type { ChartData, ChartOptions } from 'chart.js';
 Chart.register(...registerables, zoomPlugin, Colors);
 
-interface Point {
-  x: number
-  y: number
-}
-
-interface ScatterPlotData {
-  datasets: {
-    label: string,
-    data: Point[]
-  }[]
-}
-
-const options = {
+const options: ChartOptions<"scatter"> = {
   animation: false,
   showLine: true,
-  lineTension: 0,
-  cubicInterpolationMode: "monotone",
   responsive: true,
+  maintainAspectRatio: true,
   layout: {
     padding: {
       left: 20,
@@ -115,16 +103,12 @@ const options = {
         boxWidth: 20,
       }
     },
-    datalabels: {
-      display: false
-    }
   }
 }
 
-export default function ScatterPlot({ plotData }: { plotData: ScatterPlotData }) {
+export default function ScatterPlot({ plotData }: { plotData: ChartData<'scatter'> }) {
   return (
     <div className="flex h-screen">
-      {/* @ts-expect-error */}
       <Scatter data={plotData} options={options} redraw />
     </div>
   )

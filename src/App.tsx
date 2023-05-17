@@ -1,64 +1,42 @@
 import ScatterPlot from "./components/ScatterPlot"
+import FileDrawer from "./components/FileDrawer";
 import { useState, useEffect } from "react"
-import Uppy from '@uppy/core';
-import DragDrop from '@uppy/drag-drop';
-import convertDat from "./utils/converters";
+import { FileProps } from "./utils/interfaces";
+import Uploader from "./components/Uploader";
+import type { ChartData } from 'chart.js';
+
 
 export default function App() {
-  const [currentPlotData, setCurrentPlotData] = useState(
-    {
-      datasets: []
-    }
-  )
+  const [currentPlotData, setCurrentPlotData] = useState<ChartData<'scatter'>>({ datasets: [] })
+  const [fileProps, setFileProps] = useState<FileProps[]>([])
 
   useEffect(() => {
-    const uppy = new Uppy({
-      autoProceed: false,
-      allowMultipleUploads: true,
-      allowMultipleUploadBatches: true,
-      restrictions: {
-        allowedFileTypes: [".dat"]
-      }
-    });
+    console.log(fileProps)
+  }, [fileProps])
 
-    uppy.use(DragDrop, { target: '#drag-drop' })
-    uppy.on("files-added", (files) => {
-      files.map((e) => {
-        const reader = new FileReader
-        reader.readAsText(e.data)
-        reader.onload = () => {
-          if (reader.result) {
-            // @ts-expect-error
-            setCurrentPlotData(prevData => ({
-              datasets: [
-                ...prevData.datasets,
-                {
-                  label: e.name.split(".")[0],
-                  data: convertDat(reader.result as string)!
-                }
-              ]
-            }))
-          }
-        }
-      })
-    })
-  }, [])
 
   return (
-    <div className="grid grid-cols-12 overflow-hidden">
+    <main className="grid grid-cols-12 overflow-hidden">
       <div className="h-screen col-span-2 border bg-gray-100">
-        <div className="h-32 bg-gray-200">
-
-        </div>
-        <div className="h-full" id="drag-drop">
-
-        </div>
-      </div>
-      <div className="border col-span-10">
-        <ScatterPlot
-          plotData={currentPlotData}
+        <FileDrawer />
+        <Uploader
+          updatePlotData={setCurrentPlotData}
+          updateFileProps={setFileProps}
+          fileProps={fileProps}
         />
       </div>
-    </div>
+      <div className="col-span-10 border">
+        <div className="h-32 bg-neutral-100 flex p-8 border">
+          <span className="text-lg">
+            Controls
+          </span>
+        </div>
+        <div className="pr-4">
+          <ScatterPlot
+            plotData={currentPlotData}
+          />
+        </div>
+      </div>
+    </main >
   )
 }
