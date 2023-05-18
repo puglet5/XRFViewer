@@ -55,6 +55,7 @@ export default function Uploader({ updatePlotData, updateFileProps, fileProps }:
     uppy.on("files-added", handler)
     return () => {
       uppy.off("files-added", handler)
+      uppy.cancelAll()
     }
   }, [updatePlotData, fileProps])
   return (
