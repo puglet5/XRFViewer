@@ -5,22 +5,22 @@ import { ChartData } from "chart.js"
 import { IconX } from "@tabler/icons-react"
 
 interface Props {
-  updatePlotData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
-  plotData: ChartData<'scatter'>,
+  updateXRFData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
+  currentXRFData: ChartData<'scatter'>,
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
   fileData: FileProps[]
 }
 
-export default function FileDrawer({ fileData, updateFileData, updatePlotData, plotData }: Props) {
+export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData }: Props) {
   const removeFile = (index: number) => {
     let newFileData = fileData.filter((_e, i) => i != index)
-    let newPlotData = {
-      datasets: plotData.datasets.filter((_e, i) => i != index)
+    let newXRFData = {
+      datasets: currentXRFData.datasets.filter((_e, i) => i != index)
     }
     localStorage.setItem("fileData", JSON.stringify(newFileData))
-    localStorage.setItem("currentPlotData", JSON.stringify(newPlotData))
+    localStorage.setItem("currentXRFData", JSON.stringify(newXRFData))
     updateFileData(newFileData)
-    updatePlotData(newPlotData)
+    updateXRFData(newXRFData)
   }
 
   const constructFileDrawer = (data: FileProps[]) => {

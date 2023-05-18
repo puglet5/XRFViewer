@@ -3,18 +3,29 @@ import { ChartData } from "chart.js"
 import { FileProps } from "../utils/interfaces"
 
 interface Props {
-  updatePlotData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
-  currentPlotData: ChartData<'scatter'>,
+  updateXRFData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
+  currentXRFData: ChartData<'scatter'>,
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
-  fileData: FileProps[]
+  fileData: FileProps[],
+  updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>,
+  selectedElements: number[],
+  updatePlotData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>
 }
 
-export default function Controls({ updatePlotData, currentPlotData, updateFileData, fileData }: Props) {
+export default function Controls({ updateXRFData, currentXRFData, updateFileData, fileData, updateSelectedElements, selectedElements, updatePlotData }: Props) {
   const resetPlotData = () => {
-    updatePlotData({ datasets: [] })
-    updateFileData([])
-    localStorage.removeItem("currentPlotData")
+    localStorage.removeItem("selectedElements")
+    localStorage.removeItem("currentXRFData")
     localStorage.removeItem("fileData")
+    updatePlotData({ datasets: [] })
+    updateSelectedElements([])
+    updateXRFData({ datasets: [] })
+    updateFileData([])
+  }
+
+  const handleElementInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let elements = e.target.value.split(",").map(i => Number(i))
+    updateSelectedElements(elements)
   }
 
   return (
@@ -24,7 +35,7 @@ export default function Controls({ updatePlotData, currentPlotData, updateFileDa
       </span>
       <button
         onClick={resetPlotData}
-        disabled={!currentPlotData.datasets.length && !fileData.length}
+        disabled={!currentXRFData.datasets.length && !fileData.length && !selectedElements.length}
         className="disabled:text-sfg text-acc">
         <IconReload />
       </button>
@@ -32,6 +43,12 @@ export default function Controls({ updatePlotData, currentPlotData, updateFileDa
       <button className="disabled:text-sfg text-acc">
         <IconCalculator></IconCalculator>
       </button>
+
+      <input
+        type="text"
+        onChange={handleElementInput}
+        value={selectedElements.toString()}
+      />
 
     </div>
   )

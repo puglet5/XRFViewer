@@ -1,9 +1,11 @@
 import { Scatter } from "react-chartjs-2"
-import { Chart, registerables } from 'chart.js';
+import { Chart, registerables } from 'chart.js'
 import zoomPlugin from "chartjs-plugin-zoom"
-import { Colors } from 'chart.js';
-import type { ChartData, ChartOptions } from 'chart.js';
-Chart.register(...registerables, zoomPlugin, Colors);
+import { Colors } from 'chart.js'
+import type { ChartData, ChartOptions } from 'chart.js'
+import ChartDataLabels from "chartjs-plugin-datalabels"
+Chart.register(...registerables, zoomPlugin, Colors, ChartDataLabels)
+import { elementSymbols, emissionLinesData } from "../data/elementData"
 
 const options: ChartOptions<"scatter"> = {
   animation: false,
@@ -47,7 +49,7 @@ const options: ChartOptions<"scatter"> = {
         tickLength: 10,
         tickWidth: 1,
       },
-      grace: "5%"
+      grace: "20%"
     },
     x: {
       ticks: {
@@ -68,6 +70,7 @@ const options: ChartOptions<"scatter"> = {
         tickLength: 10,
         tickWidth: 1,
       },
+      grace: "1"
     },
   },
   interaction: {
@@ -76,7 +79,9 @@ const options: ChartOptions<"scatter"> = {
     intersect: false
   },
   plugins: {
-
+    datalabels: {
+      display: false
+    },
     decimation: {
       enabled: true
     },
@@ -97,6 +102,9 @@ const options: ChartOptions<"scatter"> = {
           return
         }
       },
+      filter: function (tooltipItem) {
+        return !elementSymbols.includes(tooltipItem.dataset.label!)
+      }
     },
     zoom: {
       zoom: {
@@ -126,7 +134,9 @@ const options: ChartOptions<"scatter"> = {
   }
 }
 
+
 export default function ScatterPlot({ plotData }: { plotData: ChartData<'scatter'> }) {
+
   return (
     <div className="flex h-screen">
       <Scatter data={plotData} options={options} redraw />

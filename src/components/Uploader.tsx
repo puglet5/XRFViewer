@@ -1,12 +1,12 @@
 import { useEffect } from "react"
-import Uppy from '@uppy/core';
-import convertDat from "../utils/converters";
-import { FileProps } from "../utils/interfaces";
-import { DragDrop } from "@uppy/react";
-import type { ChartData } from 'chart.js';
+import Uppy from '@uppy/core'
+import convertDat from "../utils/converters"
+import { FileProps } from "../utils/interfaces"
+import { DragDrop } from "@uppy/react"
+import type { ChartData } from 'chart.js'
 
 interface Props {
-  updatePlotData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
+  updateXRFData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
   fileData: FileProps[]
 }
@@ -20,7 +20,7 @@ const uppy = new Uppy({
   }
 })
 
-export default function Uploader({ updatePlotData, updateFileData, fileData }: Props) {
+export default function Uploader({ updateXRFData, updateFileData, fileData }: Props) {
 
   useEffect(() => {
     const handler = (files: any[]) => {
@@ -40,7 +40,7 @@ export default function Uploader({ updatePlotData, updateFileData, fileData }: P
         reader.readAsText(e.data)
         reader.onload = () => {
           if (reader.result) {
-            updatePlotData((prevData: ChartData<'scatter'>) => ({
+            updateXRFData((prevData: ChartData<'scatter'>) => ({
               datasets: [
                 ...prevData.datasets,
                 {
@@ -58,7 +58,7 @@ export default function Uploader({ updatePlotData, updateFileData, fileData }: P
       uppy.off("files-added", handler)
       uppy.cancelAll()
     }
-  }, [updatePlotData, fileData])
+  }, [updateXRFData, fileData])
   return (
     <DragDrop uppy={uppy} />
   )
