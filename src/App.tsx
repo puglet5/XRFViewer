@@ -3,6 +3,7 @@ import FileDrawer from "./components/FileDrawer";
 import { useState, useEffect } from "react"
 import { FileProps } from "./utils/interfaces";
 import Uploader from "./components/Uploader";
+import Controls from "./components/Controls";
 import type { ChartData } from 'chart.js';
 
 
@@ -34,7 +35,10 @@ export default function App() {
       <div className="col-span-10 border">
         <div className="h-32 bg-neutral-100 flex p-8 border">
           <span className="text-lg">
-            Controls
+            <Controls
+            updatePlotData={setCurrentPlotData}
+            currentPlotData={currentPlotData}
+             />
           </span>
         </div>
         <div className="pr-4">
