@@ -7,8 +7,8 @@ import type { ChartData } from 'chart.js';
 
 interface Props {
   updatePlotData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
-  updateFileProps: React.Dispatch<React.SetStateAction<FileProps[]>>,
-  fileProps: FileProps[]
+  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
+  fileData: FileProps[]
 }
 
 const uppy = new Uppy({
@@ -20,10 +20,11 @@ const uppy = new Uppy({
   }
 })
 
-export default function Uploader({ updatePlotData, updateFileProps, fileProps }: Props) {
+export default function Uploader({ updatePlotData, updateFileData, fileData }: Props) {
+
   useEffect(() => {
     const handler = (files: any[]) => {
-      let newFileProps: FileProps[] = files.map((e) => {
+      let newFileData: FileProps[] = files.map((e) => {
         return {
           id: e.id,
           name: e.name,
@@ -32,7 +33,7 @@ export default function Uploader({ updatePlotData, updateFileProps, fileProps }:
         }
       })
 
-      updateFileProps([...fileProps, ...newFileProps])
+      updateFileData([...fileData, ...newFileData])
 
       files.map((e) => {
         const reader = new FileReader
@@ -57,7 +58,7 @@ export default function Uploader({ updatePlotData, updateFileProps, fileProps }:
       uppy.off("files-added", handler)
       uppy.cancelAll()
     }
-  }, [updatePlotData, fileProps])
+  }, [updatePlotData, fileData])
   return (
     <DragDrop uppy={uppy} />
   )

@@ -9,39 +9,56 @@ import type { ChartData } from 'chart.js';
 
 export default function App() {
   const [currentPlotData, setCurrentPlotData] = useState<ChartData<'scatter'>>({ datasets: [] })
-  const [fileProps, setFileProps] = useState<FileProps[]>([])
+  const [fileData, setFileData] = useState<FileProps[]>([])
 
   useEffect(() => {
     if (currentPlotData.datasets.length) {
       localStorage.setItem("currentPlotData", JSON.stringify(currentPlotData))
     }
-  }, [currentPlotData])
+
+    if (fileData.length) {
+      localStorage.setItem("fileData", JSON.stringify(fileData))
+    }
+  }, [currentPlotData, fileData])
 
   if (!currentPlotData.datasets.length) {
-    let storageData = localStorage.getItem("currentPlotData")
-    if (storageData) setCurrentPlotData(JSON.parse(storageData))
+    let storagePlotData = localStorage.getItem("currentPlotData")
+    if (storagePlotData) setCurrentPlotData(JSON.parse(storagePlotData))
+  }
+
+  if (!fileData.length) {
+    let storageFileData = localStorage.getItem("fileData")
+    if (storageFileData) setFileData(JSON.parse(storageFileData))
   }
 
   return (
-    <main className="grid grid-cols-12 overflow-hidden">
-      <div className="h-screen col-span-2 border bg-gray-100">
-        <FileDrawer />
-        <Uploader
-          updatePlotData={setCurrentPlotData}
-          updateFileProps={setFileProps}
-          fileProps={fileProps}
-        />
-      </div>
-      <div className="col-span-10 border">
-        <div className="h-32 bg-neutral-100 flex p-8 border">
-          <span className="text-lg">
-            <Controls
-            updatePlotData={setCurrentPlotData}
-            currentPlotData={currentPlotData}
-             />
-          </span>
+    <main className="grid grid-cols-12 bg-pbg h-screen ">
+      <div className="col-span-2 bg-pbg">
+        <div className="h-32 border-b border-ptx flex items-center justify-center">
+          <span>Info</span>
         </div>
-        <div className="pr-4">
+        <FileDrawer fileData={fileData} />
+
+        <div>
+          <Uploader
+            updatePlotData={setCurrentPlotData}
+            updateFileData={setFileData}
+            fileData={fileData}
+          />
+        </div>
+      </div>
+      <div className="col-span-10">
+        <div className="h-16 bg-pbg flex p-8 border-b border-l border-ptx">
+          <div className="flex items-center justify-center ">
+            <Controls
+              updatePlotData={setCurrentPlotData}
+              currentPlotData={currentPlotData}
+              updateFileData={setFileData}
+              fileData={fileData}
+            />
+          </div>
+        </div>
+        <div className="pr-4 border-l border-ptx bg-pbg">
           <ScatterPlot
             plotData={currentPlotData}
           />

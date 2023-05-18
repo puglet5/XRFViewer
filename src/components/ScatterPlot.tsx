@@ -8,8 +8,11 @@ Chart.register(...registerables, zoomPlugin, Colors);
 const options: ChartOptions<"scatter"> = {
   animation: false,
   showLine: true,
+  normalized: true,
   responsive: true,
+  color: "ffffff",
   maintainAspectRatio: true,
+  spanGaps: false,
   layout: {
     padding: {
       left: 20,
@@ -23,14 +26,18 @@ const options: ChartOptions<"scatter"> = {
       radius: 0
     },
     line: {
-      borderWidth: 2
+      borderWidth: 2,
     }
   },
   scales: {
     y: {
+      ticks: {
+        color: "black"
+      },
       border: { dash: [4, 4] },
       title: {
         text: "Intensity, a.u.",
+        color: "black",
         display: true
       },
       min: 0,
@@ -43,9 +50,16 @@ const options: ChartOptions<"scatter"> = {
       grace: "5%"
     },
     x: {
+      ticks: {
+        color: "black",
+        minRotation: 0,
+        maxRotation: 0,
+        sampleSize: 10
+      },
       border: { dash: [4, 4] },
       title: {
         text: "Energy, keV",
+        color: "black",
         display: true
       },
       grid: {
@@ -62,13 +76,18 @@ const options: ChartOptions<"scatter"> = {
     intersect: false
   },
   plugins: {
+    decimation: {
+      enabled: true
+    },
     colors: {
       enabled: true,
       forceOverride: true
     },
     tooltip: {
       animation: false,
-      displayColors: false,
+      mode: "index",
+      displayColors: true,
+      intersect: false,
       callbacks: {
         label: function (tooltipItem: any) {
           return tooltipItem.formattedValue
@@ -86,8 +105,7 @@ const options: ChartOptions<"scatter"> = {
         pinch: {
           enabled: false
         },
-        mode: "x",
-        scaleMode: "y"
+        mode: "xy",
       },
       pan: {
         enabled: true
@@ -101,7 +119,7 @@ const options: ChartOptions<"scatter"> = {
     {
       labels: {
         boxHeight: 1,
-        boxWidth: 20,
+        boxWidth: 10,
       }
     },
   }
@@ -109,7 +127,7 @@ const options: ChartOptions<"scatter"> = {
 
 export default function ScatterPlot({ plotData }: { plotData: ChartData<'scatter'> }) {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       <Scatter data={plotData} options={options} redraw />
     </div>
   )
