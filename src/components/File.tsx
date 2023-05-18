@@ -7,7 +7,7 @@ interface Props {
 export default function File({ fileData }: Props) {
   return (
     <>
-      <span>
+      <span className="my-auto">
         {fileData.name}, {Number(fileData.size / 1000).toFixed(1)}kB
       </span>
     </>

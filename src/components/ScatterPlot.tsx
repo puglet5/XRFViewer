@@ -76,6 +76,7 @@ const options: ChartOptions<"scatter"> = {
     intersect: false
   },
   plugins: {
+
     decimation: {
       enabled: true
     },
@@ -115,8 +116,8 @@ const options: ChartOptions<"scatter"> = {
         y: { min: "original", max: "original" }
       },
     },
-    legend:
-    {
+    legend: {
+      position: "top",
       labels: {
         boxHeight: 1,
         boxWidth: 10,
@@ -127,7 +128,7 @@ const options: ChartOptions<"scatter"> = {
 
 export default function ScatterPlot({ plotData }: { plotData: ChartData<'scatter'> }) {
   return (
-    <div className="flex h-full">
+    <div className="flex h-screen">
       <Scatter data={plotData} options={options} redraw />
     </div>
   )

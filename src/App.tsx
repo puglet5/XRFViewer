@@ -23,12 +23,18 @@ export default function App() {
 
   if (!currentPlotData.datasets.length) {
     let storagePlotData = localStorage.getItem("currentPlotData")
-    if (storagePlotData) setCurrentPlotData(JSON.parse(storagePlotData))
+    let parsedStroragePlotData = JSON.parse(storagePlotData!)
+    if (parsedStroragePlotData) {
+      if ("datasets" in parsedStroragePlotData && parsedStroragePlotData.datasets.length) {
+        setCurrentPlotData(parsedStroragePlotData)
+      }
+    }
   }
 
   if (!fileData.length) {
     let storageFileData = localStorage.getItem("fileData")
-    if (storageFileData) setFileData(JSON.parse(storageFileData))
+    let parsedStorageFileData = JSON.parse(storageFileData!)
+    if (parsedStorageFileData && parsedStorageFileData.length) setFileData(parsedStorageFileData)
   }
 
   return (
@@ -37,7 +43,12 @@ export default function App() {
         <div className="h-32 border-b border-ptx flex items-center justify-center">
           <span>Info</span>
         </div>
-        <FileDrawer fileData={fileData} />
+        <FileDrawer
+          fileData={fileData}
+          updateFileData={setFileData}
+          updatePlotData={setCurrentPlotData}
+          plotData={currentPlotData}
+        />
 
         <div>
           <Uploader
