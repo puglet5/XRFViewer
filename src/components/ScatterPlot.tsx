@@ -5,7 +5,7 @@ import { Colors } from 'chart.js'
 import type { ChartData, ChartOptions } from 'chart.js'
 import ChartDataLabels from "chartjs-plugin-datalabels"
 Chart.register(...registerables, zoomPlugin, Colors, ChartDataLabels)
-import { elementSymbols, emissionLinesData } from "../data/elementData"
+import { elementSymbols } from "../data/elementData"
 
 const options: ChartOptions<"scatter"> = {
   animation: false,
@@ -33,6 +33,8 @@ const options: ChartOptions<"scatter"> = {
   },
   scales: {
     y: {
+      beginAtZero: true,
+      type: "linear",
       ticks: {
         color: "black"
       },
@@ -49,14 +51,16 @@ const options: ChartOptions<"scatter"> = {
         tickLength: 10,
         tickWidth: 1,
       },
-      grace: "20%"
+      grace: "10%"
     },
     x: {
+      beginAtZero: true,
+      type: "linear",
       ticks: {
         color: "black",
         minRotation: 0,
         maxRotation: 0,
-        sampleSize: 10
+        sampleSize: 100
       },
       border: { dash: [4, 4] },
       title: {
@@ -70,7 +74,6 @@ const options: ChartOptions<"scatter"> = {
         tickLength: 10,
         tickWidth: 1,
       },
-      grace: "1"
     },
   },
   interaction: {
@@ -83,7 +86,8 @@ const options: ChartOptions<"scatter"> = {
       display: false
     },
     decimation: {
-      enabled: true
+      enabled: true,
+      algorithm: 'min-max',
     },
     colors: {
       enabled: true,
@@ -139,7 +143,7 @@ export default function ScatterPlot({ plotData }: { plotData: ChartData<'scatter
 
   return (
     <div className="flex h-screen">
-      <Scatter data={plotData} options={options} redraw />
+      <Scatter data={plotData} options={options} />
     </div>
   )
 }

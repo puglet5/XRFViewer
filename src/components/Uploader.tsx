@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import Uppy from '@uppy/core'
-import convertDat from "../utils/converters"
+import { convertDat } from "../utils/converters"
 import { FileProps } from "../utils/interfaces"
 import { DragDrop } from "@uppy/react"
 import type { ChartData } from 'chart.js'
