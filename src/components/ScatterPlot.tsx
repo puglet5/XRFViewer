@@ -6,6 +6,7 @@ import type { ChartData, ChartOptions } from 'chart.js'
 import ChartDataLabels from "chartjs-plugin-datalabels"
 Chart.register(...registerables, zoomPlugin, Colors, ChartDataLabels)
 import { elementSymbols } from "../data/elementData"
+import { useRef, useEffect } from "react"
 
 const options: ChartOptions<"scatter"> = {
   animation: false,
@@ -29,6 +30,7 @@ const options: ChartOptions<"scatter"> = {
     },
     line: {
       borderWidth: 2,
+      cubicInterpolationMode: "monotone"
     }
   },
   scales: {
@@ -140,10 +142,18 @@ const options: ChartOptions<"scatter"> = {
 
 
 export default function ScatterPlot({ plotData }: { plotData: ChartData<'scatter'> }) {
+  const plotRef = useRef<Chart<"scatter", number[], string>>(null)
+
+  useEffect(() => {
+    if (plotRef.current) {
+      plotRef.current.resetZoom()
+    }
+  }, [plotData])
+
 
   return (
-    <div className="flex h-screen">
-      <Scatter data={plotData} options={options} />
+    <div className="flex">
+      <Scatter data={plotData} options={options} ref={plotRef} />
     </div>
   )
 }

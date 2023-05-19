@@ -12,3 +12,7 @@
 .uppy-Root {
   @apply h-full text-center
 }
+
+td:not(:empty) {
+  @apply border border-ptx
+}

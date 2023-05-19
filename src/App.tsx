@@ -4,8 +4,10 @@ import { useState, useEffect } from "react"
 import { FileProps } from "./utils/interfaces"
 import Uploader from "./components/Uploader"
 import Controls from "./components/Controls"
+import PeriodicTable from "./components/PeriodicTable"
 import { ChartData } from 'chart.js'
 import { constructElementData, constructPlotData, calculateElementDataScaleFactor } from "./utils/converters"
+import { useHotkeys } from 'react-hotkeys-hook'
 
 export default function App() {
   const [selectedElements, setSelectedElements] = useState<number[]>([])
@@ -15,6 +17,7 @@ export default function App() {
   })
   const [fileData, setFileData] = useState<FileProps[]>([])
   const [plotData, setPlotData] = useState<ChartData<'scatter'>>({ datasets: [] })
+  const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(true)
 
   useEffect(() => {
     setPlotData(constructPlotData(currentXRFData, currentElementData))
@@ -37,6 +40,8 @@ export default function App() {
     setCurrentElementData(constructElementData(selectedElements, elementScaleFactor))
     setPlotData(constructPlotData(currentXRFData, currentElementData))
   }, [selectedElements, currentXRFData])
+
+  useHotkeys("p", () => setPeriodicTableVisibility(!periodicTableVisibility))
 
   if (!currentXRFData.datasets.length) {
     let storageXRFData = localStorage.getItem("currentXRFData")
@@ -66,6 +71,7 @@ export default function App() {
       setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1))
     }
   }
+
 
   return (
     <main className="grid grid-cols-12 bg-pbg h-screen ">
@@ -106,6 +112,9 @@ export default function App() {
           <ScatterPlot
             plotData={plotData}
           />
+        </div>
+        <div>
+          <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />
         </div>
       </div>
     </main >

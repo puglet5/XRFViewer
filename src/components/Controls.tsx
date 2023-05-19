@@ -14,20 +14,12 @@ interface Props {
 
 export default function Controls({ updateXRFData, currentXRFData, updateFileData, fileData, updateSelectedElements, selectedElements, updatePlotData }: Props) {
   const resetPlotData = () => {
-    localStorage.removeItem("selectedElements")
-    localStorage.removeItem("currentXRFData")
-    localStorage.removeItem("fileData")
+    localStorage.clear()
     updatePlotData({ datasets: [] })
     updateSelectedElements([])
     updateXRFData({ datasets: [] })
     updateFileData([])
   }
-
-  const handleElementInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let elements = e.target.value.split(",").map(i => Number(i))
-    updateSelectedElements(elements)
-  }
-
   return (
     <div className="flex space-x-2">
       <span className="my-auto">
@@ -43,13 +35,6 @@ export default function Controls({ updateXRFData, currentXRFData, updateFileData
       <button className="disabled:text-sfg text-acc">
         <IconCalculator></IconCalculator>
       </button>
-
-      <input
-        type="text"
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-        onChange={handleElementInput}
-        value={selectedElements.toString()}
-      />
 
     </div>
   )
