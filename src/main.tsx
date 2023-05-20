@@ -1,10 +1,13 @@
+import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
+import App from './App'
+import './samples/node-api'
 import './index.css'
-import { StrictMode } from 'react'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
+  <React.StrictMode>
     <App />
-  </StrictMode>
+  </React.StrictMode>,
 )
+
+postMessage({ payload: 'removeLoading' }, '*')
