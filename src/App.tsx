@@ -15,7 +15,7 @@ export default function App() {
   const [currentXRFData, setCurrentXRFData] = useState<Partial<ScatterData>[]>([])
   const [fileData, setFileData] = useState<FileProps[]>([])
   const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
-  // const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(false)
+  const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(false)
 
   useEffect(() => {
     setPlotData([...currentXRFData, ...currentElementData])
@@ -39,7 +39,7 @@ export default function App() {
     setPlotData([...currentXRFData, ...currentElementData])
   }, [selectedElements, currentXRFData])
 
-  // useHotkeys("p", () => setPeriodicTableVisibility(!periodicTableVisibility))
+  useHotkeys("ctrl+p", () => setPeriodicTableVisibility(!periodicTableVisibility))
 
   if (!currentXRFData.length) {
     let storageXRFData = localStorage.getItem("currentXRFData")
@@ -108,7 +108,7 @@ export default function App() {
           <ScatterPlot plotData={plotData} />
         </div>
         <div>
-          <PeriodicTable visible={true} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />
+          <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />
         </div>
       </div>
     </main >

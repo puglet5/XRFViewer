@@ -44,6 +44,7 @@ const indexHtml = join(process.env.DIST, 'index.html')
 async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
+    autoHideMenuBar: true,
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload,
@@ -58,7 +59,6 @@ async function createWindow() {
   if (url) { // electron-vite-vue#298
     win.loadURL(url)
     // Open devTool if the app is not packaged
-    win.webContents.openDevTools()
   } else {
     win.loadFile(indexHtml)
   }
