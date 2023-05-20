@@ -19,17 +19,16 @@
     "@uppy/file-input": "^3.0.2",
     "@uppy/progress-bar": "^3.0.2",
     "@uppy/react": "^3.1.2",
-    "electron-updater": "^5.3.0",
-    "mathjax": "3",
     "plotly.js": "^2.23.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.4.0",
-    "react-plotly.js": "^2.6.0",
-    "vite-plugin-electron": "^0.11.2",
-    "vite-plugin-electron-renderer": "^0.14.3"
+    "react-plotly.js": "^2.6.0"
   },
   "devDependencies": {
+    "electron-updater": "^5.3.0",
+    "vite-plugin-electron": "^0.11.2",
+    "vite-plugin-electron-renderer": "^0.14.3",
     "@types/node": "^20.2.1",
     "@types/plotly.js": "^2.12.18",
     "@types/react": "^18.0.28",
