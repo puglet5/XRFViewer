@@ -39,7 +39,7 @@ export const constructXRFData = (parsedData: ParsedData, name: string): Partial<
     y: parsedData.y,
     type: "scatter",
     mode: "lines",
-    name: name
+    name: name,
   }
 }
 

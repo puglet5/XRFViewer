@@ -104,7 +104,7 @@ export default function App() {
             />
           </div>
         </div>
-        <div className="border-l border-ptx bg-pbg h-[32em]">
+        <div className="border-l border-ptx bg-pbg h-[48rem]">
           <ScatterPlot plotData={plotData} />
         </div>
         <div>

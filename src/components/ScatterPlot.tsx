@@ -6,22 +6,31 @@ const config: Partial<Config> = {
   scrollZoom: true,
   editable: false,
   displaylogo: false,
-  modeBarButtonsToRemove: ['zoom2d', "autoScale2d", "lasso2d", "select2d", "zoomIn2d", "zoomOut2d", "pan2d"],
+  modeBarButtonsToRemove: ['zoom2d', "autoScale2d", "lasso2d", "select2d", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d"],
+  modeBarButtonsToAdd: ["hoverclosest", "hovercompare"],
   responsive: true,
   toImageButtonOptions: {
-    format: 'png', // one of png, svg, jpeg, webp
+    format: 'png',
     filename: 'XRFViewer_data',
-  }
+    scale: 4,
+  },
+  doubleClick: "reset+autosize",
 }
 
 const layout: Partial<Layout> = {
-  title: {
-    text: 'XRFViewer',
+  margin: {
+    l: 100,
+    r: 20,
+    b: 60,
+    t: 40,
+    pad: 0
   },
+  title: "",
   showlegend: true,
   autosize: true,
   dragmode: "pan",
   legend: {
+    itemdoubleclick: false,
     borderwidth: 1,
     xanchor: 'right',
     x: 0.99,
@@ -47,10 +56,10 @@ const layout: Partial<Layout> = {
     exponentformat: "none",
     showexponent: 'all'
   },
-  uirevision: 1
 }
 
 const style = {
+  height: "100%"
 }
 
 export default function ScatterPlot({ plotData }: { plotData: Partial<ScatterData>[] }) {
