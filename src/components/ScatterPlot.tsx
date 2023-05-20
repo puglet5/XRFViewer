@@ -1,159 +1,65 @@
-import { Scatter } from "react-chartjs-2"
-import { Chart, registerables } from 'chart.js'
-import zoomPlugin from "chartjs-plugin-zoom"
-import { Colors } from 'chart.js'
-import type { ChartData, ChartOptions } from 'chart.js'
-import ChartDataLabels from "chartjs-plugin-datalabels"
-Chart.register(...registerables, zoomPlugin, Colors, ChartDataLabels)
-import { elementSymbols } from "../data/elementData"
-import { useRef, useEffect } from "react"
+import Plot from 'react-plotly.js';
+import { Config, Layout, ScatterData } from 'plotly.js'
 
-const options: ChartOptions<"scatter"> = {
-  animation: false,
-  showLine: true,
-  normalized: true,
+const config: Partial<Config> = {
+  showTips: false,
+  scrollZoom: true,
+  editable: false,
+  displaylogo: false,
+  modeBarButtonsToRemove: ['zoom2d', "autoScale2d", "lasso2d", "select2d", "zoomIn2d", "zoomOut2d", "pan2d"],
   responsive: true,
-  color: "ffffff",
-  maintainAspectRatio: true,
-  spanGaps: false,
-  layout: {
-    padding: {
-      left: 20,
-      right: 20,
-      top: 20,
-      bottom: 20
-    },
-  },
-  elements: {
-    point: {
-      radius: 0
-    },
-    line: {
-      borderWidth: 2,
-      cubicInterpolationMode: "monotone"
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      type: "linear",
-      ticks: {
-        color: "black"
-      },
-      border: { dash: [4, 4] },
-      title: {
-        text: "Intensity, a.u.",
-        color: "black",
-        display: true
-      },
-      min: 0,
-      grid: {
-        color: "#e1e1e1",
-        tickBorderDash: [0, 0],
-        tickLength: 10,
-        tickWidth: 1,
-      },
-      grace: "10%"
-    },
-    x: {
-      beginAtZero: true,
-      type: "linear",
-      ticks: {
-        color: "black",
-        minRotation: 0,
-        maxRotation: 0,
-        sampleSize: 100
-      },
-      border: { dash: [4, 4] },
-      title: {
-        text: "Energy, keV",
-        color: "black",
-        display: true
-      },
-      grid: {
-        color: "#e1e1e1",
-        tickBorderDash: [0, 0],
-        tickLength: 10,
-        tickWidth: 1,
-      },
-    },
-  },
-  interaction: {
-    mode: "nearest",
-    axis: "x",
-    intersect: false
-  },
-  plugins: {
-    datalabels: {
-      display: false
-    },
-    decimation: {
-      enabled: true,
-      algorithm: 'min-max',
-    },
-    colors: {
-      enabled: true,
-      forceOverride: true
-    },
-    tooltip: {
-      animation: false,
-      mode: "index",
-      displayColors: true,
-      intersect: false,
-      callbacks: {
-        label: function (tooltipItem: any) {
-          return tooltipItem.formattedValue
-        },
-        title: function () {
-          return
-        }
-      },
-      filter: function (tooltipItem) {
-        return !elementSymbols.includes(tooltipItem.dataset.label!)
-      }
-    },
-    zoom: {
-      zoom: {
-        wheel: {
-          enabled: true,
-        },
-        pinch: {
-          enabled: false
-        },
-        mode: "xy",
-      },
-      pan: {
-        enabled: true
-      },
-      limits: {
-        x: { min: "original", max: "original" },
-        y: { min: "original", max: "original" }
-      },
-    },
-    legend: {
-      position: "top",
-      labels: {
-        boxHeight: 1,
-        boxWidth: 10,
-      }
-    },
+  toImageButtonOptions: {
+    format: 'png', // one of png, svg, jpeg, webp
+    filename: 'XRFViewer_data',
   }
 }
 
-
-export default function ScatterPlot({ plotData }: { plotData: ChartData<'scatter'> }) {
-  const plotRef = useRef<Chart<"scatter", number[], string>>(null)
-
-  useEffect(() => {
-    if (plotRef.current) {
-      plotRef.current.resetZoom()
+const layout: Partial<Layout> = {
+  title: {
+    text: 'XRFViewer',
+  },
+  showlegend: true,
+  autosize: true,
+  dragmode: "pan",
+  legend: {
+    borderwidth: 1,
+    xanchor: 'right',
+    x: 0.99,
+    y: 0.99
+  },
+  xaxis: {
+    showgrid: true,
+    zeroline: true,
+    showline: true,
+    mirror: 'ticks',
+    title: {
+      text: "Energy, keV"
     }
-  }, [plotData])
+  },
+  yaxis: {
+    showgrid: true,
+    zeroline: true,
+    showline: true,
+    mirror: 'ticks',
+    title: {
+      text: "Intensity, a.u."
+    },
+    exponentformat: "none",
+    showexponent: 'all'
+  },
+  uirevision: 1
+}
 
+const style = {
+}
 
+export default function ScatterPlot({ plotData }: { plotData: Partial<ScatterData>[] }) {
   return (
-    <div className="flex">
-      <Scatter data={plotData} options={options} ref={plotRef} />
-    </div>
+    <Plot
+      style={style}
+      data={plotData}
+      layout={layout}
+      config={config}
+    />
   )
 }

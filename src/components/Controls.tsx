@@ -1,23 +1,23 @@
 import { IconReload, IconCalculator } from "@tabler/icons-react"
-import { ChartData } from "chart.js"
 import { FileProps } from "../utils/interfaces"
+import { ScatterData } from "plotly.js"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
-  currentXRFData: ChartData<'scatter'>,
+  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
+  currentXRFData: Partial<ScatterData>[],
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
   fileData: FileProps[],
   updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>,
   selectedElements: number[],
-  updatePlotData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>
+  updatePlotData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
 }
 
 export default function Controls({ updateXRFData, currentXRFData, updateFileData, fileData, updateSelectedElements, selectedElements, updatePlotData }: Props) {
   const resetPlotData = () => {
     localStorage.clear()
-    updatePlotData({ datasets: [] })
+    updatePlotData([])
     updateSelectedElements([])
-    updateXRFData({ datasets: [] })
+    updateXRFData([])
     updateFileData([])
   }
   return (
@@ -27,7 +27,7 @@ export default function Controls({ updateXRFData, currentXRFData, updateFileData
       </span>
       <button
         onClick={resetPlotData}
-        disabled={!currentXRFData.datasets.length && !fileData.length && !selectedElements.length}
+        disabled={!currentXRFData.length && !fileData.length && !selectedElements.length}
         className="disabled:text-sfg text-acc">
         <IconReload />
       </button>

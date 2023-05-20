@@ -3,10 +3,11 @@ import Uppy from '@uppy/core'
 import { convertDat } from "../utils/converters"
 import { FileProps } from "../utils/interfaces"
 import { DragDrop } from "@uppy/react"
-import type { ChartData } from 'chart.js'
+import { constructXRFData } from "../utils/converters"
+import { ScatterData } from "plotly.js"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
+  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
   fileData: FileProps[]
 }
@@ -40,15 +41,7 @@ export default function Uploader({ updateXRFData, updateFileData, fileData }: Pr
         reader.readAsText(e.data)
         reader.onload = () => {
           if (reader.result) {
-            updateXRFData((prevData: ChartData<'scatter'>) => ({
-              datasets: [
-                ...prevData.datasets,
-                {
-                  label: e.name.split(".")[0],
-                  data: convertDat(reader.result as string)!
-                }
-              ]
-            }))
+            updateXRFData((prevData) => ([...prevData, constructXRFData(convertDat(reader.result! as string), e.name.split(".")[0])]))
           }
         }
       })

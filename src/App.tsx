@@ -1,30 +1,28 @@
-import ScatterPlot from "./components/ScatterPlot"
 import FileDrawer from "./components/FileDrawer"
 import { useState, useEffect } from "react"
 import { FileProps } from "./utils/interfaces"
 import Uploader from "./components/Uploader"
 import Controls from "./components/Controls"
 import PeriodicTable from "./components/PeriodicTable"
-import { ChartData } from 'chart.js'
-import { constructElementData, constructPlotData, calculateElementDataScaleFactor } from "./utils/converters"
+import { constructElementData, calculateElementDataScaleFactor } from "./utils/converters"
 import { useHotkeys } from 'react-hotkeys-hook'
+import { ScatterData } from "plotly.js"
+import ScatterPlot from "./components/ScatterPlot"
 
 export default function App() {
   const [selectedElements, setSelectedElements] = useState<number[]>([])
-  const [currentElementData, setCurrentElementData] = useState<ChartData<'scatter'>>({ datasets: [] })
-  const [currentXRFData, setCurrentXRFData] = useState<ChartData<'scatter'>>({
-    datasets: []
-  })
+  const [currentElementData, setCurrentElementData] = useState<Partial<ScatterData>[]>([])
+  const [currentXRFData, setCurrentXRFData] = useState<Partial<ScatterData>[]>([])
   const [fileData, setFileData] = useState<FileProps[]>([])
-  const [plotData, setPlotData] = useState<ChartData<'scatter'>>({ datasets: [] })
-  const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(true)
+  const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
+  const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(false)
 
   useEffect(() => {
-    setPlotData(constructPlotData(currentXRFData, currentElementData))
+    setPlotData([...currentXRFData, ...currentElementData])
   }, [currentXRFData, currentElementData])
 
   useEffect(() => {
-    if (currentXRFData.datasets.length) {
+    if (currentXRFData.length) {
       localStorage.setItem("currentXRFData", JSON.stringify(currentXRFData))
     }
 
@@ -38,18 +36,16 @@ export default function App() {
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
     localStorage.setItem("elementScaleFactor", JSON.stringify(elementScaleFactor))
     setCurrentElementData(constructElementData(selectedElements, elementScaleFactor))
-    setPlotData(constructPlotData(currentXRFData, currentElementData))
+    setPlotData([...currentXRFData, ...currentElementData])
   }, [selectedElements, currentXRFData])
 
   useHotkeys("p", () => setPeriodicTableVisibility(!periodicTableVisibility))
 
-  if (!currentXRFData.datasets.length) {
+  if (!currentXRFData.length) {
     let storageXRFData = localStorage.getItem("currentXRFData")
     let parsedStrorageXRFData = JSON.parse(storageXRFData!)
-    if (parsedStrorageXRFData) {
-      if ("datasets" in parsedStrorageXRFData && parsedStrorageXRFData.datasets.length) {
-        setCurrentXRFData(parsedStrorageXRFData)
-      }
+    if (parsedStrorageXRFData && parsedStrorageXRFData.length) {
+      setCurrentXRFData(parsedStrorageXRFData)
     }
   }
 
@@ -108,10 +104,8 @@ export default function App() {
             />
           </div>
         </div>
-        <div className="pr-4 border-l border-ptx bg-pbg">
-          <ScatterPlot
-            plotData={plotData}
-          />
+        <div className="border-l border-ptx bg-pbg h-[32em]">
+          <ScatterPlot plotData={plotData} />
         </div>
         <div>
           <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />

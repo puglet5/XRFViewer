@@ -8,6 +8,7 @@ interface Props {
 }
 
 export default function PeriodicTable({ visible, updateSelectedElements, selectedElements }: Props) {
+  const tableRef = useRef(null)
   const handleClick = (e: MouseEvent) => {
     let elementId: string = (e.target as HTMLElement).id
 
@@ -34,8 +35,6 @@ export default function PeriodicTable({ visible, updateSelectedElements, selecte
 
   }, [selectedElements])
 
-
-  const tableRef = useRef(null)
 
   return (
     <div className={`${visible ? "block" : "hidden"} w-full`} >

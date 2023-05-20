@@ -16,3 +16,15 @@
 td:not(:empty) {
   @apply border border-ptx
 }
+
+.modebar-btn {
+  @apply !p-0 !m-0
+}
+
+.modebar-btn:before, .modebar-btn:after {
+  @apply !hidden
+}
+
+.notifier-note {
+  @apply hidden
+}

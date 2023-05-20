@@ -1,12 +1,12 @@
 import { FileProps } from "../utils/interfaces"
 import { IconFile } from "@tabler/icons-react"
 import File from "./File"
-import { ChartData } from "chart.js"
 import { IconX } from "@tabler/icons-react"
+import { ScatterData } from "plotly.js"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<ChartData<'scatter'>>>,
-  currentXRFData: ChartData<'scatter'>,
+  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
+  currentXRFData: Partial<ScatterData>[],
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
   fileData: FileProps[]
 }
@@ -14,9 +14,8 @@ interface Props {
 export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData }: Props) {
   const removeFile = (index: number) => {
     let newFileData = fileData.filter((_e, i) => i != index)
-    let newXRFData = {
-      datasets: currentXRFData.datasets.filter((_e, i) => i != index)
-    }
+    let newXRFData = currentXRFData.filter((_e, i) => i != index)
+
     localStorage.setItem("fileData", JSON.stringify(newFileData))
     localStorage.setItem("currentXRFData", JSON.stringify(newXRFData))
     updateFileData(newFileData)
