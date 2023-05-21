@@ -1,5 +1,14 @@
 import Plot from 'react-plotly.js';
-import { Config, Layout, ScatterData } from 'plotly.js'
+import Plotly, { Config, Layout, PlotMouseEvent, ScatterData } from 'plotly.js'
+import { elementSymbols } from '@/data/elementData';
+import { useRef } from 'react';
+import { sortElementDataByAtomicNumber } from '@/utils/converters';
+
+interface Props {
+  plotData: Partial<ScatterData>[]
+  elementData: Partial<ScatterData>[]
+  updateElementData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
+}
 
 const config: Partial<Config> = {
   showTips: false,
@@ -51,24 +60,70 @@ const layout: Partial<Layout> = {
     showline: true,
     mirror: 'ticks',
     title: {
-      text: "Intensity, a.u."
+      text: "Intensity, cnts."
     },
     exponentformat: "none",
     showexponent: 'all'
   },
+  modebar: {
+    orientation: "h"
+  },
+  hidesources: true,
+  hovermode: "closest",
+  hoverdistance: -1
 }
 
 const style = {
   height: "100%"
 }
 
-export default function ScatterPlot({ plotData }: { plotData: Partial<ScatterData>[] }) {
+export default function ScatterPlot({ plotData, elementData, updateElementData }: Props) {
+  const mainPlot = useRef(null)
+  const toggleLineAnnotation = (data: Readonly<PlotMouseEvent>) => {
+    if (elementSymbols.includes(data.points[0].data.name)) {
+      console.log(data)
+      let trace = data.points[0]
+      let curveNumber = trace.curveNumber
+      // @ts-ignore
+      let points = trace.fullData.selectedpoints
+      let hoverPoints = points.map((e: number[]) => { return { curveNumber: curveNumber, pointNumber: e } })
+      // @ts-ignore
+      Plotly.Fx.hover("plotMain", [...hoverPoints, { curveNumber: curveNumber, pointNumber: data.points[0].pointNumber }])
+    }
+  }
+
+  const selectPoints = (data: Readonly<PlotMouseEvent>) => {
+    let point = data.points[0].pointIndex
+    let trace = data.points[0].curveNumber
+    // @ts-ignore
+    let traceName: string = data.points[0].fullData.name
+    let unmodifiedElementData = elementData.filter(e => e.name !== traceName)
+    let newElementData = elementData.filter(e => e.name === traceName)[0]
+    let previouslySelectedPoints = newElementData.selectedpoints
+    if (previouslySelectedPoints && previouslySelectedPoints.length) {
+      if (!previouslySelectedPoints.includes(point)) {
+        newElementData.selectedpoints = [...previouslySelectedPoints, point]
+      } else {
+        newElementData.selectedpoints = previouslySelectedPoints.filter(e => e != point)
+      }
+    } else {
+      newElementData.selectedpoints = [point]
+    }
+    const updatedElementData = [...unmodifiedElementData, newElementData].sort(sortElementDataByAtomicNumber)
+    console.log(updatedElementData)
+    updateElementData(updatedElementData)
+  }
+
   return (
     <Plot
+      ref={mainPlot}
       style={style}
+      divId='plotMain'
       data={plotData}
       layout={layout}
       config={config}
+      onHover={toggleLineAnnotation}
+      onClick={selectPoints}
     />
   )
 }

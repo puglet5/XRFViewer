@@ -1,4 +1,4 @@
-import { emissionLinesData } from "../data/elementData"
+import { elementSymbols, emissionLinesData } from "../data/elementData"
 import { emissionLinePlotData, emissionLinePlotLabels } from "../data/emissionLinePlotData"
 import { ScatterData } from "plotly.js"
 
@@ -43,6 +43,19 @@ export const constructXRFData = (parsedData: ParsedData, name: string): Partial<
   }
 }
 
+export const sortElementDataByAtomicNumber = (a: Partial<ScatterData>, b: Partial<ScatterData>) => {
+  if (a.name && b.name) {
+    if (elementSymbols.indexOf(a.name) < elementSymbols.indexOf(b.name)) {
+      return -1
+    }
+    if (elementSymbols.indexOf(a.name) < elementSymbols.indexOf(b.name)) {
+      return 1
+    }
+    return 0
+  }
+  else return 0
+}
+
 export const constructElementData = (atomicNumbers: number[], scaleFactor: number): Partial<ScatterData>[] => {
   const elementIndices = atomicNumbers.map((e) => emissionLinesData.elements.findIndex(x => x.atomicNumber === e)).filter((e) => e >= 0)
 
@@ -70,6 +83,7 @@ export const constructElementData = (atomicNumbers: number[], scaleFactor: numbe
       fill: "none",
       name: elements[i].symbol,
       text: text,
+      selectedpoints: []
     }
   })
 

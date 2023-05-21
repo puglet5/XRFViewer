@@ -1,3 +1,5 @@
+// The following data as well as data from ./emissionLinePlotData.ts is taken from https://physics.uwo.ca/~lgonchar/courses/p9826/xdb.pdf
+
 interface Element {
   symbol: string,
   atomicNumber: number

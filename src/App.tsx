@@ -6,8 +6,9 @@ import Controls from "./components/Controls"
 import PeriodicTable from "./components/PeriodicTable"
 import { constructElementData, calculateElementDataScaleFactor } from "./utils/converters"
 import { useHotkeys } from 'react-hotkeys-hook'
-import { PlotData, ScatterData } from "plotly.js"
+import { ScatterData } from "plotly.js"
 import ScatterPlot from "./components/ScatterPlot"
+import { sortElementDataByAtomicNumber } from "./utils/converters"
 
 export default function App() {
   const [selectedElements, setSelectedElements] = useState<number[]>([])
@@ -35,11 +36,12 @@ export default function App() {
     const elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
     localStorage.setItem("elementScaleFactor", JSON.stringify(elementScaleFactor))
-    setCurrentElementData(constructElementData(selectedElements, elementScaleFactor))
+    setCurrentElementData(constructElementData(selectedElements.sort((a, b) => a - b), elementScaleFactor))
     setPlotData([...currentXRFData, ...currentElementData])
   }, [selectedElements, currentXRFData])
 
-  useHotkeys("ctrl+p", () => setPeriodicTableVisibility(!periodicTableVisibility))
+  useHotkeys("esc", () => setPeriodicTableVisibility(false))
+  useHotkeys("p", () => setPeriodicTableVisibility(!periodicTableVisibility))
 
   if (!currentXRFData.length) {
     const storageXRFData = localStorage.getItem("currentXRFData")
@@ -68,8 +70,9 @@ export default function App() {
       const parsedStorageSelectedElements: number[] = JSON.parse(storageSelectedElements)
       const parsedStorageElementScaleFactor: number = JSON.parse(storageElementScaleFactor)
       if (parsedStorageSelectedElements && parsedStorageSelectedElements.length) {
-        setSelectedElements(parsedStorageSelectedElements)
-        setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1))
+        console.log(parsedStorageSelectedElements.sort((a, b) => a - b))
+        setSelectedElements(parsedStorageSelectedElements.sort((a, b) => a - b))
+        setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1).sort(sortElementDataByAtomicNumber))
       }
     }
   }
@@ -79,7 +82,17 @@ export default function App() {
     <main className="grid grid-cols-12 bg-pbg h-screen ">
       <div className="col-span-2 bg-pbg">
         <div className="h-32 border-b border-ptx flex items-center justify-center">
-          <span>Info</span>
+          <Controls
+            updateXRFData={setCurrentXRFData}
+            updatePeriodicTableVisibility={setPeriodicTableVisibility}
+            updateFileData={setFileData}
+            updateSelectedElements={setSelectedElements}
+            updatePlotData={setPlotData}
+            currentXRFData={currentXRFData}
+            periodicTableVisibility={periodicTableVisibility}
+            selectedElements={selectedElements}
+            fileData={fileData}
+          />
         </div>
         <FileDrawer
           fileData={fileData}
@@ -97,21 +110,12 @@ export default function App() {
         </div>
       </div>
       <div className="col-span-10">
-        <div className="h-16 bg-pbg flex p-8 border-b border-l border-ptx">
-          <div className="flex items-center justify-center ">
-            <Controls
-              updateXRFData={setCurrentXRFData}
-              updateFileData={setFileData}
-              updateSelectedElements={setSelectedElements}
-              updatePlotData={setPlotData}
-              currentXRFData={currentXRFData}
-              selectedElements={selectedElements}
-              fileData={fileData}
-            />
-          </div>
-        </div>
-        <div className="border-l border-ptx bg-pbg h-[48rem]">
-          <ScatterPlot plotData={plotData} />
+        <div className="border-l border-ptx bg-pbg 2xl:h-1/2 h-full">
+          <ScatterPlot
+            plotData={plotData}
+            elementData={currentElementData}
+            updateElementData={setCurrentElementData}
+          />
         </div>
         <div>
           <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />

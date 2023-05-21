@@ -1,6 +1,8 @@
-import { IconReload, IconCalculator } from "@tabler/icons-react"
+import { IconReload } from "@tabler/icons-react"
 import { FileProps } from "../utils/interfaces"
 import { ScatterData } from "plotly.js"
+import { IconBorderAll } from "@tabler/icons-react"
+
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
@@ -9,10 +11,12 @@ interface Props {
   fileData: FileProps[],
   updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>,
   selectedElements: number[],
+  periodicTableVisibility: boolean
   updatePlotData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
+  updatePeriodicTableVisibility: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function Controls({ updateXRFData, currentXRFData, updateFileData, fileData, updateSelectedElements, selectedElements, updatePlotData }: Props) {
+export default function Controls({ updateXRFData, currentXRFData, updateFileData, fileData, updateSelectedElements, selectedElements, updatePlotData, updatePeriodicTableVisibility, periodicTableVisibility }: Props) {
   const resetPlotData = () => {
     localStorage.clear()
     updatePlotData([])
@@ -23,7 +27,6 @@ export default function Controls({ updateXRFData, currentXRFData, updateFileData
   return (
     <div className="flex space-x-2">
       <span className="my-auto">
-        Controls
       </span>
       <button
         onClick={resetPlotData}
@@ -31,9 +34,11 @@ export default function Controls({ updateXRFData, currentXRFData, updateFileData
         className="disabled:text-sfg text-acc">
         <IconReload />
       </button>
-
-      <button className="disabled:text-sfg text-acc">
-        <IconCalculator></IconCalculator>
+      <button
+        onClick={() => updatePeriodicTableVisibility(true)}
+        disabled={periodicTableVisibility}
+        className="disabled:text-sfg text-acc">
+        <IconBorderAll/>
       </button>
 
     </div>
