@@ -79,17 +79,17 @@ const style = {
 export default function ScatterPlot({ plotData, elementData, updateElementData }: Props) {
   const mainPlot = useRef(null)
   const showLineHoverLabels = (data: Readonly<PlotMouseEvent>) => {
-    let elementDataIndices = plotData.flatMap((e, i) => elementSymbols.includes(e.name!) ? i : [])
-    let allHoverPoints = elementDataIndices.flatMap((e) => {
-      let trace = e
-      let points = plotData[e].selectedpoints
+    const elementDataIndices = plotData.flatMap((e, i) => elementSymbols.includes(e.name!) ? i : [])
+    const allHoverPoints = elementDataIndices.flatMap((e) => {
+      const trace = e
+      const points = plotData[e].selectedpoints
       // @ts-ignore
-      let hoverPoints = points.map((e: number[]) => { return { curveNumber: trace, pointNumber: e } })
+      const hoverPoints = points.map((e: number[]) => { return { curveNumber: trace, pointNumber: e } })
       return hoverPoints
     })
-    let currentHoveredPointData = data.points[0]
+    const currentHoveredPointData = data.points[0]
 
-    let currentHoveredCurveNumber = currentHoveredPointData.curveNumber
+    const currentHoveredCurveNumber = currentHoveredPointData.curveNumber
 
     // @ts-ignore
     Plotly.Fx.hover("plotMain", [...allHoverPoints, { curveNumber: currentHoveredCurveNumber, pointNumber: data.points[0].pointNumber }])
@@ -97,13 +97,13 @@ export default function ScatterPlot({ plotData, elementData, updateElementData }
 
   const selectPoints = (data: Readonly<PlotMouseEvent>) => {
     // @ts-ignore
-    let traceName: string = data.points[0].fullData.name
+    const traceName: string = data.points[0].fullData.name
     if (!elementSymbols.includes(traceName)) { return }
-    let point = data.points[0].pointIndex
-    let trace = data.points[0].curveNumber
-    let unmodifiedElementData = elementData.filter(e => e.name !== traceName)
-    let newElementData = elementData.filter(e => e.name === traceName)[0]
-    let previouslySelectedPoints = newElementData.selectedpoints
+    const point = data.points[0].pointIndex
+    const trace = data.points[0].curveNumber
+    const unmodifiedElementData = elementData.filter(e => e.name !== traceName)
+    const newElementData = elementData.filter(e => e.name === traceName)[0]
+    const previouslySelectedPoints = newElementData.selectedpoints
     if (previouslySelectedPoints && previouslySelectedPoints.length) {
       if (!previouslySelectedPoints.includes(point)) {
         newElementData.selectedpoints = [...previouslySelectedPoints, point]
