@@ -69,7 +69,6 @@ const layout: Partial<Layout> = {
     orientation: "h"
   },
   hidesources: true,
-  hovermode: "closest",
   hoverdistance: -1
 }
 
@@ -79,24 +78,29 @@ const style = {
 
 export default function ScatterPlot({ plotData, elementData, updateElementData }: Props) {
   const mainPlot = useRef(null)
-  const toggleLineAnnotation = (data: Readonly<PlotMouseEvent>) => {
-    if (elementSymbols.includes(data.points[0].data.name)) {
-      console.log(data)
-      let trace = data.points[0]
-      let curveNumber = trace.curveNumber
+  const showLineHoverLabels = (data: Readonly<PlotMouseEvent>) => {
+    let elementDataIndices = plotData.flatMap((e, i) => elementSymbols.includes(e.name!) ? i : [])
+    let allHoverPoints = elementDataIndices.flatMap((e) => {
+      let trace = e
+      let points = plotData[e].selectedpoints
       // @ts-ignore
-      let points = trace.fullData.selectedpoints
-      let hoverPoints = points.map((e: number[]) => { return { curveNumber: curveNumber, pointNumber: e } })
-      // @ts-ignore
-      Plotly.Fx.hover("plotMain", [...hoverPoints, { curveNumber: curveNumber, pointNumber: data.points[0].pointNumber }])
-    }
+      let hoverPoints = points.map((e: number[]) => { return { curveNumber: trace, pointNumber: e } })
+      return hoverPoints
+    })
+    let currentHoveredPointData = data.points[0]
+
+    let currentHoveredCurveNumber = currentHoveredPointData.curveNumber
+
+    // @ts-ignore
+    Plotly.Fx.hover("plotMain", [...allHoverPoints, { curveNumber: currentHoveredCurveNumber, pointNumber: data.points[0].pointNumber }])
   }
 
   const selectPoints = (data: Readonly<PlotMouseEvent>) => {
-    let point = data.points[0].pointIndex
-    let trace = data.points[0].curveNumber
     // @ts-ignore
     let traceName: string = data.points[0].fullData.name
+    if (!elementSymbols.includes(traceName)) { return }
+    let point = data.points[0].pointIndex
+    let trace = data.points[0].curveNumber
     let unmodifiedElementData = elementData.filter(e => e.name !== traceName)
     let newElementData = elementData.filter(e => e.name === traceName)[0]
     let previouslySelectedPoints = newElementData.selectedpoints
@@ -110,9 +114,10 @@ export default function ScatterPlot({ plotData, elementData, updateElementData }
       newElementData.selectedpoints = [point]
     }
     const updatedElementData = [...unmodifiedElementData, newElementData].sort(sortElementDataByAtomicNumber)
-    console.log(updatedElementData)
     updateElementData(updatedElementData)
   }
+
+  console.log(plotData)
 
   return (
     <Plot
@@ -122,7 +127,7 @@ export default function ScatterPlot({ plotData, elementData, updateElementData }
       data={plotData}
       layout={layout}
       config={config}
-      onHover={toggleLineAnnotation}
+      onHover={showLineHoverLabels}
       onClick={selectPoints}
     />
   )

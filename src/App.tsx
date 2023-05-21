@@ -70,7 +70,6 @@ export default function App() {
       const parsedStorageSelectedElements: number[] = JSON.parse(storageSelectedElements)
       const parsedStorageElementScaleFactor: number = JSON.parse(storageElementScaleFactor)
       if (parsedStorageSelectedElements && parsedStorageSelectedElements.length) {
-        console.log(parsedStorageSelectedElements.sort((a, b) => a - b))
         setSelectedElements(parsedStorageSelectedElements.sort((a, b) => a - b))
         setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1).sort(sortElementDataByAtomicNumber))
       }
