@@ -8,8 +8,8 @@ interface ParsedData {
 }
 
 const generateLinspace = (startValue: number, stopValue: number, cardinality: number) => {
-  let arr = []
-  let step = (stopValue - startValue) / (cardinality - 1)
+  const arr = []
+  const step = (stopValue - startValue) / (cardinality - 1)
   for (let i = 0; i < cardinality; i++) {
     arr.push(startValue + (step * i))
   }
@@ -44,16 +44,16 @@ export const constructXRFData = (parsedData: ParsedData, name: string): Partial<
 }
 
 export const constructElementData = (atomicNumbers: number[], scaleFactor: number): Partial<ScatterData>[] => {
-  let elementIndices = atomicNumbers.map((e) => emissionLinesData.elements.findIndex(x => x.atomicNumber === e)).filter((e) => e >= 0)
+  const elementIndices = atomicNumbers.map((e) => emissionLinesData.elements.findIndex(x => x.atomicNumber === e)).filter((e) => e >= 0)
 
-  let elements = elementIndices.map((i) => emissionLinesData.elements[i])
+  const elements = elementIndices.map((i) => emissionLinesData.elements[i])
 
 
-  let plotData = elementIndices.flatMap((e, i) => {
-    let lineData = emissionLinePlotData[e]
-    let text = lineData.x.map((x, pos) => {
+  const plotData = elementIndices.flatMap((e, i) => {
+    const lineData = emissionLinePlotData[e]
+    const text = lineData.x.map((x, pos) => {
       if (pos % 3 - 1 === 0) {
-        let label = emissionLinePlotLabels[e][(pos - 1) / 3].split(" ")
+        const label = emissionLinePlotLabels[e][(pos - 1) / 3].split(" ")
         if (!label[1]) {
           return `${x.toFixed(2).toString()} ${elements[i].symbol} (${label[0]})`
         } else {
@@ -78,8 +78,8 @@ export const constructElementData = (atomicNumbers: number[], scaleFactor: numbe
 }
 
 export const calculateElementDataScaleFactor = (XRFData: Partial<ScatterData>[]): number => {
-  let data = XRFData.flatMap(e => e.y as any).filter(e => e)
+  const data = XRFData.flatMap(e => e.y as number[]).filter(e => e)
   if (!data || !data.length) { return 1 }
-  let scaleFactor = Math.max(...data as number[])
+  const scaleFactor = Math.max(...data as number[])
   return scaleFactor / 2
 }

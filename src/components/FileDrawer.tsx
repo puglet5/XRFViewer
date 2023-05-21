@@ -13,8 +13,8 @@ interface Props {
 
 export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData }: Props) {
   const removeFile = (index: number) => {
-    let newFileData = fileData.filter((_e, i) => i != index)
-    let newXRFData = currentXRFData.filter((_e, i) => i != index)
+    const newFileData = fileData.filter((_e, i) => i != index)
+    const newXRFData = currentXRFData.filter((_e, i) => i != index)
 
     localStorage.setItem("fileData", JSON.stringify(newFileData))
     localStorage.setItem("currentXRFData", JSON.stringify(newXRFData))

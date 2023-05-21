@@ -4,7 +4,7 @@ export interface Point {
 }
 
 export interface FileProps {
-  id: number
+  id: string
   name: string
   size: number
   isDisplayed: boolean

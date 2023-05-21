@@ -10,28 +10,30 @@ interface Props {
 export default function PeriodicTable({ visible, updateSelectedElements, selectedElements }: Props) {
   const tableRef = useRef(null)
   const handleClick = (e: MouseEvent) => {
-    let elementId: string = (e.target as HTMLElement).id
-
-    let elementCell = Array.from((tableRef.current! as HTMLTableElement).getElementsByTagName("td")).filter(e => e.id === elementId)[0]
-
-    if (elementId) {
-      let elementNumber = Number(elementId)
-      if (selectedElements.includes(elementNumber)) {
-        let newSelectedElements = selectedElements.filter(e => e !== elementNumber)
-        if (!newSelectedElements.length) localStorage.setItem("selectedElements", "[]")
-        updateSelectedElements(newSelectedElements)
-        elementCell.classList.remove("!outline", "!outline-2")
-      } else {
-        updateSelectedElements([...selectedElements, elementNumber])
+    const elementId: string = (e.target as HTMLElement).id
+    if (tableRef.current) {
+      const elementCell = Array.from((tableRef.current as HTMLTableElement).getElementsByTagName("td")).filter(e => e.id === elementId)[0]
+      if (elementId) {
+        const elementNumber = Number(elementId)
+        if (selectedElements.includes(elementNumber)) {
+          const newSelectedElements = selectedElements.filter(e => e !== elementNumber)
+          if (!newSelectedElements.length) localStorage.setItem("selectedElements", "[]")
+          updateSelectedElements(newSelectedElements)
+          elementCell.classList.remove("!outline", "!outline-2")
+        } else {
+          updateSelectedElements([...selectedElements, elementNumber])
+        }
       }
-    }
+    } else { return }
   }
 
   useEffect(() => {
-    let elementCells = Array.from((tableRef.current! as HTMLTableElement).getElementsByTagName("td")).filter(e => selectedElements.includes(Number(e.id)))
+    if (tableRef.current) {
+      const elementCells = Array.from((tableRef.current as HTMLTableElement).getElementsByTagName("td")).filter(e => selectedElements.includes(Number(e.id)))
 
-    elementCells.map(e => e.classList.add("!outline", "!outline-2")
-    )
+      elementCells.map(e => e.classList.add("!outline", "!outline-2")
+      )
+    }
 
   }, [selectedElements])
 

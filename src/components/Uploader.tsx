@@ -5,6 +5,7 @@ import { FileProps } from "../utils/interfaces"
 import { DragDrop } from "@uppy/react"
 import { constructXRFData } from "../utils/converters"
 import { ScatterData } from "plotly.js"
+import { UppyFile } from "@uppy/core"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
@@ -22,10 +23,9 @@ const uppy = new Uppy({
 })
 
 export default function Uploader({ updateXRFData, updateFileData, fileData }: Props) {
-
   useEffect(() => {
-    const handler = (files: any[]) => {
-      let newFileData: FileProps[] = files.map((e) => {
+    const handler = (files: UppyFile[]) => {
+      const newFileData: FileProps[] = files.map((e) => {
         return {
           id: e.id,
           name: e.name,
@@ -41,7 +41,7 @@ export default function Uploader({ updateXRFData, updateFileData, fileData }: Pr
         reader.readAsText(e.data)
         reader.onload = () => {
           if (reader.result) {
-            updateXRFData((prevData) => ([...prevData, constructXRFData(convertDat(reader.result! as string), e.name.split(".")[0])]))
+            updateXRFData((prevData) => ([...prevData, constructXRFData(convertDat(reader.result as string), e.name.split(".")[0])]))
           }
         }
       })

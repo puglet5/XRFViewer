@@ -6,7 +6,7 @@ import Controls from "./components/Controls"
 import PeriodicTable from "./components/PeriodicTable"
 import { constructElementData, calculateElementDataScaleFactor } from "./utils/converters"
 import { useHotkeys } from 'react-hotkeys-hook'
-import { ScatterData } from "plotly.js"
+import { PlotData, ScatterData } from "plotly.js"
 import ScatterPlot from "./components/ScatterPlot"
 
 export default function App() {
@@ -32,7 +32,7 @@ export default function App() {
   }, [currentXRFData, fileData])
 
   useEffect(() => {
-    let elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
+    const elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
     localStorage.setItem("elementScaleFactor", JSON.stringify(elementScaleFactor))
     setCurrentElementData(constructElementData(selectedElements, elementScaleFactor))
@@ -42,29 +42,35 @@ export default function App() {
   useHotkeys("ctrl+p", () => setPeriodicTableVisibility(!periodicTableVisibility))
 
   if (!currentXRFData.length) {
-    let storageXRFData = localStorage.getItem("currentXRFData")
-    let parsedStrorageXRFData = JSON.parse(storageXRFData!)
-    if (parsedStrorageXRFData && parsedStrorageXRFData.length) {
-      setCurrentXRFData(parsedStrorageXRFData)
+    const storageXRFData = localStorage.getItem("currentXRFData")
+    if (storageXRFData) {
+      const parsedStrorageXRFData: Partial<ScatterData>[] = JSON.parse(storageXRFData)
+      if (parsedStrorageXRFData && parsedStrorageXRFData.length) {
+        setCurrentXRFData(parsedStrorageXRFData)
+      }
     }
   }
 
   if (!fileData.length) {
-    let storageFileData = localStorage.getItem("fileData")
-    let parsedStorageFileData = JSON.parse(storageFileData!)
-    if (parsedStorageFileData && parsedStorageFileData.length) {
-      setFileData(parsedStorageFileData)
+    const storageFileData = localStorage.getItem("fileData")
+    if (storageFileData) {
+      const parsedStorageFileData: FileProps[] = JSON.parse(storageFileData)
+      if (parsedStorageFileData && parsedStorageFileData.length) {
+        setFileData(parsedStorageFileData)
+      }
     }
   }
 
   if (!selectedElements.length) {
-    let storageSelectedElements = localStorage.getItem("selectedElements")
-    let storageElementScaleFactor = localStorage.getItem("elementScaleFactor")
-    let parsedStorageSelectedElements: number[] = JSON.parse(storageSelectedElements!)
-    let parsedStorageElementScaleFactor: number = JSON.parse(storageElementScaleFactor!)
-    if (parsedStorageSelectedElements && parsedStorageSelectedElements.length) {
-      setSelectedElements(parsedStorageSelectedElements)
-      setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1))
+    const storageSelectedElements = localStorage.getItem("selectedElements")
+    const storageElementScaleFactor = localStorage.getItem("elementScaleFactor")
+    if (storageSelectedElements && storageElementScaleFactor) {
+      const parsedStorageSelectedElements: number[] = JSON.parse(storageSelectedElements)
+      const parsedStorageElementScaleFactor: number = JSON.parse(storageElementScaleFactor)
+      if (parsedStorageSelectedElements && parsedStorageSelectedElements.length) {
+        setSelectedElements(parsedStorageSelectedElements)
+        setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1))
+      }
     }
   }
 
