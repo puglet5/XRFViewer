@@ -56,7 +56,7 @@ export const sortElementDataByAtomicNumber = (a: Partial<ScatterData>, b: Partia
   else return 0
 }
 
-export const constructElementData = (atomicNumbers: number[], scaleFactor: number): Partial<ScatterData>[] => {
+export const constructElementData = (atomicNumbers: number[], scaleFactor: number, selectedPoints: (number | undefined)[][]): Partial<ScatterData>[] => {
   const elementIndices = atomicNumbers.map((e) => emissionLinesData.elements.findIndex(x => x.atomicNumber === e)).filter((e) => e >= 0)
 
   const elements = elementIndices.map((i) => emissionLinesData.elements[i])
@@ -83,7 +83,7 @@ export const constructElementData = (atomicNumbers: number[], scaleFactor: numbe
       fill: "none",
       name: elements[i].symbol,
       text: text,
-      selectedpoints: []
+      selectedpoints: selectedPoints[e]
     }
   })
 

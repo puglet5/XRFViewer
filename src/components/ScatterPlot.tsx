@@ -8,6 +8,8 @@ interface Props {
   plotData: Partial<ScatterData>[]
   elementData: Partial<ScatterData>[]
   updateElementData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
+  selectedPoints: (number | undefined)[][]
+  updateSelectedPoints: React.Dispatch<React.SetStateAction<(number | undefined)[][]>>
 }
 
 const config: Partial<Config> = {
@@ -76,7 +78,7 @@ const style = {
   height: "100%"
 }
 
-export default function ScatterPlot({ plotData, elementData, updateElementData }: Props) {
+export default function ScatterPlot({ plotData, elementData, updateElementData, selectedPoints, updateSelectedPoints }: Props) {
   const mainPlot = useRef(null)
   const showLineHoverLabels = (data: Readonly<PlotMouseEvent>) => {
     const elementDataIndices = plotData.flatMap((e, i) => elementSymbols.includes(e.name!) ? i : [])
@@ -101,23 +103,18 @@ export default function ScatterPlot({ plotData, elementData, updateElementData }
     if (!elementSymbols.includes(traceName)) { return }
     const point = data.points[0].pointIndex
     const trace = data.points[0].curveNumber
-    const unmodifiedElementData = elementData.filter(e => e.name !== traceName)
-    const newElementData = elementData.filter(e => e.name === traceName)[0]
-    const previouslySelectedPoints = newElementData.selectedpoints
-    if (previouslySelectedPoints && previouslySelectedPoints.length) {
-      if (!previouslySelectedPoints.includes(point)) {
-        newElementData.selectedpoints = [...previouslySelectedPoints, point]
-      } else {
-        newElementData.selectedpoints = previouslySelectedPoints.filter(e => e != point)
-      }
-    } else {
-      newElementData.selectedpoints = [point]
-    }
-    const updatedElementData = [...unmodifiedElementData, newElementData].sort(sortElementDataByAtomicNumber)
-    updateElementData(updatedElementData)
-  }
+    const elementIndex = elementSymbols.indexOf(traceName)
+    const pointsToUpdate = selectedPoints
 
-  console.log(plotData)
+    if (!pointsToUpdate[elementIndex].includes(point)) {
+      pointsToUpdate[elementIndex] = [...pointsToUpdate[elementIndex], point]
+      updateSelectedPoints([...pointsToUpdate])
+    } else {
+      pointsToUpdate[elementIndex] = pointsToUpdate[elementIndex].filter(e => e != point)
+      updateSelectedPoints([...pointsToUpdate])
+    }
+    localStorage.setItem("selectedElementPoints", JSON.stringify(pointsToUpdate))
+  }
 
   return (
     <Plot

@@ -9,6 +9,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { ScatterData } from "plotly.js"
 import ScatterPlot from "./components/ScatterPlot"
 import { sortElementDataByAtomicNumber } from "./utils/converters"
+import { emissionLinePlotData } from "./data/emissionLinePlotData"
 
 export default function App() {
   const [selectedElements, setSelectedElements] = useState<number[]>([])
@@ -17,6 +18,7 @@ export default function App() {
   const [fileData, setFileData] = useState<FileProps[]>([])
   const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
   const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(false)
+  const [selectedElementPoints, setSelectedElementPoints] = useState<(number | undefined)[][]>(Array.from({ length: emissionLinePlotData.length }, () => []))
 
   useEffect(() => {
     setPlotData([...currentXRFData, ...currentElementData])
@@ -36,9 +38,23 @@ export default function App() {
     const elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
     localStorage.setItem("elementScaleFactor", JSON.stringify(elementScaleFactor))
-    setCurrentElementData(constructElementData(selectedElements.sort((a, b) => a - b), elementScaleFactor))
+    setCurrentElementData(constructElementData(selectedElements.sort((a, b) => a - b), elementScaleFactor, selectedElementPoints))
     setPlotData([...currentXRFData, ...currentElementData])
   }, [selectedElements, currentXRFData])
+
+  useEffect(() => {
+    const elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
+    setCurrentElementData(constructElementData(selectedElements.sort((a, b) => a - b), elementScaleFactor, selectedElementPoints))
+    setPlotData([...currentXRFData, ...currentElementData])
+  }, [selectedElementPoints])
+
+  useEffect(() => {
+    const storageSelectedElementPoints = localStorage.getItem("selectedElementPoints")
+    if (storageSelectedElementPoints) {
+      const parsedStorageSelectedElementPoints: (number | undefined)[][] = JSON.parse(storageSelectedElementPoints)
+      setSelectedElementPoints(parsedStorageSelectedElementPoints)
+    }
+  }, [])
 
   useHotkeys("esc", () => setPeriodicTableVisibility(false))
   useHotkeys("p", () => setPeriodicTableVisibility(!periodicTableVisibility))
@@ -71,11 +87,23 @@ export default function App() {
       const parsedStorageElementScaleFactor: number = JSON.parse(storageElementScaleFactor)
       if (parsedStorageSelectedElements && parsedStorageSelectedElements.length) {
         setSelectedElements(parsedStorageSelectedElements.sort((a, b) => a - b))
-        setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1).sort(sortElementDataByAtomicNumber))
+        setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1, selectedElementPoints).sort(sortElementDataByAtomicNumber))
       }
     }
   }
 
+  if (!selectedElementPoints.length) {
+    const storageSelectedElements = localStorage.getItem("selectedElements")
+    const storageElementScaleFactor = localStorage.getItem("elementScaleFactor")
+    if (storageSelectedElements && storageElementScaleFactor) {
+      const parsedStorageSelectedElements: number[] = JSON.parse(storageSelectedElements)
+      const parsedStorageElementScaleFactor: number = JSON.parse(storageElementScaleFactor)
+      if (parsedStorageSelectedElements && parsedStorageSelectedElements.length) {
+        setSelectedElements(parsedStorageSelectedElements.sort((a, b) => a - b))
+        setCurrentElementData(constructElementData(selectedElements, parsedStorageElementScaleFactor || 1, selectedElementPoints).sort(sortElementDataByAtomicNumber))
+      }
+    }
+  }
 
   return (
     <main className="grid grid-cols-12 bg-pbg h-screen ">
@@ -86,10 +114,12 @@ export default function App() {
             updatePeriodicTableVisibility={setPeriodicTableVisibility}
             updateFileData={setFileData}
             updateSelectedElements={setSelectedElements}
+            updateSelectedElementPoints={setSelectedElementPoints}
             updatePlotData={setPlotData}
             currentXRFData={currentXRFData}
             periodicTableVisibility={periodicTableVisibility}
             selectedElements={selectedElements}
+            selectedElementPoints={selectedElementPoints}
             fileData={fileData}
           />
         </div>
@@ -114,6 +144,8 @@ export default function App() {
             plotData={plotData}
             elementData={currentElementData}
             updateElementData={setCurrentElementData}
+            updateSelectedPoints={setSelectedElementPoints}
+            selectedPoints={selectedElementPoints}
           />
         </div>
         <div>
