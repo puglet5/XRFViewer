@@ -78,12 +78,17 @@ export const constructElementData = (atomicNumbers: number[], scaleFactor: numbe
       x: lineData.x,
       y: lineData.y.map(e => e * scaleFactor),
       type: "scatter",
-      mode: "lines",
+      mode: "lines+markers",
       hoverinfo: "text",
       fill: "none",
       name: elements[i].symbol,
       text: text,
-      selectedpoints: selectedPoints[e]
+      selectedpoints: selectedPoints[e],
+      unselected: {
+        marker: {
+          size: 0
+        }
+      },
     }
   })
 

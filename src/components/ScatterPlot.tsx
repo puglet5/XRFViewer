@@ -1,8 +1,10 @@
-import Plot from 'react-plotly.js';
+import Plot from 'react-plotly.js'
 import Plotly, { Config, Layout, PlotMouseEvent, ScatterData } from 'plotly.js'
-import { elementSymbols } from '@/data/elementData';
-import { useRef } from 'react';
-import { sortElementDataByAtomicNumber } from '@/utils/converters';
+import { elementSymbols } from '@/data/elementData'
+import { useEffect, useRef, useState } from 'react'
+import { sortElementDataByAtomicNumber } from '@/utils/converters'
+import html2canvas from 'html2canvas'
+import { IconDeviceFloppy, IconCopy, IconTags } from '@tabler/icons-react'
 
 interface Props {
   plotData: Partial<ScatterData>[]
@@ -15,11 +17,11 @@ interface Props {
 const config: Partial<Config> = {
   showTips: false,
   scrollZoom: true,
-  editable: false,
   displaylogo: false,
   modeBarButtonsToRemove: ['zoom2d', "autoScale2d", "lasso2d", "select2d", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d"],
   modeBarButtonsToAdd: ["hoverclosest", "hovercompare"],
   responsive: true,
+  displayModeBar: false,
   toImageButtonOptions: {
     format: 'png',
     filename: 'XRFViewer_data',
@@ -33,7 +35,7 @@ const layout: Partial<Layout> = {
     l: 100,
     r: 20,
     b: 60,
-    t: 40,
+    t: 10,
     pad: 0
   },
   title: "",
@@ -45,7 +47,7 @@ const layout: Partial<Layout> = {
     borderwidth: 1,
     xanchor: 'right',
     x: 0.99,
-    y: 0.99
+    y: 0.99,
   },
   xaxis: {
     showgrid: true,
@@ -78,23 +80,48 @@ const style = {
   height: "100%"
 }
 
-export default function ScatterPlot({ plotData, elementData, updateElementData, selectedPoints, updateSelectedPoints }: Props) {
+export default function ScatterPlot(
+  {
+    plotData,
+    elementData,
+    updateElementData,
+    selectedPoints,
+    updateSelectedPoints,
+  }: Props) {
   const mainPlot = useRef(null)
-  const showLineHoverLabels = (data: Readonly<PlotMouseEvent>) => {
+  const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(!!JSON.parse(localStorage.getItem("lineLabelsVisibility")!))
+
+  const toggleLineHoverLabels = () => {
     const elementDataIndices = plotData.flatMap((e, i) => elementSymbols.includes(e.name!) ? i : [])
-    const allHoverPoints = elementDataIndices.flatMap((e) => {
-      const trace = e
-      const points = plotData[e].selectedpoints
+    if (!lineLabelsVisibility) {
+      const allHoverPoints = elementDataIndices.flatMap((e) => {
+        const trace = e
+        const points = plotData[e].selectedpoints
+        // @ts-ignore
+        const hoverPoints = points.map((e: number[]) => { return { curveNumber: trace, pointNumber: e } })
+        return hoverPoints
+      })
+
       // @ts-ignore
-      const hoverPoints = points.map((e: number[]) => { return { curveNumber: trace, pointNumber: e } })
-      return hoverPoints
-    })
-    const currentHoveredPointData = data.points[0]
-
-    const currentHoveredCurveNumber = currentHoveredPointData.curveNumber
-
-    // @ts-ignore
-    Plotly.Fx.hover("plotMain", [...allHoverPoints, { curveNumber: currentHoveredCurveNumber, pointNumber: data.points[0].pointNumber }])
+      Plotly.Fx.hover("plotMain", allHoverPoints)
+      try {
+        // @ts-ignore
+        Plotly.restyle("plotMain", { selected: { marker: { opacity: 0 } } })
+      } catch (TypeError) {
+        console.log("Caught plotly restyle TypeError")
+      }
+    } else {
+      try {
+        // @ts-ignore
+        Plotly.restyle("plotMain", { selected: { marker: { opacity: 1 } } })
+      } catch (TypeError) {
+        console.log("Caught plotly restyle TypeError")
+      }
+      // @ts-ignore
+      Plotly.Fx.hover("plotMain", [])
+    }
+    setLineLabelsVisibility(!lineLabelsVisibility)
+    localStorage.setItem("lineLabelsVisibility", JSON.stringify(true))
   }
 
   const selectPoints = (data: Readonly<PlotMouseEvent>) => {
@@ -116,16 +143,59 @@ export default function ScatterPlot({ plotData, elementData, updateElementData, 
     localStorage.setItem("selectedElementPoints", JSON.stringify(pointsToUpdate))
   }
 
+  const resetLineLabelVisibility = () => {
+    if (JSON.parse(localStorage.getItem("lineLabelsVisibility")!)) {
+      try {
+        // @ts-ignore
+        Plotly.restyle("plotMain", { selected: { marker: { opacity: 1 } } })
+      } catch (TypeError) {
+        console.log("Plotly restyle TypeError")
+      }
+    }
+    setLineLabelsVisibility(false)
+    localStorage.setItem("lineLabelsVisibility", JSON.stringify(false))
+  }
+
+  const savePlotImage = () => {
+    const plotDiv = document.getElementById("plotMain")!
+    html2canvas(plotDiv).then((canvas) => {
+      const url = canvas.toDataURL()
+      const a = document.createElement("a")
+      a.download = "XRFViewer_data"
+      a.href = url
+      document.body.appendChild(a)
+      a.click()
+    })
+  }
+
+  const copyPlotImage = () => {
+    const plotDiv = document.getElementById("plotMain")!
+    html2canvas(plotDiv).then(canvas => canvas.toBlob(blob => navigator.clipboard.write(
+      [new ClipboardItem({ 'image/png': blob! })]
+    )))
+  }
+
   return (
-    <Plot
-      ref={mainPlot}
-      style={style}
-      divId='plotMain'
-      data={plotData}
-      layout={layout}
-      config={config}
-      onHover={showLineHoverLabels}
-      onClick={selectPoints}
-    />
+    <>
+      <button onClick={toggleLineHoverLabels}>
+        <IconTags></IconTags>
+      </button>
+      <button onClick={savePlotImage}>
+        <IconDeviceFloppy></IconDeviceFloppy>
+      </button>
+      <button onClick={copyPlotImage}>
+        <IconCopy></IconCopy>
+      </button>
+      <Plot
+        ref={mainPlot}
+        style={style}
+        divId='plotMain'
+        data={plotData}
+        layout={layout}
+        config={config}
+        onClick={selectPoints}
+        onHover={resetLineLabelVisibility}
+      />
+    </>
   )
 }
