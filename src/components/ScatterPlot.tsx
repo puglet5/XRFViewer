@@ -4,7 +4,8 @@ import { elementSymbols } from '@/data/elementData'
 import { useEffect, useRef, useState } from 'react'
 import { sortElementDataByAtomicNumber } from '@/utils/converters'
 import html2canvas from 'html2canvas'
-import { IconDeviceFloppy, IconCopy, IconTags } from '@tabler/icons-react'
+import { IconDeviceFloppy, IconCopy, IconTags, IconTagOff } from '@tabler/icons-react'
+import { emissionLinePlotData } from '@/data/emissionLinePlotData'
 
 interface Props {
   plotData: Partial<ScatterData>[]
@@ -73,11 +74,12 @@ const layout: Partial<Layout> = {
     orientation: "h"
   },
   hidesources: true,
-  hoverdistance: -1
-}
-
-const style = {
-  height: "100%"
+  hoverdistance: -1,
+  hoverlabel: {
+    font: {
+      size: 9
+    },
+  }
 }
 
 export default function ScatterPlot(
@@ -172,13 +174,22 @@ export default function ScatterPlot(
     const plotDiv = document.getElementById("plotMain")!
     html2canvas(plotDiv).then(canvas => canvas.toBlob(blob => navigator.clipboard.write(
       [new ClipboardItem({ 'image/png': blob! })]
-    )))
+    ), "image/png", 1))
+  }
+
+  const resetPointSelection = () => {
+    const emptyEmissionLineData = Array.from({ length: emissionLinePlotData.length }, () => [])
+    localStorage.setItem("selectedElementPoints", JSON.stringify(emptyEmissionLineData))
+    updateSelectedPoints(emptyEmissionLineData)
   }
 
   return (
     <>
       <button onClick={toggleLineHoverLabels}>
         <IconTags></IconTags>
+      </button>
+      <button onClick={resetPointSelection}>
+        <IconTagOff></IconTagOff>
       </button>
       <button onClick={savePlotImage}>
         <IconDeviceFloppy></IconDeviceFloppy>
@@ -188,11 +199,11 @@ export default function ScatterPlot(
       </button>
       <Plot
         ref={mainPlot}
-        style={style}
         divId='plotMain'
         data={plotData}
         layout={layout}
         config={config}
+        className='aspect-video w-full'
         onClick={selectPoints}
         onHover={resetLineLabelVisibility}
       />

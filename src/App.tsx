@@ -139,7 +139,7 @@ export default function App() {
         </div>
       </div>
       <div className="col-span-10">
-        <div className="border-l border-ptx bg-pbg 2xl:h-1/2 h-full">
+        <div className="border-l border-ptx bg-pbg">
           <ScatterPlot
             plotData={plotData}
             elementData={currentElementData}
