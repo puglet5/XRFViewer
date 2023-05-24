@@ -30,7 +30,8 @@ export default function Uploader({ updateXRFData, updateFileData, fileData }: Pr
           id: e.id,
           name: e.name,
           size: e.size,
-          isDisplayed: true
+          isDisplayed: true,
+          isSelected: false
         }
       })
 

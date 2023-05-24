@@ -2,6 +2,7 @@ import { FileProps } from "../utils/interfaces"
 import { IconCsv, IconFile, IconX } from "@tabler/icons-react"
 import File from "./File"
 import { Datum, ScatterData } from "plotly.js"
+import { useState } from "react"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
@@ -11,19 +12,27 @@ interface Props {
 }
 
 export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData }: Props) {
-  const removeFile = (index: number) => {
-    const newFileData = fileData.filter((_e, i) => i != index)
-    const newXRFData = currentXRFData.filter((_e, i) => i != index)
+  const [selectedFiles, setSelectedFiles] = useState<number[]>([])
+  const removeFile = (fileIndex: number) => {
+    const newFileData = fileData.filter((_e, i) => i != fileIndex)
+    const newXRFData = currentXRFData.filter((_e, i) => i != fileIndex)
     localStorage.setItem("fileData", JSON.stringify(newFileData))
     localStorage.setItem("currentXRFData", JSON.stringify(newXRFData))
     updateFileData(newFileData)
     updateXRFData(newXRFData)
   }
 
+  const toggleFileSelection = (fileIndex: number) => {
+    const newFileData = fileData
+    newFileData[fileIndex].isSelected = !newFileData[fileIndex].isSelected
+    localStorage.setItem("fileData", JSON.stringify(newFileData))
+    updateFileData(newFileData)
+    setSelectedFiles(newFileData.flatMap((e, i) => e.isSelected ? i : []))
+  }
+
   const downloadCSV = (fileIndex: number) => {
     const data = currentXRFData[fileIndex]
-    if (data.x && data.y)
-    {
+    if (data.x && data.y) {
       // @ts-ignore
       const csvData = data.x.map((e, i) => { return [e, data.y[i]].join(",") }).join('\n')
       const blob = new Blob([csvData], { type: 'text/csv' })
@@ -40,8 +49,10 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
       return (
         <div className="text-sm flex justify-between" key={e.id}>
           <div className="grid grid-cols-12 space-x-2 w-full items-center">
-            <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto lg:block hidden" />
-            <File fileData={e} />
+            <button onClick={() => toggleFileSelection(i)}>
+              <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto lg:block hidden" />
+            </button>
+            <File fileData={e} isSelected={e.isSelected} />
             <button onClick={() => removeFile(i)} className="col-span-1 mx-auto place-self-end">
               <IconX />
             </button>

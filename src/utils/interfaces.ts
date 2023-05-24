@@ -8,4 +8,5 @@ export interface FileProps {
   name: string
   size: number
   isDisplayed: boolean
+  isSelected: boolean
 }
