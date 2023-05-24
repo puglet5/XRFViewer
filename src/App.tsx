@@ -1,4 +1,5 @@
 import FileDrawer from "./components/FileDrawer"
+import { Resizable } from 're-resizable'
 import { useState, useEffect } from "react"
 import { FileProps } from "./utils/interfaces"
 import Uploader from "./components/Uploader"
@@ -106,8 +107,19 @@ export default function App() {
   }
 
   return (
-    <main className="grid grid-cols-12 bg-pbg h-screen ">
-      <div className="col-span-2 bg-pbg">
+    <main className="flex bg-pbg h-screen ">
+      <Resizable
+        className=" bg-pbg border-r border-ptx"
+        bounds={"window"}
+        enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+        minWidth={0}
+        snap={{ x: [0, ...Array.from({ length: 200 }, (_v, i) => i + 200)] }}
+        defaultSize={{ width: 300, height: "100%" }}
+        maxWidth={400}
+        handleStyles={{ right: { position: "absolute", width: "40px", height: "100%", top: "0px", cursor: "col-resize", right: "-25px" } }}
+        handleClasses={{ right: "select-none z-10" }}
+        onResizeStop={() => window.dispatchEvent(new Event('resize'))}
+      >
         <div className="h-32 border-b border-ptx flex items-center justify-center">
           <Controls
             updateXRFData={setCurrentXRFData}
@@ -137,9 +149,11 @@ export default function App() {
             fileData={fileData}
           />
         </div>
-      </div>
-      <div className="col-span-10">
-        <div className="border-l border-ptx bg-pbg">
+      </Resizable>
+
+
+      <div className="w-full overflow-hidden h-full">
+        <div className="bg-pbg h-full">
           <ScatterPlot
             plotData={plotData}
             elementData={currentElementData}
@@ -148,9 +162,7 @@ export default function App() {
             selectedPoints={selectedElementPoints}
           />
         </div>
-        <div>
-          <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />
-        </div>
+        <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />
       </div>
     </main >
   )

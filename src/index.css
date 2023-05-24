@@ -25,3 +25,7 @@ td:not(:empty) {
 .notifier-note {
   @apply hidden
 }
+
+::-webkit-scrollbar {
+  display: none;
+}

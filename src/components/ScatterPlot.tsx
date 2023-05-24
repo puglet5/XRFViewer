@@ -74,7 +74,6 @@ const layout: Partial<Layout> = {
     orientation: "h"
   },
   hidesources: true,
-  hoverdistance: -1,
   hoverlabel: {
     font: {
       size: 9
@@ -90,7 +89,7 @@ export default function ScatterPlot(
     selectedPoints,
     updateSelectedPoints,
   }: Props) {
-  const mainPlot = useRef(null)
+  const mainPlotRef = useRef<any>(null)
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(!!JSON.parse(localStorage.getItem("lineLabelsVisibility")!))
 
   const toggleLineHoverLabels = () => {
@@ -185,25 +184,29 @@ export default function ScatterPlot(
 
   return (
     <>
-      <button onClick={toggleLineHoverLabels}>
-        <IconTags></IconTags>
-      </button>
-      <button onClick={resetPointSelection}>
-        <IconTagOff></IconTagOff>
-      </button>
-      <button onClick={savePlotImage}>
-        <IconDeviceFloppy></IconDeviceFloppy>
-      </button>
-      <button onClick={copyPlotImage}>
-        <IconCopy></IconCopy>
-      </button>
+      <div id="plotControls" className='z-20 ml-10'>
+
+        <button onClick={toggleLineHoverLabels}>
+          <IconTags></IconTags>
+        </button>
+        <button onClick={resetPointSelection}>
+          <IconTagOff></IconTagOff>
+        </button>
+        <button onClick={savePlotImage}>
+          <IconDeviceFloppy></IconDeviceFloppy>
+        </button>
+        <button onClick={copyPlotImage}>
+          <IconCopy></IconCopy>
+        </button>
+      </div>
+
       <Plot
-        ref={mainPlot}
+        ref={mainPlotRef}
         divId='plotMain'
         data={plotData}
         layout={layout}
         config={config}
-        className='aspect-video w-full'
+        className='w-full h-[calc(100vh-2rem)]'
         onClick={selectPoints}
         onHover={resetLineLabelVisibility}
       />
