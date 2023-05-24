@@ -29,22 +29,13 @@ export default function Controls({ updateXRFData, currentXRFData, updateFileData
     updateSelectedElementPoints(Array.from({ length: emissionLinePlotData.length }, () => []))
   }
   return (
-    <div className="flex space-x-2">
-      <span className="my-auto">
-      </span>
+    <div className="flex space-x-2 w-full">
       <button
         onClick={resetPlotData}
         disabled={!currentXRFData.length && !fileData.length && !selectedElements.length}
-        className="disabled:text-sfg text-acc">
-        <IconReload />
+        className="disabled:text-sfg text-acc mx-auto">
+        <IconReload className="w-8 h-8"/>
       </button>
-      <button
-        onClick={() => updatePeriodicTableVisibility(true)}
-        disabled={periodicTableVisibility}
-        className="disabled:text-sfg text-acc">
-        <IconBorderAll />
-      </button>
-
     </div>
   )
 }

@@ -19,7 +19,8 @@ const uppy = new Uppy({
   allowMultipleUploadBatches: true,
   restrictions: {
     allowedFileTypes: [".dat"]
-  }
+  },
+  debug: true
 })
 
 export default function Uploader({ updateXRFData, updateFileData, fileData }: Props) {

@@ -38,3 +38,7 @@ td:not(:empty) {
 ::-webkit-scrollbar {
   display: none;
 }
+
+.uppy-Container {
+  @apply border-ptx border border-dashed w-full h-full
+}

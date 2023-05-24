@@ -3,7 +3,7 @@ import Plotly, { Config, Layout, PlotMouseEvent, ScatterData } from 'plotly.js'
 import { elementSymbols } from '@/data/elementData'
 import { useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
-import { IconDeviceFloppy, IconCopy, IconTags, IconTagOff, IconVector, IconVectorOff, IconTag, IconTagsOff } from '@tabler/icons-react'
+import { IconDeviceFloppy, IconCopy, IconTags, IconVector, IconVectorOff, IconTag, IconTagsOff } from '@tabler/icons-react'
 import { emissionLinePlotData } from '@/data/emissionLinePlotData'
 
 interface Props {
@@ -184,7 +184,7 @@ export default function ScatterPlot(
   }
 
   const toggleInterpolation = () => {
-    let interpolationShape = interpolationMode ? "linear" : "spline"
+    const interpolationShape = interpolationMode ? "linear" : "spline"
     // @ts-expect-error
     Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
     setInterpolationMode(!interpolationMode)

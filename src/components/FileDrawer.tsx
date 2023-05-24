@@ -1,7 +1,7 @@
 import { FileProps } from "../utils/interfaces"
-import { IconCsv, IconFile, IconX } from "@tabler/icons-react"
+import { IconCsv, IconX, IconFiles } from "@tabler/icons-react"
 import File from "./File"
-import { Datum, ScatterData } from "plotly.js"
+import { ScatterData } from "plotly.js"
 import { useState } from "react"
 
 interface Props {
@@ -39,7 +39,7 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.setAttribute('href', url)
-      a.setAttribute('download', `${fileData[fileIndex].name.split(".")[0]}.csv`);
+      a.setAttribute('download', `${fileData[fileIndex].name.split(".")[0]}.csv`)
       a.click()
     }
   }
@@ -77,14 +77,21 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
   }
 
   return (
-    <div className="p-2 border-b border-ptx flex flex-col">
-      <span className="text-center">
-        Showing {pluralize(fileData.length, "file")}
-      </span>
-      <div className="text-sm flex flex-col space-y-1">
-        {constructFileDrawer(fileData)}
+    <>
+      <div className="flex w-full text-acc justify-center items-center @2xs/sidebar:hidden">
+        <IconFiles className="w-8 h-8">
+
+        </IconFiles>
       </div>
-    </div>
+      <div className="p-2 border-b border-ptx flex-col @2xs/sidebar:flex hidden">
+        <span className="text-center">
+          Showing {pluralize(fileData.length, "file")}
+        </span>
+        <div className="text-sm flex flex-col space-y-1">
+          {constructFileDrawer(fileData)}
+        </div>
+      </div>
+    </>
   )
 }
 

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@tabler/icons-react": "^2.19.0",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@uppy/core": "^3.2.0",
     "@uppy/dashboard": "^3.4.0",
     "@uppy/drag-drop": "^3.0.2",

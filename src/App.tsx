@@ -1,6 +1,6 @@
 import FileDrawer from "./components/FileDrawer"
-import { Resizable } from 're-resizable'
-import { useState, useEffect } from "react"
+import { Resizable, ResizableProps } from 're-resizable'
+import { useState, useEffect, useRef } from "react"
 import { FileProps } from "./utils/interfaces"
 import Uploader from "./components/Uploader"
 import Controls from "./components/Controls"
@@ -11,6 +11,8 @@ import { ScatterData } from "plotly.js"
 import ScatterPlot from "./components/ScatterPlot"
 import { sortElementDataByAtomicNumber } from "./utils/converters"
 import { emissionLinePlotData } from "./data/emissionLinePlotData"
+import { remToPx } from "./utils/ui"
+import { IconBorderAll, IconUpload } from "@tabler/icons-react"
 
 export default function App() {
   const [selectedElements, setSelectedElements] = useState<number[]>([])
@@ -20,6 +22,7 @@ export default function App() {
   const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
   const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(false)
   const [selectedElementPoints, setSelectedElementPoints] = useState<(number | undefined)[][]>(Array.from({ length: emissionLinePlotData.length }, () => []))
+  const sidebarRef = useRef<Resizable>(null)
 
   useEffect(() => {
     setPlotData([...currentXRFData, ...currentElementData])
@@ -57,8 +60,20 @@ export default function App() {
     }
   }, [])
 
+  const toggleSidebar = () => {
+    console.log(sidebarRef)
+    if (sidebarRef.current) {
+      if (sidebarRef.current.state.width !== 0) {
+        sidebarRef.current.updateSize({ width: 0, height: "auto" })
+      } else {
+        sidebarRef.current.updateSize({ width: 300, height: "auto" })
+      }
+    }
+  }
+
   useHotkeys("esc", () => setPeriodicTableVisibility(false))
-  useHotkeys("p", () => setPeriodicTableVisibility(!periodicTableVisibility))
+  useHotkeys("ctrl+p", () => setPeriodicTableVisibility(!periodicTableVisibility))
+  useHotkeys("ctrl+b", () => toggleSidebar())
 
   if (!currentXRFData.length) {
     const storageXRFData = localStorage.getItem("currentXRFData")
@@ -109,45 +124,75 @@ export default function App() {
   return (
     <main className="flex bg-pbg h-screen ">
       <Resizable
-        className=" bg-pbg border-r border-ptx "
+        className="@container/sidebar bg-pbg border-r border-ptx flex flex-col z-20 pt-2"
         bounds={"window"}
         enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
         minWidth={0}
-        snap={{ x: [0, ...Array.from({ length: 200 }, (_v, i) => i + 200)] }}
+        snap={{ x: [0, remToPx(4), ...Array.from({ length: 200 }, (_v, i) => i + 200)] }}
         defaultSize={{ width: 300, height: "100%" }}
         maxWidth={400}
-        handleStyles={{ right: { position: "absolute", width: "40px", height: "100%", top: "0px", cursor: "col-resize", right: "-25px" } }}
-        handleClasses={{ right: "select-none z-10" }}
+        handleStyles={{ right: { position: "absolute", width: "20px", height: "100%", top: "0px", cursor: "col-resize", right: "-20px" } }}
+        handleClasses={{ right: "select-none z-20" }}
         onResizeStop={() => window.dispatchEvent(new Event('resize'))}
+        ref={sidebarRef}
       >
-        <div className="h-32 border-b border-ptx flex items-center justify-center">
-          <Controls
-            updateXRFData={setCurrentXRFData}
-            updatePeriodicTableVisibility={setPeriodicTableVisibility}
-            updateFileData={setFileData}
-            updateSelectedElements={setSelectedElements}
-            updateSelectedElementPoints={setSelectedElementPoints}
-            updatePlotData={setPlotData}
-            currentXRFData={currentXRFData}
-            periodicTableVisibility={periodicTableVisibility}
-            selectedElements={selectedElements}
-            selectedElementPoints={selectedElementPoints}
+        <div id="files" className="mt-2">
+          <FileDrawer
             fileData={fileData}
+            updateFileData={setFileData}
+            updateXRFData={setCurrentXRFData}
+            currentXRFData={currentXRFData}
           />
         </div>
-        <FileDrawer
-          fileData={fileData}
-          updateFileData={setFileData}
-          updateXRFData={setCurrentXRFData}
-          currentXRFData={currentXRFData}
-        />
 
-        <div>
-          <Uploader
-            updateXRFData={setCurrentXRFData}
-            updateFileData={setFileData}
-            fileData={fileData}
-          />
+        <div id="table" className="mt-2">
+          <div className="@2xs/sidebar:hidden items-center justify-center @[1px]/sidebar:flex hidden">
+            <button
+              onClick={() => setPeriodicTableVisibility(true)}
+              disabled={periodicTableVisibility}
+              className="disabled:text-sfg text-acc">
+              <IconBorderAll className="w-8 h-8" />
+            </button>
+          </div>
+        </div>
+
+        <div id="uploader" className="mt-2 h-48">
+          <div className="@2xs/sidebar:flex hidden items-center justify-center h-full">
+            <div className="w-full h-full flex-grow items-center justify-center m-4">
+              <Uploader
+                updateXRFData={setCurrentXRFData}
+                updateFileData={setFileData}
+                fileData={fileData}
+              />
+            </div>
+          </div>
+          <div className="@[1px]/sidebar:flex hidden items-center justify-center">
+            <div className="@2xs/sidebar:hidden flex items-center justify-center text-acc">
+              <IconUpload className="w-8 h-8"></IconUpload>
+            </div>
+          </div>
+        </div>
+
+        <div id="spacer" className="@[1px]/sidebar:flex hidden flex-grow items-center justify-center">
+
+        </div>
+
+        <div id="reset" className="@[1px]/sidebar:block hidden border-t py-4 border-ptx">
+          <div className="flex items-center justify-center">
+            <Controls
+              updateXRFData={setCurrentXRFData}
+              updatePeriodicTableVisibility={setPeriodicTableVisibility}
+              updateFileData={setFileData}
+              updateSelectedElements={setSelectedElements}
+              updateSelectedElementPoints={setSelectedElementPoints}
+              updatePlotData={setPlotData}
+              currentXRFData={currentXRFData}
+              periodicTableVisibility={periodicTableVisibility}
+              selectedElements={selectedElements}
+              selectedElementPoints={selectedElementPoints}
+              fileData={fileData}
+            />
+          </div>
         </div>
       </Resizable>
 

@@ -12,8 +12,11 @@ module.exports = {
         "sfg": "#dedede",
         "acc": "#676765"
       },
+      containers: {
+        "2xs": '4rem'
+      },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/container-queries')],
 }
 
