@@ -43,8 +43,10 @@ export default function PeriodicTable({ visible, updateSelectedElements, selecte
   return (
     <Rnd
       enableResizing={false}
-      enableUserSelectHack={true}>
-      <div className={`${visible ? "block" : "hidden"} bg-pbg border border-ptx p-2`} >
+      enableUserSelectHack={true}
+      className="z-40 sticky"
+      bounds={"window"}>
+      <div className={`${visible ? "block" : "hidden"} bg-pbg border border-ptx p-2  w-full h-full`} >
         <div className="w-full">
           <table ref={tableRef} id="periodic" className="cursor-pointer select-none" onClick={handleClick}>
             <tbody>

@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "FiraCode";
+  src: url("./assets/fonts/FiraCode-VariableFont_wght.ttf")
+}
+
+body {
+  font-family: "FiraCode";
+}
+
 .uppy-c-icon {
   @apply hidden
 }

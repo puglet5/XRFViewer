@@ -28,8 +28,9 @@ export default function Uploader({ updateXRFData, updateFileData, fileData }: Pr
       const newFileData: FileProps[] = files.map((e) => {
         return {
           id: e.id,
-          name: e.name,
+          name: e.name.split(".")[0],
           size: e.size,
+          type: e.name.split(".")[1],
           isDisplayed: true,
           isSelected: false
         }

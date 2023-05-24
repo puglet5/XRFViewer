@@ -73,6 +73,7 @@ const layout: Partial<Layout> = {
   modebar: {
     orientation: "h"
   },
+  font: { family: "FiraCode" },
   hidesources: true,
   hoverlabel: {
     font: {

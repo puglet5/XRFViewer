@@ -44,21 +44,32 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
     }
   }
 
+  const pluralize = (count: number, noun: string, suffix = "s") =>
+    `${count} ${noun}${count !== 1 ? suffix : ""}`
+
   const constructFileDrawer = (data: FileProps[]) => {
     return data.map((e, i) => {
       return (
-        <div className="text-sm flex justify-between" key={e.id}>
-          <div className="grid grid-cols-12 space-x-2 w-full items-center">
-            <button onClick={() => toggleFileSelection(i)}>
-              <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto lg:block hidden" />
+        <div key={e.id}>
+          <div className="flex w-full h-full flex-nowrap ">
+            <button
+              onClick={() => toggleFileSelection(i)}
+              className="font-medium my-auto"
+            >
+              {/* <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto" /> */}
+              <span className="p-1 bg-indigo-200 aspect-square rounded-sm mr-2">
+                {e.type.toUpperCase()}
+              </span>
             </button>
             <File fileData={e} isSelected={e.isSelected} />
-            <button onClick={() => removeFile(i)} className="col-span-1 mx-auto place-self-end">
-              <IconX />
-            </button>
-            <button onClick={() => downloadCSV(i)} className="col-span-1 mx-auto place-self-end">
-              <IconCsv />
-            </button>
+            <div className="flex flex-nowrap ml-2 my-auto">
+              <button onClick={() => removeFile(i)} className="">
+                <IconX />
+              </button>
+              <button onClick={() => downloadCSV(i)} className="">
+                <IconCsv />
+              </button>
+            </div>
           </div>
         </div>
       )
@@ -68,9 +79,9 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
   return (
     <div className="p-2 border-b border-ptx flex flex-col">
       <span className="text-center">
-        Showing {fileData.length} files
+        Showing {pluralize(fileData.length, "file")}
       </span>
-      <div>
+      <div className="text-sm flex flex-col space-y-1">
         {constructFileDrawer(fileData)}
       </div>
     </div>
