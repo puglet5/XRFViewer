@@ -72,7 +72,7 @@ const layout: Partial<Layout> = {
   modebar: {
     orientation: "h"
   },
-  font: { family: "FiraCode" },
+  font: { family: "FiraCode", color: "black" },
   hidesources: true,
   hoverlabel: {
     font: {
@@ -185,7 +185,6 @@ export default function ScatterPlot(
 
   const toggleInterpolation = () => {
     const interpolationShape = interpolationMode ? "linear" : "spline"
-    // @ts-expect-error
     Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
     setInterpolationMode(!interpolationMode)
   }

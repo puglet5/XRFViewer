@@ -15,8 +15,8 @@ interface Props {
 export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData }: Props) {
   const [selectedFiles, setSelectedFiles] = useState<number[]>([])
   const removeFile = (fileIndex: number) => {
-    const newFileData = fileData.filter((_e, i) => i != fileIndex)
-    const newXRFData = currentXRFData.filter((_e, i) => i != fileIndex)
+    const newFileData = fileData.filter((_e, i) => i !== fileIndex)
+    const newXRFData = currentXRFData.filter((_e, i) => i !== fileIndex)
     localStorage.setItem("fileData", JSON.stringify(newFileData))
     localStorage.setItem("currentXRFData", JSON.stringify(newXRFData))
     updateFileData(newFileData)
@@ -45,29 +45,26 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
     }
   }
 
-  const pluralize = (count: number, noun: string, suffix = "s") =>
-    `${count} ${noun}${count !== 1 ? suffix : ""}`
-
   const constructFileDrawer = (data: FileProps[]) => {
     return data.map((e, i) => {
       return (
         <div key={createId()}>
-          <div className="flex w-full h-full flex-nowrap ">
+          <div className="flex w-full h-full flex-nowrap">
             <button
               onClick={() => toggleFileSelection(i)}
               className="font-medium my-auto"
             >
               {/* <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto" /> */}
-              <span className="p-1 border border-black aspect-square rounded-sm mr-2">
+              <span className={`${e.isSelected ? " !bg-neutral-300" : ""} p-1 border border-black aspect-square rounded-sm mr-2`}>
                 {e.type.toUpperCase()}
               </span>
             </button>
             <File fileData={e} isSelected={e.isSelected} />
             <div className="flex flex-nowrap ml-2 my-auto">
-              <button onClick={() => removeFile(i)} className="">
+              <button onClick={() => removeFile(i)} className="" title="Remove file">
                 <IconX className="text-acc" />
               </button>
-              <button onClick={() => downloadCSV(i)} className="">
+              <button onClick={() => downloadCSV(i)} className="" title="Download .csv">
                 <IconCsv className="text-acc" />
               </button>
             </div>
@@ -78,19 +75,16 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
   }
 
   return (
-    <>
+    <div>
       <div className="flex w-full text-acc justify-center items-center @2xs/sidebar:hidden">
         <IconFiles className="w-8 h-8" />
       </div>
-      <div className="p-2 border-b border-ptx flex-col @2xs/sidebar:flex hidden">
-        <span className="text-center mb-2">
-          Showing {pluralize(fileData.length, "file")}
-        </span>
+      <div className="p-2 flex-col @2xs/sidebar:flex hidden">
         <div className="text-sm flex flex-col space-y-1.5">
           {constructFileDrawer(fileData)}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

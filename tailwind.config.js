@@ -10,7 +10,7 @@ module.exports = {
         "ptx": "#000000",
         "pfg": "#676765",
         "sfg": "#dedede",
-        "acc": "#676765"
+        "acc": "#272727"
       },
       containers: {
         "2xs": '4rem'

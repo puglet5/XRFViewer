@@ -32,9 +32,10 @@ export default function Controls({ updateXRFData, currentXRFData, updateFileData
     <div className="flex space-x-2 w-full">
       <button
         onClick={resetPlotData}
+        title="Reset all"
         disabled={!currentXRFData.length && !fileData.length && !selectedElements.length}
         className="disabled:text-sfg text-acc mx-auto">
-        <IconReload className="w-8 h-8"/>
+        <IconReload className="w-8 h-8" />
       </button>
     </div>
   )

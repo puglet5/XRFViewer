@@ -40,5 +40,5 @@ td:not(:empty) {
 }
 
 .uppy-Container {
-  @apply border-ptx border border-dashed w-full h-full
+  @apply border-ptx border border-dashed w-full h-full bg-neutral-200
 }
