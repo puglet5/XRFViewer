@@ -3,6 +3,7 @@ import { IconCsv, IconX, IconFiles } from "@tabler/icons-react"
 import File from "./File"
 import { ScatterData } from "plotly.js"
 import { useState } from "react"
+import { createId } from "@paralleldrive/cuid2"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
@@ -50,24 +51,24 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
   const constructFileDrawer = (data: FileProps[]) => {
     return data.map((e, i) => {
       return (
-        <div key={e.id}>
+        <div key={createId()}>
           <div className="flex w-full h-full flex-nowrap ">
             <button
               onClick={() => toggleFileSelection(i)}
               className="font-medium my-auto"
             >
               {/* <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto" /> */}
-              <span className="p-1 bg-indigo-200 aspect-square rounded-sm mr-2">
+              <span className="p-1 border border-black aspect-square rounded-sm mr-2">
                 {e.type.toUpperCase()}
               </span>
             </button>
             <File fileData={e} isSelected={e.isSelected} />
             <div className="flex flex-nowrap ml-2 my-auto">
               <button onClick={() => removeFile(i)} className="">
-                <IconX />
+                <IconX className="text-acc" />
               </button>
               <button onClick={() => downloadCSV(i)} className="">
-                <IconCsv />
+                <IconCsv className="text-acc" />
               </button>
             </div>
           </div>
@@ -79,15 +80,13 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
   return (
     <>
       <div className="flex w-full text-acc justify-center items-center @2xs/sidebar:hidden">
-        <IconFiles className="w-8 h-8">
-
-        </IconFiles>
+        <IconFiles className="w-8 h-8" />
       </div>
       <div className="p-2 border-b border-ptx flex-col @2xs/sidebar:flex hidden">
-        <span className="text-center">
+        <span className="text-center mb-2">
           Showing {pluralize(fileData.length, "file")}
         </span>
-        <div className="text-sm flex flex-col space-y-1">
+        <div className="text-sm flex flex-col space-y-1.5">
           {constructFileDrawer(fileData)}
         </div>
       </div>

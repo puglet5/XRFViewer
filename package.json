@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.0",
     "@tabler/icons-react": "^2.19.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@uppy/core": "^3.2.0",
