@@ -1,10 +1,9 @@
 import Plot from 'react-plotly.js'
 import Plotly, { Config, Layout, PlotMouseEvent, ScatterData } from 'plotly.js'
 import { elementSymbols } from '@/data/elementData'
-import { useEffect, useRef, useState } from 'react'
-import { sortElementDataByAtomicNumber } from '@/utils/converters'
+import { useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
-import { IconDeviceFloppy, IconCopy, IconTags, IconTagOff } from '@tabler/icons-react'
+import { IconDeviceFloppy, IconCopy, IconTags, IconTagOff, IconVector, IconVectorOff, IconTag, IconTagsOff } from '@tabler/icons-react'
 import { emissionLinePlotData } from '@/data/emissionLinePlotData'
 
 interface Props {
@@ -92,6 +91,7 @@ export default function ScatterPlot(
   }: Props) {
   const mainPlotRef = useRef<any>(null)
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(!!JSON.parse(localStorage.getItem("lineLabelsVisibility")!))
+  const [interpolationMode, setInterpolationMode] = useState<boolean>(false)
 
   const toggleLineHoverLabels = () => {
     const elementDataIndices = plotData.flatMap((e, i) => elementSymbols.includes(e.name!) ? i : [])
@@ -183,21 +183,34 @@ export default function ScatterPlot(
     updateSelectedPoints(emptyEmissionLineData)
   }
 
+  const toggleInterpolation = () => {
+    let interpolationShape = interpolationMode ? "linear" : "spline"
+    // @ts-expect-error
+    Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
+    setInterpolationMode(!interpolationMode)
+  }
+
   return (
     <>
       <div id="plotControls" className='z-20 ml-10'>
-
         <button onClick={toggleLineHoverLabels}>
-          <IconTags></IconTags>
+          {!lineLabelsVisibility ? <IconTags></IconTags> : <IconTagsOff></IconTagsOff>}
+
         </button>
         <button onClick={resetPointSelection}>
-          <IconTagOff></IconTagOff>
+          <IconTag></IconTag>
         </button>
         <button onClick={savePlotImage}>
           <IconDeviceFloppy></IconDeviceFloppy>
         </button>
         <button onClick={copyPlotImage}>
           <IconCopy></IconCopy>
+        </button>
+        <button onClick={toggleInterpolation}>
+          {!interpolationMode ?
+            <IconVector></IconVector> :
+            <IconVectorOff></IconVectorOff>
+          }
         </button>
       </div>
 

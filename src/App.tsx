@@ -109,7 +109,7 @@ export default function App() {
   return (
     <main className="flex bg-pbg h-screen ">
       <Resizable
-        className=" bg-pbg border-r border-ptx"
+        className=" bg-pbg border-r border-ptx "
         bounds={"window"}
         enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
         minWidth={0}
