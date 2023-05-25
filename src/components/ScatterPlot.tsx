@@ -1,10 +1,12 @@
-import Plot from 'react-plotly.js'
-import Plotly, { Config, Layout, PlotMouseEvent, ScatterData } from 'plotly.js'
+import Plotly, { Config, Layout, PlotMouseEvent, ScatterData } from 'plotly.js-basic-dist-min'
 import { elementSymbols } from '@/data/elementData'
 import { useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 import { IconDeviceFloppy, IconCopy, IconTags, IconVector, IconVectorOff, IconTag, IconTagsOff } from '@tabler/icons-react'
 import { emissionLinePlotData } from '@/data/emissionLinePlotData'
+
+import createPlotlyComponent from 'react-plotly.js/factory';
+const Plot = createPlotlyComponent(Plotly);
 
 interface Props {
   plotData: Partial<ScatterData>[]
@@ -89,7 +91,6 @@ export default function ScatterPlot(
     selectedPoints,
     updateSelectedPoints,
   }: Props) {
-  const mainPlotRef = useRef<any>(null)
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(!!JSON.parse(localStorage.getItem("lineLabelsVisibility")!))
   const [interpolationMode, setInterpolationMode] = useState<boolean>(false)
 
@@ -182,6 +183,8 @@ export default function ScatterPlot(
     setInterpolationMode(!interpolationMode)
   }
 
+  console.log(Plotly)
+
   return (
     <>
       <div id="plotControls" className='z-20 pl-10 text-acc border-b w-full flex space-x-1 p-3 border-ptx'>
@@ -235,7 +238,6 @@ export default function ScatterPlot(
         </button>
       </div>
       <Plot
-        ref={mainPlotRef}
         divId='plotMain'
         data={plotData}
         layout={layout}

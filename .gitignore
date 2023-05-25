@@ -31,3 +31,6 @@ yarn.lock
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# rollup visualizer plugin output
+analyse.html
