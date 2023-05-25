@@ -633,7 +633,7 @@
   dependencies:
     "@types/plotly.js" "*"
 
-"@types/plotly.js@*", "@types/plotly.js@^2.12.18":
+"@types/plotly.js@*":
   version "2.12.18"
   resolved "https://registry.yarnpkg.com/@types/plotly.js/-/plotly.js-2.12.18.tgz#7a231ce72a73fafe4842096b8c99d10a41b60962"
   integrity sha512-ff+CIEWnqZNjZqHtQZvkEAVuLs9fkm1f54QnPVmgoET7wMHdSqUka2hasVN4e5yfHD05YwGjsAtCseewJh/BMw==
