@@ -1,7 +1,6 @@
 import { IconReload } from "@tabler/icons-react"
 import { FileProps } from "../utils/interfaces"
 import { ScatterData } from "plotly.js"
-import { IconBorderAll } from "@tabler/icons-react"
 import { emissionLinePlotData } from "@/data/emissionLinePlotData"
 
 

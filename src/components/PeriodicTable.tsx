@@ -31,10 +31,14 @@ export default function PeriodicTable({ visible, updateSelectedElements, selecte
 
   useEffect(() => {
     if (tableRef.current) {
-      const elementCells = Array.from((tableRef.current as HTMLTableElement).getElementsByTagName("td")).filter(e => selectedElements.includes(Number(e.id)))
+      const selectedElementCells = Array.from((tableRef.current as HTMLTableElement).getElementsByTagName("td")).filter(e => selectedElements.includes(Number(e.id)))
 
-      elementCells.map(e => e.classList.add("!outline", "!outline-2")
+      selectedElementCells.map(e => e.classList.add("!outline", "!outline-2")
       )
+
+      if (selectedElements.length === 0) {
+        Array.from((tableRef.current as HTMLTableElement).getElementsByTagName("td")).map(e => e.classList.remove("!outline", "!outline-2"))
+      }
     }
 
   }, [selectedElements])

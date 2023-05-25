@@ -62,7 +62,6 @@ export default function App() {
   }, [])
 
   const toggleSidebar = () => {
-    console.log(sidebarRef)
     if (sidebarRef.current) {
       if (sidebarRef.current.state.width !== 0) {
         sidebarRef.current.updateSize({ width: 0, height: "auto" })
@@ -74,7 +73,10 @@ export default function App() {
 
   useHotkeys("esc", () => setPeriodicTableVisibility(false))
   useHotkeys("ctrl+p", () => setPeriodicTableVisibility(!periodicTableVisibility))
-  useHotkeys("ctrl+b", () => toggleSidebar())
+  useHotkeys("ctrl+b", () => {
+    toggleSidebar()
+    window.dispatchEvent(new Event('resize'))
+  })
 
   if (!currentXRFData.length) {
     const storageXRFData = localStorage.getItem("currentXRFData")
@@ -138,13 +140,16 @@ export default function App() {
         ref={sidebarRef}
       >
         <div className="h-full @container/sidebar bg-neutral-100 border-r border-ptx flex flex-col z-20">
-          <div className="w-full text-acc justify-center items-center flex-col mt-2 @2xs/sidebar:flex hidden">
+          <div className="w-full text-acc justify-center items-center flex-col mt-2 @2xs/sidebar:flex hidden ">
             <span className="text-center">
               Showing {pluralize(fileData.length, "file")}
             </span>
-            <span className="text-center text-xs text-gray-600">
-              {fileData.filter(e => e.isSelected === true).length} selected
-            </span>
+            {fileData.length ?
+              <span className="text-center text-xs text-gray-600">
+                {fileData.filter(e => e.isSelected === true).length} selected
+              </span>
+              : <div className="pb-4"></div>
+            }
           </div>
           <div id="files" className="max-h-[50%] overflow-scroll border-ptx @2xs/sidebar:border-b">
             <FileDrawer

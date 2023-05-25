@@ -98,37 +98,31 @@ export default function ScatterPlot(
     if (!lineLabelsVisibility) {
       const allHoverPoints = elementDataIndices.flatMap((e) => {
         const trace = e
-        const points = plotData[e].selectedpoints
-        // @ts-ignore
+        const points: number[][] = (plotData[e] as any).selectedpoints as number[][]
         const hoverPoints = points.map((e: number[]) => { return { curveNumber: trace, pointNumber: e } })
         return hoverPoints
-      })
+      });
 
-      // @ts-ignore
-      Plotly.Fx.hover("plotMain", allHoverPoints)
+      (Plotly as any).Fx.hover("plotMain", allHoverPoints)
       try {
-        // @ts-ignore
-        Plotly.restyle("plotMain", { selected: { marker: { opacity: 0 } } })
+        (Plotly as any).restyle("plotMain", { selected: { marker: { opacity: 0 } } })
       } catch (TypeError) {
         console.log("Caught plotly restyle TypeError")
       }
     } else {
       try {
-        // @ts-ignore
-        Plotly.restyle("plotMain", { selected: { marker: { opacity: 1 } } })
+        (Plotly as any).restyle("plotMain", { selected: { marker: { opacity: 1 } } })
       } catch (TypeError) {
         console.log("Caught plotly restyle TypeError")
       }
-      // @ts-ignore
-      Plotly.Fx.hover("plotMain", [])
+      (Plotly as any).Fx.hover("plotMain", [])
     }
     setLineLabelsVisibility(!lineLabelsVisibility)
     localStorage.setItem("lineLabelsVisibility", JSON.stringify(true))
   }
 
   const selectPoints = (data: Readonly<PlotMouseEvent>) => {
-    // @ts-ignore
-    const traceName: string = data.points[0].fullData.name
+    const traceName: string = (data.points[0] as any).fullData.name
     if (!elementSymbols.includes(traceName)) { return }
     const point = data.points[0].pointIndex
     const trace = data.points[0].curveNumber
@@ -148,8 +142,7 @@ export default function ScatterPlot(
   const resetLineLabelVisibility = () => {
     if (JSON.parse(localStorage.getItem("lineLabelsVisibility")!)) {
       try {
-        // @ts-ignore
-        Plotly.restyle("plotMain", { selected: { marker: { opacity: 1 } } })
+        (Plotly as any).restyle("plotMain", { selected: { marker: { opacity: 1 } } })
       } catch (TypeError) {
         console.log("Plotly restyle TypeError")
       }
@@ -191,35 +184,63 @@ export default function ScatterPlot(
 
   return (
     <>
-      <div id="plotControls" className='z-20 ml-10'>
-        <button onClick={toggleLineHoverLabels}>
-          {!lineLabelsVisibility ? <IconTags></IconTags> : <IconTagsOff></IconTagsOff>}
-
+      <div id="plotControls" className='z-20 pl-10 text-acc border-b w-full flex space-x-1 p-3 border-ptx'>
+        <button
+          onClick={toggleLineHoverLabels}
+          title='Toggle emission line labels'
+          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
+          disabled={selectedPoints.flat().length ? false : true}
+        >
+          {
+            !lineLabelsVisibility ?
+              <IconTags></IconTags> :
+              <IconTagsOff></IconTagsOff>
+          }
         </button>
-        <button onClick={resetPointSelection}>
+        <button
+          onClick={resetPointSelection}
+          title='Reset point selection'
+          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
+          disabled={selectedPoints.flat().length ? false : true}
+        >
           <IconTag></IconTag>
         </button>
-        <button onClick={savePlotImage}>
+        <button
+          onClick={savePlotImage}
+          title='Save plot as .png'
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
+        >
           <IconDeviceFloppy></IconDeviceFloppy>
         </button>
-        <button onClick={copyPlotImage}>
+        <button
+          onClick={copyPlotImage}
+          title='Copy to clipboard'
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
+        >
           <IconCopy></IconCopy>
         </button>
-        <button onClick={toggleInterpolation}>
-          {!interpolationMode ?
-            <IconVector></IconVector> :
-            <IconVectorOff></IconVectorOff>
+        <button
+          onClick={toggleInterpolation}
+          title='Toggle interpolation'
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
+        >
+          {
+            !interpolationMode ?
+              <IconVector></IconVector> :
+              <IconVectorOff></IconVectorOff>
           }
         </button>
       </div>
-
       <Plot
         ref={mainPlotRef}
         divId='plotMain'
         data={plotData}
         layout={layout}
         config={config}
-        className='w-full h-[calc(100vh-2rem)]'
+        className='w-full h-[calc(100vh-3rem)]'
         onClick={selectPoints}
         onHover={resetLineLabelVisibility}
       />

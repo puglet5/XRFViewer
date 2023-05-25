@@ -35,8 +35,7 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
   const downloadCSV = (fileIndex: number) => {
     const data = currentXRFData[fileIndex]
     if (data.x && data.y) {
-      // @ts-ignore
-      const csvData = data.x.map((e, i) => { return [e, data.y[i]].join(",") }).join('\n')
+      const csvData = (data.x as number[]).map((e, i) => { return [e, (data.x as number[])[i]].join(",") }).join('\n')
       const blob = new Blob([csvData], { type: 'text/csv' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -80,11 +79,14 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
       <div className="flex w-full text-acc justify-center items-center @2xs/sidebar:hidden">
         <IconFiles className="w-8 h-8" />
       </div>
-      <div className="p-2 flex-col @2xs/sidebar:flex hidden">
-        <div className="text-sm flex flex-col space-y-1.5">
-          {constructFileDrawer(fileData)}
+      {fileData.length ?
+        <div className="p-2 flex-col @2xs/sidebar:flex hidden">
+          <div className="text-sm flex flex-col space-y-1.5">
+            {constructFileDrawer(fileData)}
+          </div>
         </div>
-      </div>
+        : null
+      }
     </div>
   )
 }
