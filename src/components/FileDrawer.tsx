@@ -2,7 +2,7 @@ import { FileProps } from "../utils/interfaces"
 import { IconCsv, IconX, IconFiles } from "@tabler/icons-react"
 import File from "./File"
 import { ScatterData } from "plotly.js"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { createId } from "@paralleldrive/cuid2"
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 
 export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData }: Props) {
   const [selectedFiles, setSelectedFiles] = useState<number[]>([])
+
   const removeFile = (fileIndex: number) => {
     const newFileData = fileData.filter((_e, i) => i !== fileIndex)
     const newXRFData = currentXRFData.filter((_e, i) => i !== fileIndex)
@@ -27,8 +28,9 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
     const newFileData = fileData
     newFileData[fileIndex].isSelected = !newFileData[fileIndex].isSelected
     localStorage.setItem("fileData", JSON.stringify(newFileData))
-    updateFileData(newFileData)
-    setSelectedFiles(newFileData.flatMap((e, i) => e.isSelected ? i : []))
+    updateFileData([...newFileData])
+    let fileIndices = newFileData.flatMap((e, i) => e.isSelected ? i : [])
+    setSelectedFiles([...fileIndices])
   }
 
   const downloadCSV = (fileIndex: number) => {
