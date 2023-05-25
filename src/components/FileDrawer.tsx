@@ -25,12 +25,11 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
   }
 
   const toggleFileSelection = (fileIndex: number) => {
-    const newFileData = fileData
+    const newFileData = [...fileData]
     newFileData[fileIndex].isSelected = !newFileData[fileIndex].isSelected
     localStorage.setItem("fileData", JSON.stringify(newFileData))
-    updateFileData([...newFileData])
-    let fileIndices = newFileData.flatMap((e, i) => e.isSelected ? i : [])
-    setSelectedFiles([...fileIndices])
+    updateFileData(newFileData)
+    setSelectedFiles(newFileData.flatMap((e, i) => e.isSelected ? i : []))
   }
 
   const downloadCSV = (fileIndex: number) => {
