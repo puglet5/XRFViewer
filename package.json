@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.0",
-    "buffer": "^6.0.3",
     "html2canvas": "^1.4.1",
     "plotly.js-basic-dist-min": "^2.23.2",
     "re-resizable": "^6.9.9",
@@ -24,6 +23,7 @@
     "react-rnd": "^10.4.1"
   },
   "devDependencies": {
+    "buffer": "^6.0.3",
     "@uppy/core": "^3.2.0",
     "@uppy/drag-drop": "^3.0.2",
     "@uppy/react": "^3.1.2",

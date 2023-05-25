@@ -183,8 +183,6 @@ export default function ScatterPlot(
     setInterpolationMode(!interpolationMode)
   }
 
-  console.log(Plotly)
-
   return (
     <>
       <div id="plotControls" className='z-20 pl-10 text-acc border-b w-full flex space-x-1 p-3 border-ptx'>
