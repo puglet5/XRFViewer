@@ -13,21 +13,25 @@ import { sortElementDataByAtomicNumber } from "./utils/converters"
 import { emissionLinePlotData } from "./data/emissionLinePlotData"
 import { pluralize, remToPx } from "./utils/ui"
 import { IconBorderAll, IconUpload } from "@tabler/icons-react"
+import ModificationModal from "./components/ModificationModal"
 
 
 export default function App() {
   const [selectedElements, setSelectedElements] = useState<number[]>([])
   const [currentElementData, setCurrentElementData] = useState<Partial<ScatterData>[]>([])
   const [currentXRFData, setCurrentXRFData] = useState<Partial<ScatterData>[]>([])
+  const [currentModifiedData, setCurrentModifiedData] = useState<Partial<ScatterData>[]>([])
   const [fileData, setFileData] = useState<FileProps[]>([])
   const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
   const [periodicTableVisibility, setPeriodicTableVisibility] = useState<boolean>(false)
+  const [modificationModalVisibility, setModificationModalVisibility] = useState<boolean>(false)
   const [selectedElementPoints, setSelectedElementPoints] = useState<(number | undefined)[][]>(Array.from({ length: emissionLinePlotData.length }, () => []))
   const sidebarRef = useRef<Resizable>(null)
+  const [selectedFiles, setSelectedFiles] = useState<number[]>([])
 
   useEffect(() => {
-    setPlotData([...currentXRFData, ...currentElementData])
-  }, [currentXRFData, currentElementData])
+    setPlotData([...currentXRFData, ...currentModifiedData, ...currentElementData])
+  }, [currentXRFData, currentElementData, currentModifiedData])
 
   useEffect(() => {
     if (currentXRFData.length) {
@@ -40,12 +44,12 @@ export default function App() {
   }, [currentXRFData, fileData])
 
   useEffect(() => {
-    const elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
+    const elementScaleFactor = calculateElementDataScaleFactor([...currentXRFData, ...currentModifiedData])
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
     localStorage.setItem("elementScaleFactor", JSON.stringify(elementScaleFactor))
     setCurrentElementData(constructElementData(selectedElements.sort((a, b) => a - b), elementScaleFactor, selectedElementPoints))
-    setPlotData([...currentXRFData, ...currentElementData])
-  }, [selectedElements, currentXRFData])
+    setPlotData([...currentXRFData, ...currentModifiedData, ...currentElementData])
+  }, [selectedElements, currentXRFData, currentModifiedData])
 
   useEffect(() => {
     const elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
@@ -71,7 +75,10 @@ export default function App() {
     }
   }
 
-  useHotkeys("esc", () => setPeriodicTableVisibility(false))
+  useHotkeys("esc", () => {
+    setPeriodicTableVisibility(false)
+    setModificationModalVisibility(false)
+  })
   useHotkeys("ctrl+p", () => setPeriodicTableVisibility(!periodicTableVisibility))
   useHotkeys("ctrl+b", () => {
     toggleSidebar()
@@ -127,7 +134,7 @@ export default function App() {
   return (
     <main className="flex bg-pbg h-screen ">
       <Resizable
-        className=""
+        className="overflow-visible"
         bounds={"window"}
         enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
         minWidth={0}
@@ -157,6 +164,10 @@ export default function App() {
               updateFileData={setFileData}
               updateXRFData={setCurrentXRFData}
               currentXRFData={currentXRFData}
+              updateModificationModalVisibility={setModificationModalVisibility}
+              modificationModalVisibility={modificationModalVisibility}
+              selectedFiles={selectedFiles}
+              updateSelectedFiles={setSelectedFiles}
             />
           </div>
 
@@ -171,7 +182,7 @@ export default function App() {
             </div>
           </div>
 
-          <div id="uploader" className="mt-2 h-48">
+          <div id="uploader" className="mt-2 h-48 ">
             <div className="@2xs/sidebar:flex hidden items-center justify-center h-full">
               <div className="w-full h-full flex-grow items-center justify-center m-4">
                 <Uploader
@@ -206,12 +217,13 @@ export default function App() {
                 selectedElements={selectedElements}
                 selectedElementPoints={selectedElementPoints}
                 fileData={fileData}
+                updateModifiedData={setCurrentModifiedData}
+                currentModifiedData={currentModifiedData}
               />
             </div>
           </div>
         </div>
       </Resizable>
-
 
       <div className="w-full overflow-hidden h-full">
         <div className="bg-pbg h-full">
@@ -223,8 +235,20 @@ export default function App() {
             selectedPoints={selectedElementPoints}
           />
         </div>
-        <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />
       </div>
+
+      <PeriodicTable visible={periodicTableVisibility} updateSelectedElements={setSelectedElements} selectedElements={selectedElements} />
+      <ModificationModal
+        modificationModalVisibility={modificationModalVisibility}
+        updateModificationModalVisibility={setModificationModalVisibility}
+        selectedFiles={selectedFiles}
+        currentXRFData={currentXRFData}
+        updateFileData={setFileData}
+        updateXRFData={setCurrentXRFData}
+        fileData={fileData}
+        currentModifiedData={currentModifiedData}
+        updateModifiedData={setCurrentModifiedData}
+      />
     </main >
   )
 }

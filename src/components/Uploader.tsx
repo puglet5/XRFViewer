@@ -33,7 +33,8 @@ export default function Uploader({ updateXRFData, updateFileData, fileData }: Pr
           size: e.size,
           type: e.name.split(".")[1],
           isDisplayed: true,
-          isSelected: false
+          isSelected: false,
+          isModified: false
         }
       })
 

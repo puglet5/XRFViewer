@@ -6,8 +6,12 @@ export interface Point {
 export interface FileProps {
   id: string
   name: string
-  size: number
+  size?: number
   type: string
   isDisplayed: boolean
   isSelected: boolean
+  isModified: boolean
+  modifications?: {
+    scaleFactor?: number
+  }
 }

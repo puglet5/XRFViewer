@@ -16,15 +16,18 @@ interface Props {
   updatePeriodicTableVisibility: React.Dispatch<React.SetStateAction<boolean>>
   selectedElementPoints: (number | undefined)[][]
   updateSelectedElementPoints: React.Dispatch<React.SetStateAction<(number | undefined)[][]>>
+  updateModifiedData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
+  currentModifiedData: Partial<ScatterData>[]
 }
 
-export default function Controls({ updateXRFData, currentXRFData, updateFileData, fileData, updateSelectedElements, selectedElements, updatePlotData, updatePeriodicTableVisibility, periodicTableVisibility, updateSelectedElementPoints, selectedElementPoints }: Props) {
+export default function Controls({ updateXRFData, currentXRFData, updateFileData, fileData, updateSelectedElements, selectedElements, updatePlotData, updatePeriodicTableVisibility, periodicTableVisibility, updateSelectedElementPoints, selectedElementPoints, updateModifiedData, currentModifiedData }: Props) {
   const resetPlotData = () => {
     localStorage.clear()
     updatePlotData([])
     updateSelectedElements([])
     updateXRFData([])
     updateFileData([])
+    updateModifiedData([])
     updateSelectedElementPoints(Array.from({ length: emissionLinePlotData.length }, () => []))
   }
   return (

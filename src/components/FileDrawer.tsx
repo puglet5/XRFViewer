@@ -1,19 +1,33 @@
 import { FileProps } from "../utils/interfaces"
-import { IconCsv, IconX, IconFiles } from "@tabler/icons-react"
+import { IconCsv, IconX, IconFiles, IconSelectAll, IconDeselect, IconResize } from "@tabler/icons-react"
 import File from "./File"
 import { ScatterData } from "plotly.js"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { createId } from "@paralleldrive/cuid2"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
-  currentXRFData: Partial<ScatterData>[],
-  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
+  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
+  currentXRFData: Partial<ScatterData>[]
+  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>
+  updateModificationModalVisibility: React.Dispatch<React.SetStateAction<boolean>>
+  modificationModalVisibility: boolean
   fileData: FileProps[]
+  selectedFiles: number[]
+  updateSelectedFiles: React.Dispatch<React.SetStateAction<number[]>>
 }
 
-export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData }: Props) {
-  const [selectedFiles, setSelectedFiles] = useState<number[]>([])
+export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData, updateModificationModalVisibility, modificationModalVisibility, updateSelectedFiles, selectedFiles }: Props) {
+
+  useEffect(() => {
+    const selectedFileIndices = fileData.flatMap((e, i) => { return e.isSelected ? i : [] })
+    updateSelectedFiles([...selectedFileIndices])
+  }, [fileData])
+
+  useEffect(() => {
+    if (!selectedFiles.length) {
+      updateModificationModalVisibility(false)
+    }
+  }, [selectedFiles])
 
   const removeFile = (fileIndex: number) => {
     const newFileData = fileData.filter((_e, i) => i !== fileIndex)
@@ -29,7 +43,7 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
     newFileData[fileIndex].isSelected = !newFileData[fileIndex].isSelected
     localStorage.setItem("fileData", JSON.stringify(newFileData))
     updateFileData(newFileData)
-    setSelectedFiles(newFileData.flatMap((e, i) => e.isSelected ? i : []))
+    updateSelectedFiles(newFileData.flatMap((e, i) => e.isSelected ? i : []))
   }
 
   const downloadCSV = (fileIndex: number) => {
@@ -42,6 +56,16 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
       a.setAttribute('href', url)
       a.setAttribute('download', `${fileData[fileIndex].name.split(".")[0]}.csv`)
       a.click()
+    }
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedFiles.length) {
+      const newFileData = fileData.map(e => { return { ...e, isSelected: false } })
+      updateFileData([...newFileData])
+    } else {
+      const newFileData = fileData.map(e => { return { ...e, isSelected: true } })
+      updateFileData([...newFileData])
     }
   }
 
@@ -60,12 +84,12 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
               </span>
             </button>
             <File fileData={e} isSelected={e.isSelected} />
-            <div className="flex flex-nowrap ml-2 my-auto">
+            <div className="flex flex-nowrap ml-2 my-auto text-acc">
               <button onClick={() => removeFile(i)} className="" title="Remove file">
-                <IconX className="text-acc" />
+                <IconX />
               </button>
               <button onClick={() => downloadCSV(i)} className="" title="Download .csv">
-                <IconCsv className="text-acc" />
+                <IconCsv />
               </button>
             </div>
           </div>
@@ -76,13 +100,27 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
 
   return (
     <div>
-      <div className="flex w-full text-acc justify-center items-center @2xs/sidebar:hidden">
-        <IconFiles className="w-8 h-8" />
-      </div>
       {fileData.length ?
-        <div className="p-2 flex-col @2xs/sidebar:flex hidden">
-          <div className="text-sm flex flex-col space-y-1.5">
-            {constructFileDrawer(fileData)}
+        <div>
+          <div className=" text-acc @2xs/sidebar:flex hidden space-x-1 border-b border-ptx/20 mx-3">
+            <button onClick={() => toggleSelectAll()} title={selectedFiles.length ? "Deselect all" : "Select all"}>
+              {
+                selectedFiles.length ? <IconDeselect /> : <IconSelectAll />
+              }
+            </button>
+            <button
+              title={selectedFiles.length ? "Toggle modification modal" : ""}
+              className={selectedFiles.length ? "" : "text-gray-300"}
+              disabled={selectedFiles.length ? false : true}
+              onClick={() => updateModificationModalVisibility(!modificationModalVisibility)}
+            >
+              <IconResize />
+            </button>
+          </div>
+          <div className="p-2 flex-col @2xs/sidebar:flex hidden">
+            <div className="text-sm flex flex-col space-y-1.5">
+              {constructFileDrawer(fileData)}
+            </div>
           </div>
         </div>
         : null

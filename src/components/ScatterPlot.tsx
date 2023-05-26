@@ -185,7 +185,7 @@ export default function ScatterPlot(
 
   return (
     <>
-      <div id="plotControls" className='z-20 pl-10 text-acc border-b w-full flex space-x-1 p-3 border-ptx'>
+      <div id="plotControls" className='z-20 text-acc border-b w-full flex space-x-1 p-3 border-ptx sticky'>
         <button
           onClick={toggleLineHoverLabels}
           title='Toggle emission line labels'
@@ -216,7 +216,7 @@ export default function ScatterPlot(
         </button>
         <button
           onClick={copyPlotImage}
-          title='Copy to clipboard'
+          title='Copy plot image to clipboard'
           className={plotData.flat().length ? "" : "!text-gray-300"}
           disabled={plotData.flat().length ? false : true}
         >
@@ -224,7 +224,7 @@ export default function ScatterPlot(
         </button>
         <button
           onClick={toggleInterpolation}
-          title='Toggle interpolation'
+          title={!interpolationMode ? "Enable interpolation" : "Disable interpolation"}
           className={plotData.flat().length ? "" : "!text-gray-300"}
           disabled={plotData.flat().length ? false : true}
         >

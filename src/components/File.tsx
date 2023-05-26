@@ -11,12 +11,16 @@ export default function File({ fileData, isSelected }: Props) {
       <span className="overflow-hidden text-ellipsis" title={fileData.name}>
         {fileData.name}
       </span>
-      <span className="text-gray-500">
-        &#8212;
-      </span>
-      <span className="italic text-gray-500 pr-0.5">
-        {Number(fileData.size / 1000).toFixed(1)} kB
-      </span>
+      {fileData.size ?
+        <>
+          <span className="text-gray-500">
+            &#8212;
+          </span>
+          <span className="italic text-gray-500 pr-0.5">
+            {Number(fileData.size / 1000).toFixed(1)} kB
+          </span>
+        </> : null
+      }
     </span>
   )
 }
