@@ -5,7 +5,7 @@ import Plotly, {
   ScatterData
 } from "plotly.js-basic-dist-min"
 import { elementSymbols } from "@/data/elementData"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import html2canvas from "html2canvas"
 import {
   IconDeviceFloppy,
@@ -240,7 +240,11 @@ export default function ScatterPlot({
 
   const toggleInterpolation = () => {
     const interpolationShape = interpolationMode ? "linear" : "spline"
-    Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
+    try {
+      Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
+    } catch (TypeError) {
+      console.log("Caught Plotly restyle error")
+    }
     setInterpolationMode(!interpolationMode)
   }
 
@@ -252,10 +256,11 @@ export default function ScatterPlot({
         return i
       } else return []
     })
-
-    Plotly.restyle("plotMain", { mode: traceMode }, traceIndices)
-
-    console.log(traceMode)
+    try {
+      Plotly.restyle("plotMain", { mode: traceMode }, traceIndices)
+    } catch (TypeError) {
+      console.log("Caught Plotly restyle error")
+    }
 
     setTextVisibility(!textVisibility)
   }
@@ -269,8 +274,8 @@ export default function ScatterPlot({
         <button
           onClick={toggleLineHoverLabels}
           title="Toggle emission line labels"
-          className={selectedPoints.concat().length ? "" : "!text-gray-300"}
-          disabled={selectedPoints.concat().length ? false : true}
+          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
+          disabled={selectedPoints.flat().length ? false : true}
         >
           {!lineLabelsVisibility ? (
             <IconTags></IconTags>
@@ -281,16 +286,16 @@ export default function ScatterPlot({
         <button
           onClick={resetPointSelection}
           title="Reset point selection"
-          className={selectedPoints.concat().length ? "" : "!text-gray-300"}
-          disabled={selectedPoints.concat().length ? false : true}
+          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
+          disabled={selectedPoints.flat().length ? false : true}
         >
           <IconTag></IconTag>
         </button>
         <button
           onClick={toggleTextVisibility}
           title="Show peak labels"
-          className={plotData.concat().length ? "" : "!text-gray-300"}
-          disabled={plotData.concat().length ? false : true}
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
         >
           {!textVisibility ? (
             <IconTriangle></IconTriangle>
@@ -302,16 +307,16 @@ export default function ScatterPlot({
         <button
           onClick={savePlotImage}
           title="Save plot as .png"
-          className={plotData.concat().length ? "" : "!text-gray-300"}
-          disabled={plotData.concat().length ? false : true}
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
         >
           <IconDeviceFloppy></IconDeviceFloppy>
         </button>
         <button
           onClick={copyPlotImage}
           title="Copy plot image to clipboard"
-          className={plotData.concat().length ? "" : "!text-gray-300"}
-          disabled={plotData.concat().length ? false : true}
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
         >
           <IconCopy></IconCopy>
         </button>
@@ -322,8 +327,8 @@ export default function ScatterPlot({
               ? "Enable interpolation"
               : "Disable interpolation"
           }
-          className={plotData.concat().length ? "" : "!text-gray-300"}
-          disabled={plotData.concat().length ? false : true}
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
         >
           {!interpolationMode ? (
             <IconVector></IconVector>

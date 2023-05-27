@@ -65,6 +65,7 @@ export const constructXRFData = (
     type: "scatter",
     mode: "lines",
     textposition: "top center",
+    hoverinfo: "x+y+name",
     name: name,
     text: text
   }
