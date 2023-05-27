@@ -70,7 +70,7 @@ export default function FileDrawer({
     if (data.x && data.y) {
       const csvData = (data.x as number[])
         .map((e, i) => {
-          return [e, (data.x as number[])[i]].join(",")
+          return [e, (data.y as number[])[i]].join(",")
         })
         .join("\n")
       const blob = new Blob([csvData], { type: "text/csv" })
