@@ -26,6 +26,7 @@ export const convertDat = (rawData: string): ParsedData => {
     .map((e) => e.trim())
     .filter((e) => e ?? "0")
   const hasHeaderString: boolean = parsedData[0].split(" ").length === 2
+
   if (!hasHeaderString) {
     throw new Error("Couldn't convert passed data")
   }
@@ -143,9 +144,9 @@ export const calculateElementDataScaleFactor = (
   XRFData: Partial<ScatterData>[]
 ): number => {
   const data = XRFData.flatMap((e) => e.y as number[]).filter((e) => e)
-  if (!data || !data.length) {
+  if (!data?.length) {
     return 1
   }
-  const scaleFactor = Math.max(...(data as number[]))
+  const scaleFactor = Math.max(...data)
   return scaleFactor / 2
 }

@@ -2,7 +2,6 @@ import { FileProps } from "../utils/interfaces"
 import {
   IconCsv,
   IconX,
-  IconFiles,
   IconSelectAll,
   IconDeselect,
   IconResize

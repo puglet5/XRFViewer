@@ -5,7 +5,7 @@ import Plotly, {
   ScatterData
 } from "plotly.js-basic-dist-min"
 import { elementSymbols } from "@/data/elementData"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import html2canvas from "html2canvas"
 import {
   IconDeviceFloppy,
@@ -167,7 +167,6 @@ export default function ScatterPlot({
       return
     }
     const point = data.points[0].pointIndex
-    const trace = data.points[0].curveNumber
     const elementIndex = elementSymbols.indexOf(traceName)
     const pointsToUpdate = selectedPoints
 

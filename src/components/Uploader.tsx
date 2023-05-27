@@ -6,7 +6,6 @@ import { DragDrop } from "@uppy/react"
 import { constructXRFData } from "../utils/converters"
 import { ScatterData } from "plotly.js"
 import { UppyFile } from "@uppy/core"
-import { findPeaks } from "@/utils/processing"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>

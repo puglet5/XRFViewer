@@ -1,5 +1,5 @@
 import FileDrawer from "./components/FileDrawer"
-import { Resizable, ResizableProps } from "re-resizable"
+import { Resizable } from "re-resizable"
 import { useState, useEffect, useRef } from "react"
 import { FileProps } from "./utils/interfaces"
 import Uploader from "./components/Uploader"

@@ -51,37 +51,42 @@ export const findPeaks = (data: ParsedData): Peak[] => {
   const x: number[] = [...data.x]
   const y: number[] = [...data.y]
   const maxIntensity = Math.max(...y)
-  const step = x[1] - x[0]
+  const xStep = x[1] - x[0]
 
-  const firstDerivative = calculateFirstDerivative(y, step)
+  const firstDerivative = calculateFirstDerivative(y, xStep)
 
   const radius = 6
-  const derivativeZeroes = firstDerivative
-    .map((_, i) => {
-      if (i > radius) {
-        if (firstDerivative[i] >= 0 && firstDerivative[i + 1] < 0) {
-          const localPoints = y.slice(i - radius, i + radius)
-          const localAverage: number =
-            localPoints.reduce((a, b) => a + b) / (2 * radius + 1)
-          if (y[i] >= 1.2 * localAverage) {
-            const maxIndex = localPoints.findIndex(
-              (e) => e === Math.max(...localPoints)
-            )
-            return [i + maxIndex - radius, x[i + maxIndex - radius]]
-          } else return null
-        } else return null
-      }
-    })
-    .map((e) => {
-      if (e) {
-        return {
-          position: e[1],
-          positionIndex: e[0],
-          intensity: y[e[0]]
+  const filteredDerivativeZeroes = firstDerivative.map((_, i) => {
+    if (i > radius) {
+      if (firstDerivative[i] >= 0 && firstDerivative[i + 1] < 0) {
+        const localPoints = y.slice(i - radius, i + radius)
+        const localAverage =
+          localPoints.reduce((a, b) => a + b) / (2 * radius + 1)
+        if (y[i] >= 1.2 * localAverage) {
+          const maxIndex = localPoints.findIndex(
+            (e) => e === Math.max(...localPoints)
+          )
+          return {
+            index: i + maxIndex - radius,
+            position: x[i + maxIndex - radius]
+          }
         }
       }
-    })
-    .filter((e) => (e?.intensity ?? 0) >= 0.005 * maxIntensity) as Peak[]
+    }
+  })
 
-  return derivativeZeroes
+  const peaks: Peak[] = filteredDerivativeZeroes
+    .flatMap((peak) => {
+      if (peak) {
+        return {
+          position: peak.position,
+          positionIndex: peak.index,
+          intensity: y[peak.index],
+          relativeIntensity: y[peak.index] / maxIntensity
+        }
+      } else return []
+    })
+    .filter((e) => (e?.intensity ?? 0) >= 0.005 * maxIntensity)
+
+  return peaks
 }
