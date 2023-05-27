@@ -1,6 +1,7 @@
-// https://github.com/d3/d3-array/blob/main/src/blur.js
+import { Peak } from "./interfaces"
+import { ParsedData } from "./interfaces"
 
-function bluri(radius: number) {
+const bluri = (radius: number) => {
   const w = 2 * radius + 1
   return (
     T: number[],
@@ -23,8 +24,9 @@ function bluri(radius: number) {
   }
 }
 
-export function smooth(values: number[], radius: number) {
-  let length = values.length
+export const smooth = (values: number[], radius: number) => {
+  // adapted from https://github.com/d3/d3-array/blob/main/src/blur.js
+  const length = values.length
   if (!length || !radius) return values
   const blur = bluri(radius)
   const temp = [...values]
@@ -32,4 +34,54 @@ export function smooth(values: number[], radius: number) {
   blur(temp, values, 0, length, 1)
   blur(values, temp, 0, length, 1)
   return values
+}
+
+const calculateFirstDerivative = (data: number[], step: number) => {
+  const [a, b, c, d] = [11 / 6, 3, 1.5, 1 / 3]
+  const firstDerivative = data.flatMap((e, i) =>
+    i < data.length - 4
+      ? (-a * data[i] + b * data[i + 1] - c * data[i + 2] + d * data[i + 3]) /
+        step
+      : 0
+  )
+  return smooth(firstDerivative, 3)
+}
+
+export const findPeaks = (data: ParsedData): Peak[] => {
+  const x: number[] = [...data.x]
+  const y: number[] = [...data.y]
+  const maxIntensity = Math.max(...y)
+  const step = x[1] - x[0]
+
+  const firstDerivative = calculateFirstDerivative(y, step)
+
+  const radius = 6
+  const derivativeZeroes = firstDerivative
+    .map((_, i) => {
+      if (i > radius) {
+        if (firstDerivative[i] >= 0 && firstDerivative[i + 1] < 0) {
+          const localPoints = y.slice(i - radius, i + radius)
+          const localAverage: number =
+            localPoints.reduce((a, b) => a + b) / (2 * radius + 1)
+          if (y[i] >= 1.2 * localAverage) {
+            const maxIndex = localPoints.findIndex(
+              (e) => e === Math.max(...localPoints)
+            )
+            return [i + maxIndex - radius, x[i + maxIndex - radius]]
+          } else return null
+        } else return null
+      }
+    })
+    .map((e) => {
+      if (e) {
+        return {
+          position: e[1],
+          positionIndex: e[0],
+          intensity: y[e[0]]
+        }
+      }
+    })
+    .filter((e) => (e?.intensity ?? 0) >= 0.005 * maxIntensity) as Peak[]
+
+  return derivativeZeroes
 }

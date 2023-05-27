@@ -45,7 +45,7 @@ export default function ModificationModal({
     )
 
     const newXRFData = dataToModify.map((data) => {
-      let y = [...(data.y as number[])]
+      const y = [...(data.y as number[])]
       return {
         ...data,
         y: smooth(y, smoothingFactor).map((e) => e * scaleFactor),
@@ -72,7 +72,6 @@ export default function ModificationModal({
     })
 
     const newFileData = selectedFiles.map((e, i) => {
-      console.log(e)
       return {
         ...fileData[e],
         name: `${fileData[e].name} [scaled ${modifications[

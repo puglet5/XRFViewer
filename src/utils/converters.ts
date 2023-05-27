@@ -4,11 +4,8 @@ import {
   emissionLinePlotLabels
 } from "../data/emissionLinePlotData"
 import { ScatterData } from "plotly.js"
-
-interface ParsedData {
-  x: number[] | undefined
-  y: number[] | undefined
-}
+import { ParsedData } from "./interfaces"
+import { findPeaks } from "./processing"
 
 const generateLinspace = (
   startValue: number,
@@ -24,9 +21,14 @@ const generateLinspace = (
 }
 
 export const convertDat = (rawData: string): ParsedData => {
-  const parsedData: string[] = rawData.split("\n").map((e) => e.trim())
+  const parsedData: string[] = rawData
+    .split("\n")
+    .map((e) => e.trim())
+    .filter((e) => e ?? "0")
   const hasHeaderString: boolean = parsedData[0].split(" ").length === 2
-  if (!hasHeaderString) return { x: undefined, y: undefined }
+  if (!hasHeaderString) {
+    throw new Error("Couldn't convert passed data")
+  }
 
   const lineCount: number = parsedData.filter((item) => item).length - 1
   const xRange: [number, number] = [0, 40]
@@ -38,7 +40,6 @@ export const convertDat = (rawData: string): ParsedData => {
       return i >= 2 ? parseFloat(e.trim()) : []
     })
   }
-
   return plotData
 }
 
@@ -46,12 +47,26 @@ export const constructXRFData = (
   parsedData: ParsedData,
   name: string
 ): Partial<ScatterData> => {
+  const peaks = findPeaks(parsedData)
+  const peakIndices = peaks.map((e) => e.positionIndex)
+  const text = parsedData.x.map((e, i) => {
+    if (peakIndices.includes(i)) {
+      return (
+        peaks
+          .find((e) => e.positionIndex === i)
+          ?.position.toFixed(2)
+          .toString() ?? ""
+      )
+    } else return ""
+  })
   return {
     x: parsedData.x,
     y: parsedData.y,
     type: "scatter",
     mode: "lines",
-    name: name
+    textposition: "top center",
+    name: name,
+    text: text
   }
 }
 

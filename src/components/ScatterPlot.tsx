@@ -14,7 +14,9 @@ import {
   IconVector,
   IconVectorOff,
   IconTag,
-  IconTagsOff
+  IconTagsOff,
+  IconTriangle,
+  IconTriangleOff
 } from "@tabler/icons-react"
 import { emissionLinePlotData } from "@/data/emissionLinePlotData"
 
@@ -120,6 +122,7 @@ export default function ScatterPlot({
     !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
   )
   const [interpolationMode, setInterpolationMode] = useState<boolean>(false)
+  const [textVisibility, setTextVisibility] = useState<boolean>(false)
 
   const toggleLineHoverLabels = () => {
     const elementDataIndices = plotData.flatMap((e, i) =>
@@ -241,6 +244,22 @@ export default function ScatterPlot({
     setInterpolationMode(!interpolationMode)
   }
 
+  const toggleTextVisibility = () => {
+    const traceMode = !textVisibility ? "text+lines" : "lines"
+
+    const traceIndices = plotData.flatMap((e, i) => {
+      if (!elementSymbols.includes(e.name!)) {
+        return i
+      } else return []
+    })
+
+    Plotly.restyle("plotMain", { mode: traceMode }, traceIndices)
+
+    console.log(traceMode)
+
+    setTextVisibility(!textVisibility)
+  }
+
   return (
     <>
       <div
@@ -250,8 +269,8 @@ export default function ScatterPlot({
         <button
           onClick={toggleLineHoverLabels}
           title="Toggle emission line labels"
-          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
-          disabled={selectedPoints.flat().length ? false : true}
+          className={selectedPoints.concat().length ? "" : "!text-gray-300"}
+          disabled={selectedPoints.concat().length ? false : true}
         >
           {!lineLabelsVisibility ? (
             <IconTags></IconTags>
@@ -262,24 +281,37 @@ export default function ScatterPlot({
         <button
           onClick={resetPointSelection}
           title="Reset point selection"
-          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
-          disabled={selectedPoints.flat().length ? false : true}
+          className={selectedPoints.concat().length ? "" : "!text-gray-300"}
+          disabled={selectedPoints.concat().length ? false : true}
         >
           <IconTag></IconTag>
         </button>
         <button
+          onClick={toggleTextVisibility}
+          title="Show peak labels"
+          className={plotData.concat().length ? "" : "!text-gray-300"}
+          disabled={plotData.concat().length ? false : true}
+        >
+          {!textVisibility ? (
+            <IconTriangle></IconTriangle>
+          ) : (
+            <IconTriangleOff></IconTriangleOff>
+          )}
+        </button>
+
+        <button
           onClick={savePlotImage}
           title="Save plot as .png"
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
+          className={plotData.concat().length ? "" : "!text-gray-300"}
+          disabled={plotData.concat().length ? false : true}
         >
           <IconDeviceFloppy></IconDeviceFloppy>
         </button>
         <button
           onClick={copyPlotImage}
           title="Copy plot image to clipboard"
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
+          className={plotData.concat().length ? "" : "!text-gray-300"}
+          disabled={plotData.concat().length ? false : true}
         >
           <IconCopy></IconCopy>
         </button>
@@ -290,8 +322,8 @@ export default function ScatterPlot({
               ? "Enable interpolation"
               : "Disable interpolation"
           }
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
+          className={plotData.concat().length ? "" : "!text-gray-300"}
+          disabled={plotData.concat().length ? false : true}
         >
           {!interpolationMode ? (
             <IconVector></IconVector>

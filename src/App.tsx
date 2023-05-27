@@ -218,7 +218,7 @@ export default function App() {
         }}
         minWidth={0}
         snap={{
-          x: [0, remToPx(4), ...Array.from({ length: 200 }, (_v, i) => i + 200)]
+          x: [0, remToPx(4), ...Array.from({ length: 200 }, (_, i) => i + 200)]
         }}
         defaultSize={{ width: 300, height: "100%" }}
         maxWidth={400}

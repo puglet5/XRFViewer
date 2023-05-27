@@ -49,8 +49,8 @@ export default function FileDrawer({
   }, [selectedFiles])
 
   const removeFile = (fileIndex: number) => {
-    const newFileData = fileData.filter((_e, i) => i !== fileIndex)
-    const newXRFData = currentXRFData.filter((_e, i) => i !== fileIndex)
+    const newFileData = fileData.filter((_, i) => i !== fileIndex)
+    const newXRFData = currentXRFData.filter((_, i) => i !== fileIndex)
     localStorage.setItem("fileData", JSON.stringify(newFileData))
     localStorage.setItem("currentXRFData", JSON.stringify(newXRFData))
     updateFileData(newFileData)

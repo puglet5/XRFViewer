@@ -6,6 +6,7 @@ import { DragDrop } from "@uppy/react"
 import { constructXRFData } from "../utils/converters"
 import { ScatterData } from "plotly.js"
 import { UppyFile } from "@uppy/core"
+import { findPeaks } from "@/utils/processing"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -48,12 +49,10 @@ export default function Uploader({
         reader.readAsText(e.data)
         reader.onload = () => {
           if (reader.result) {
+            const XRFData = convertDat(reader.result as string)
             updateXRFData((prevData) => [
               ...prevData,
-              constructXRFData(
-                convertDat(reader.result as string),
-                e.name.split(".")[0]
-              )
+              constructXRFData(XRFData, e.name.split(".")[0])
             ])
           }
         }
