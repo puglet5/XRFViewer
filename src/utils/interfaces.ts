@@ -13,9 +13,11 @@ export interface FileProps {
   isModified: boolean
   modifications?: {
     scaleFactor?: number
+    smoothingRadius?: number
   }
 }
 
 export interface Modification {
   scaleFactor?: number
+  smoothingRadius?: number
 }
