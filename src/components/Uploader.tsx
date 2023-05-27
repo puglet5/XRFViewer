@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import Uppy from '@uppy/core'
+import Uppy from "@uppy/core"
 import { convertDat } from "../utils/converters"
 import { FileProps } from "../utils/interfaces"
 import { DragDrop } from "@uppy/react"
@@ -8,8 +8,8 @@ import { ScatterData } from "plotly.js"
 import { UppyFile } from "@uppy/core"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>,
-  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>,
+  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
+  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>
   fileData: FileProps[]
 }
 
@@ -19,11 +19,14 @@ const uppy = new Uppy({
   allowMultipleUploadBatches: true,
   restrictions: {
     allowedFileTypes: [".dat"]
-  },
-  debug: true
+  }
 })
 
-export default function Uploader({ updateXRFData, updateFileData, fileData }: Props) {
+export default function Uploader({
+  updateXRFData,
+  updateFileData,
+  fileData
+}: Props) {
   useEffect(() => {
     const handler = (files: UppyFile[]) => {
       const newFileData: FileProps[] = files.map((e) => {
@@ -41,11 +44,17 @@ export default function Uploader({ updateXRFData, updateFileData, fileData }: Pr
       updateFileData([...fileData, ...newFileData])
 
       files.map((e) => {
-        const reader = new FileReader
+        const reader = new FileReader()
         reader.readAsText(e.data)
         reader.onload = () => {
           if (reader.result) {
-            updateXRFData((prevData) => ([...prevData, constructXRFData(convertDat(reader.result as string), e.name.split(".")[0])]))
+            updateXRFData((prevData) => [
+              ...prevData,
+              constructXRFData(
+                convertDat(reader.result as string),
+                e.name.split(".")[0]
+              )
+            ])
           }
         }
       })
@@ -56,8 +65,5 @@ export default function Uploader({ updateXRFData, updateFileData, fileData }: Pr
       uppy.cancelAll()
     }
   }, [updateXRFData, fileData])
-  return (
-    <DragDrop uppy={uppy} />
-  )
+  return <DragDrop uppy={uppy} />
 }
-

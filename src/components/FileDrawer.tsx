@@ -1,5 +1,12 @@
 import { FileProps } from "../utils/interfaces"
-import { IconCsv, IconX, IconFiles, IconSelectAll, IconDeselect, IconResize } from "@tabler/icons-react"
+import {
+  IconCsv,
+  IconX,
+  IconFiles,
+  IconSelectAll,
+  IconDeselect,
+  IconResize
+} from "@tabler/icons-react"
 import File from "./File"
 import { ScatterData } from "plotly.js"
 import { useEffect } from "react"
@@ -9,17 +16,29 @@ interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
   currentXRFData: Partial<ScatterData>[]
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>
-  updateModificationModalVisibility: React.Dispatch<React.SetStateAction<boolean>>
+  updateModificationModalVisibility: React.Dispatch<
+    React.SetStateAction<boolean>
+  >
   modificationModalVisibility: boolean
   fileData: FileProps[]
   selectedFiles: number[]
   updateSelectedFiles: React.Dispatch<React.SetStateAction<number[]>>
 }
 
-export default function FileDrawer({ fileData, updateFileData, updateXRFData, currentXRFData, updateModificationModalVisibility, modificationModalVisibility, updateSelectedFiles, selectedFiles }: Props) {
-
+export default function FileDrawer({
+  fileData,
+  updateFileData,
+  updateXRFData,
+  currentXRFData,
+  updateModificationModalVisibility,
+  modificationModalVisibility,
+  updateSelectedFiles,
+  selectedFiles
+}: Props) {
   useEffect(() => {
-    const selectedFileIndices = fileData.flatMap((e, i) => { return e.isSelected ? i : [] })
+    const selectedFileIndices = fileData.flatMap((e, i) => {
+      return e.isSelected ? i : []
+    })
     updateSelectedFiles([...selectedFileIndices])
   }, [fileData])
 
@@ -43,28 +62,39 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
     newFileData[fileIndex].isSelected = !newFileData[fileIndex].isSelected
     localStorage.setItem("fileData", JSON.stringify(newFileData))
     updateFileData(newFileData)
-    updateSelectedFiles(newFileData.flatMap((e, i) => e.isSelected ? i : []))
+    updateSelectedFiles(newFileData.flatMap((e, i) => (e.isSelected ? i : [])))
   }
 
   const downloadCSV = (fileIndex: number) => {
     const data = currentXRFData[fileIndex]
     if (data.x && data.y) {
-      const csvData = (data.x as number[]).map((e, i) => { return [e, (data.x as number[])[i]].join(",") }).join('\n')
-      const blob = new Blob([csvData], { type: 'text/csv' })
+      const csvData = (data.x as number[])
+        .map((e, i) => {
+          return [e, (data.x as number[])[i]].join(",")
+        })
+        .join("\n")
+      const blob = new Blob([csvData], { type: "text/csv" })
       const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.setAttribute('href', url)
-      a.setAttribute('download', `${fileData[fileIndex].name.split(".")[0]}.csv`)
+      const a = document.createElement("a")
+      a.setAttribute("href", url)
+      a.setAttribute(
+        "download",
+        `${fileData[fileIndex].name.split(".")[0]}.csv`
+      )
       a.click()
     }
   }
 
   const toggleSelectAll = () => {
     if (selectedFiles.length) {
-      const newFileData = fileData.map(e => { return { ...e, isSelected: false } })
+      const newFileData = fileData.map((e) => {
+        return { ...e, isSelected: false }
+      })
       updateFileData([...newFileData])
     } else {
-      const newFileData = fileData.map(e => { return { ...e, isSelected: true } })
+      const newFileData = fileData.map((e) => {
+        return { ...e, isSelected: true }
+      })
       updateFileData([...newFileData])
     }
   }
@@ -73,22 +103,34 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
     return data.map((e, i) => {
       return (
         <div key={createId()}>
-          <div className="flex w-full h-full flex-nowrap">
+          <div className="flex h-full w-full flex-nowrap">
             <button
               onClick={() => toggleFileSelection(i)}
-              className="font-medium my-auto"
+              className="my-auto font-medium"
             >
               {/* <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto" /> */}
-              <span className={`${e.isSelected ? " !bg-neutral-300" : ""} p-1 border border-black aspect-square rounded-sm mr-2`}>
+              <span
+                className={`${
+                  e.isSelected ? " !bg-neutral-300" : ""
+                } mr-2 aspect-square rounded-sm border border-black p-1`}
+              >
                 {e.type.toUpperCase()}
               </span>
             </button>
             <File fileData={e} isSelected={e.isSelected} />
-            <div className="flex flex-nowrap ml-2 my-auto text-acc">
-              <button onClick={() => removeFile(i)} className="" title="Remove file">
+            <div className="my-auto ml-2 flex flex-nowrap text-acc">
+              <button
+                onClick={() => removeFile(i)}
+                className=""
+                title="Remove file"
+              >
                 <IconX />
               </button>
-              <button onClick={() => downloadCSV(i)} className="" title="Download .csv">
+              <button
+                onClick={() => downloadCSV(i)}
+                className=""
+                title="Download .csv"
+              >
                 <IconCsv />
               </button>
             </div>
@@ -100,33 +142,33 @@ export default function FileDrawer({ fileData, updateFileData, updateXRFData, cu
 
   return (
     <div>
-      {fileData.length ?
+      {fileData.length ? (
         <div>
-          <div className=" text-acc @2xs/sidebar:flex hidden space-x-1 border-b border-ptx/20 mx-3">
-            <button onClick={() => toggleSelectAll()} title={selectedFiles.length ? "Deselect all" : "Select all"}>
-              {
-                selectedFiles.length ? <IconDeselect /> : <IconSelectAll />
-              }
+          <div className=" mx-3 hidden space-x-1 border-b border-ptx/20 text-acc @2xs/sidebar:flex">
+            <button
+              onClick={() => toggleSelectAll()}
+              title={selectedFiles.length ? "Deselect all" : "Select all"}
+            >
+              {selectedFiles.length ? <IconDeselect /> : <IconSelectAll />}
             </button>
             <button
               title={selectedFiles.length ? "Toggle modification modal" : ""}
               className={selectedFiles.length ? "" : "text-gray-300"}
               disabled={selectedFiles.length ? false : true}
-              onClick={() => updateModificationModalVisibility(!modificationModalVisibility)}
+              onClick={() =>
+                updateModificationModalVisibility(!modificationModalVisibility)
+              }
             >
               <IconResize />
             </button>
           </div>
-          <div className="p-2 flex-col @2xs/sidebar:flex hidden">
-            <div className="text-sm flex flex-col space-y-1.5">
+          <div className="hidden flex-col p-2 @2xs/sidebar:flex">
+            <div className="flex flex-col space-y-1.5 text-sm">
               {constructFileDrawer(fileData)}
             </div>
           </div>
         </div>
-        : null
-      }
+      ) : null}
     </div>
   )
 }
-
-

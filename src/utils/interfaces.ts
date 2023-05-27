@@ -1,10 +1,10 @@
 export interface Point {
-  x: number,
+  x: number
   y: number
 }
 
 export interface FileProps {
-  id: string
+  readonly id: string
   name: string
   size?: number
   type: string
@@ -14,4 +14,8 @@ export interface FileProps {
   modifications?: {
     scaleFactor?: number
   }
+}
+
+export interface Modification {
+  scaleFactor?: number
 }
