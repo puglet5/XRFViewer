@@ -2,19 +2,10 @@ import { rmSync } from 'node:fs'
 import path from 'node:path'
 import { PluginOption, defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import electron from 'vite-plugin-electron'
-import renderer from 'vite-plugin-electron-renderer'
-import pkg from './package.json'
 import { visualizer } from "rollup-plugin-visualizer"
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
-  rmSync('dist-electron', { recursive: true, force: true })
-
-  const isServe = command === 'serve'
-  const isBuild = command === 'build'
-  const sourcemap = isServe || !!process.env.VSCODE_DEBUG
-
   return {
     resolve: {
       alias: {
@@ -23,64 +14,23 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       react(),
-      electron([
-        {
-          // Main-Process entry file of the Electron App.
-          entry: 'electron/main/index.ts',
-          onstart(options) {
-            if (process.env.VSCODE_DEBUG) {
-              console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Electron App')
-            } else {
-              options.startup()
-            }
-          },
-          vite: {
-            build: {
-              sourcemap,
-              minify: isBuild,
-              outDir: 'dist-electron/main',
-              rollupOptions: {
-                external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-              },
-            },
-          },
-        },
-        {
-          entry: 'electron/preload/index.ts',
-          onstart(options) {
-            // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete,
-            // instead of restarting the entire Electron App.
-            options.reload()
-          },
-          vite: {
-            build: {
-              sourcemap: sourcemap ? 'inline' : undefined, // #332
-              minify: isBuild,
-              outDir: 'dist-electron/preload',
-              rollupOptions: {
-                external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-              },
-            },
-          },
-        }
-      ]),
-      // Use Node.js API in the Renderer-process
-      renderer(),
       visualizer({
-        template: "treemap", // or sunburst
+        template: "treemap",
         open: true,
         gzipSize: true,
         brotliSize: true,
-        filename: "analyse.html", // will be saved in project's root
+        filename: "analyse.html",
       }) as PluginOption,
     ],
-    server: process.env.VSCODE_DEBUG && (() => {
-      const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL)
-      return {
-        host: url.hostname,
-        port: +url.port,
-      }
-    })(),
     clearScreen: false,
+    server: {
+      strictPort: true,
+    },
+    envPrefix: ['VITE_', 'TAURI_'],
+    build: {
+      target: "es2020",
+      minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
+      sourcemap: !!process.env.TAURI_DEBUG,
+    },
   }
 })

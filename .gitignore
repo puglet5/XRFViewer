@@ -34,3 +34,7 @@ yarn.lock
 
 # rollup visualizer plugin output
 analyse.html
+
+icons
+target
+WixTools
