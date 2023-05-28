@@ -34,3 +34,5 @@ yarn.lock
 
 # rollup visualizer plugin output
 analyse.html
+
+src-tauri
