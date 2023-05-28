@@ -16,7 +16,7 @@ X-ray fluorescence (XRF) spectral data visualizer and editor.
 
 ## Authors
 
-Michael Basmanov [@puglet5](basmanov@itmo.ru)
+Michael Basmanov @puglet5
 
 ## Version History
 
