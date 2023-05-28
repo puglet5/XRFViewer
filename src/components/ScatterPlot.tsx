@@ -145,7 +145,7 @@ export default function ScatterPlot({
           selected: { marker: { opacity: 0 } }
         })
       } catch (TypeError) {
-        console.log("Caught plotly restyle TypeError")
+        console.warn("Caught plotly restyle TypeError")
       }
     } else {
       try {
@@ -153,7 +153,7 @@ export default function ScatterPlot({
           selected: { marker: { opacity: 1 } }
         })
       } catch (TypeError) {
-        console.log("Caught plotly restyle TypeError")
+        console.warn("Caught plotly restyle TypeError")
       }
       ;(Plotly as any).Fx.hover("plotMain", [])
     }
@@ -192,7 +192,7 @@ export default function ScatterPlot({
           selected: { marker: { opacity: 1 } }
         })
       } catch (TypeError) {
-        console.log("Plotly restyle TypeError")
+        console.warn("Caught Plotly restyle TypeError")
       }
     }
     setLineLabelsVisibility(false)
@@ -242,7 +242,7 @@ export default function ScatterPlot({
     try {
       Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
     } catch (TypeError) {
-      console.log("Caught Plotly restyle error")
+      console.warn("Caught Plotly restyle error")
     }
     setInterpolationMode(!interpolationMode)
   }
@@ -258,7 +258,7 @@ export default function ScatterPlot({
     try {
       Plotly.restyle("plotMain", { mode: traceMode }, traceIndices)
     } catch (TypeError) {
-      console.log("Caught Plotly restyle error")
+      console.warn("Caught Plotly restyle error")
     }
 
     setTextVisibility(!textVisibility)

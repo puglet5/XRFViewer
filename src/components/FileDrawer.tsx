@@ -4,12 +4,15 @@ import {
   IconX,
   IconSelectAll,
   IconDeselect,
-  IconResize
+  IconResize,
+  IconCaretDown,
+  IconCaretUp
 } from "@tabler/icons-react"
 import File from "./File"
 import { ScatterData } from "plotly.js"
 import { useEffect } from "react"
 import { createId } from "@paralleldrive/cuid2"
+import { Menu } from "@headlessui/react"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -102,7 +105,7 @@ export default function FileDrawer({
     return data.map((e, i) => {
       return (
         <div key={createId()}>
-          <div className="flex h-full w-full flex-nowrap">
+          <div className="flex h-full w-full select-none flex-nowrap">
             <button
               onClick={() => toggleFileSelection(i)}
               className="my-auto font-medium"
@@ -125,13 +128,22 @@ export default function FileDrawer({
               >
                 <IconX />
               </button>
-              <button
-                onClick={() => downloadCSV(i)}
-                className=""
-                title="Download .csv"
-              >
-                <IconCsv />
-              </button>
+              <Menu>
+                <Menu.Button as="div" className={"ui-open:rotate-180"}>
+                  <IconCaretDown></IconCaretDown>
+                  <IconCaretUp className={"hidden"}></IconCaretUp>
+                </Menu.Button>
+                <Menu.Items className="absolute right-0 mr-2 mt-6 flex w-32 items-center justify-center rounded-sm border border-ptx bg-white">
+                  <Menu.Item>
+                    <button
+                      onClick={() => downloadCSV(i)}
+                      title="Download .csv"
+                    >
+                      <IconCsv className="my-auto" />
+                    </button>
+                  </Menu.Item>
+                </Menu.Items>
+              </Menu>
             </div>
           </div>
         </div>
