@@ -20,16 +20,30 @@ const generateLinspace = (
   return arr
 }
 
-export const convertDat = (rawData: string): ParsedData => {
+export const validateData = (rawData: string, dataType: string): boolean => {
+  if (dataType === ".dat") {
+    const parsedData: string[] = rawData
+      .split("\n")
+      .map((e) => e.trim())
+      .filter((e) => e ?? "0")
+    const hasHeaderString: boolean = parsedData[0].split(" ").length === 2
+    let bodyData = parsedData.slice(1)
+    const hasValidFormat: boolean =
+      hasHeaderString &&
+      bodyData.every((e) => typeof e === "string") &&
+      !bodyData.map((e) => Number(e)).includes(NaN)
+
+    return hasValidFormat
+  }
+
+  return false
+}
+
+export const convertData = (rawData: string): ParsedData => {
   const parsedData: string[] = rawData
     .split("\n")
     .map((e) => e.trim())
     .filter((e) => e ?? "0")
-  const hasHeaderString: boolean = parsedData[0].split(" ").length === 2
-
-  if (!hasHeaderString) {
-    throw new Error("Couldn't convert passed data")
-  }
 
   const lineCount: number = parsedData.filter((item) => item).length - 1
   const xRange: [number, number] = [0, 40]

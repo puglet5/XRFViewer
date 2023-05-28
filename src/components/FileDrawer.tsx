@@ -113,7 +113,7 @@ export default function FileDrawer({
                   e.isSelected ? " !bg-neutral-300" : ""
                 } mr-2 aspect-square rounded-sm border border-black p-1`}
               >
-                {e.type.toUpperCase()}
+                {e.type.replace(".", "").toUpperCase()}
               </span>
             </button>
             <File fileData={e} isSelected={e.isSelected} />

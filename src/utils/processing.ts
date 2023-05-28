@@ -86,7 +86,7 @@ export const findPeaks = (data: ParsedData): Peak[] => {
         }
       } else return []
     })
-    .filter((e) => (e?.intensity ?? 0) >= 0.005 * maxIntensity)
+    .filter((e) => (e?.intensity ?? 0) >= 0.01 * maxIntensity)
 
   return peaks
 }
