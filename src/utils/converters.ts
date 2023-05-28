@@ -27,7 +27,7 @@ export const validateData = (rawData: string, dataType: string): boolean => {
       .map((e) => e.trim())
       .filter((e) => e ?? "0")
     const hasHeaderString: boolean = parsedData[0].split(" ").length === 2
-    let bodyData = parsedData.slice(1)
+    const bodyData = parsedData.slice(1)
     const hasValidFormat: boolean =
       hasHeaderString &&
       bodyData.every((e) => typeof e === "string") &&

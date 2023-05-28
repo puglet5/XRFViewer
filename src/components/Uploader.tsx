@@ -32,14 +32,14 @@ export default function Uploader({ updateXRFData, updateFileData }: Props) {
         const reader = new FileReader()
         reader.readAsText(e.data)
         reader.onload = () => {
-          let rawData = reader.result
-          let fileType = `.${e.name.split(".").at(-1) ?? ""}`
+          const rawData = reader.result
+          const fileType = `.${e.name.split(".").at(-1) ?? ""}`
           if (
             typeof rawData === "string" &&
             validFileTypes.includes(fileType) &&
             validateData(rawData, fileType)
           ) {
-            let newFileData = {
+            const newFileData = {
               id: createId(),
               name: e.name.split(".")[0],
               size: e.size,
