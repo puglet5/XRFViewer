@@ -25,7 +25,11 @@ const uppy = new Uppy({
   }
 })
 
-export default function Uploader({ updateXRFData, updateFileData }: Props) {
+export default function Uploader({
+  updateXRFData,
+  updateFileData,
+  fileData
+}: Props) {
   useEffect(() => {
     const handler = (files: UppyFile[]) => {
       files.map((e) => {
@@ -64,6 +68,6 @@ export default function Uploader({ updateXRFData, updateFileData }: Props) {
       uppy.off("files-added", handler)
       uppy.cancelAll()
     }
-  }, [updateXRFData])
+  }, [updateXRFData, fileData])
   return <DragDrop uppy={uppy} />
 }

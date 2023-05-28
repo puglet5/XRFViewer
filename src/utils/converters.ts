@@ -77,7 +77,7 @@ export const constructXRFData = (
   return {
     x: parsedData.x,
     y: parsedData.y,
-    type: "scatter",
+    type: "scattergl",
     mode: "lines",
     textposition: "top center",
     hoverinfo: "x+y+name",
@@ -135,7 +135,7 @@ export const constructElementData = (
     return {
       x: lineData.x,
       y: lineData.y.map((e) => e * scaleFactor),
-      type: "scatter",
+      type: "scattergl",
       mode: "lines+markers",
       hoverinfo: "text",
       fill: "none",
