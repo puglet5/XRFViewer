@@ -1,12 +1,17 @@
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import Uppy from "@uppy/core"
-import { convertData, validateData } from "../utils/converters"
-import { FileProps } from "../utils/interfaces"
-import { FileInput } from "@uppy/react"
+import { convertData } from "../utils/converters"
+import {
+  FileProps,
+  isValidFileType,
+  ValidFileType,
+  ValidFileTypes
+} from "../utils/interfaces"
 import { constructXRFData } from "../utils/converters"
 import { ScatterData } from "plotly.js"
 import { UppyFile } from "@uppy/core"
 import { createId } from "@paralleldrive/cuid2"
+import { FileInput } from "@uppy/react"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -14,14 +19,12 @@ interface Props {
   fileData: FileProps[]
 }
 
-const validFileTypes = [".dat"]
-
 const uppy = new Uppy({
   autoProceed: false,
   allowMultipleUploads: true,
   allowMultipleUploadBatches: true,
   restrictions: {
-    allowedFileTypes: validFileTypes
+    allowedFileTypes: Object.values(ValidFileTypes)
   }
 })
 
@@ -39,11 +42,7 @@ export default function Uploader({
         reader.onload = () => {
           const rawData = reader.result
           const fileType = `.${e.name.split(".").at(-1) ?? ""}`
-          if (
-            typeof rawData === "string" &&
-            validFileTypes.includes(fileType) &&
-            validateData(rawData, fileType)
-          ) {
+          if (typeof rawData === "string" && isValidFileType(fileType)) {
             const newFileData = {
               id: createId(),
               name: e.name.split(".")[0],
@@ -54,12 +53,14 @@ export default function Uploader({
               isModified: false
             }
 
-            const XRFData = convertData(rawData)
-            updateXRFData((prevData) => [
-              ...prevData,
-              constructXRFData(XRFData, e.name.split(".")[0])
-            ])
-            updateFileData((prevData) => [...prevData, newFileData])
+            const XRFData = convertData(rawData, fileType)
+            if (XRFData) {
+              updateXRFData((prevData) => [
+                ...prevData,
+                constructXRFData(XRFData, e.name.split(".")[0])
+              ])
+              updateFileData((prevData) => [...prevData, newFileData])
+            }
           }
         }
       })

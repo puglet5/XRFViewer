@@ -62,27 +62,36 @@ export default function ModificationModal({
   }
 
   const applyModifications = (modifications: Modification[]) => {
-    if (
-      modifications.every((e) => e.scaleFactor == 1 && e.smoothingRadius == 0)
-    ) {
-      return
-    }
+    let noModsApplied = modifications.every(
+      (e) => e.scaleFactor === 1 && e.smoothingRadius === 0
+    )
+    if (noModsApplied) return
 
     const newXRFData = currentModifiedData.map((data, i) => {
+      let isScaled = modifications[i].scaleFactor !== 1
+      let isSmoothed = modifications[i].smoothingRadius !== 0
+
+      let name = `${data.name?.replace(" [modified]", "")} [${
+        isScaled ? "scaled " + modifications[i].scaleFactor?.toFixed(2) : ""
+      }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
+
       return {
         ...data,
-        name: `${data.name} [scaled ${modifications[i].scaleFactor?.toFixed(
-          2
-        )}${modifications[i].smoothingRadius ? ", smoothed" : ""}]`
+        name: name
       }
     })
 
     const newFileData = selectedFiles.map((e, i) => {
+      let isScaled = modifications[i].scaleFactor !== 1
+      let isSmoothed = modifications[i].smoothingRadius !== 0
+
+      let name = `${fileData[e].name.replace(" [modified]", "")} [${
+        isScaled ? "scaled " + modifications[i].scaleFactor?.toFixed(2) : ""
+      }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
+
       return {
         ...fileData[e],
-        name: `${fileData[e].name} [scaled ${modifications[
-          i
-        ].scaleFactor?.toFixed(2)}]`,
+        name: name,
         id: createId(),
         type: "mod",
         size: undefined,

@@ -27,3 +27,13 @@ export interface Peak {
   fwhm?: number
   assignment?: string
 }
+
+export enum ValidFileTypes {
+  CSV = ".csv",
+  DAT = ".dat"
+}
+
+export type ValidFileType = `${ValidFileTypes}`
+export const isValidFileType = <ValidFileType>(
+  fileType: any
+): fileType is ValidFileType => true

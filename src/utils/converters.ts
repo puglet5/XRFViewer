@@ -4,8 +4,21 @@ import {
   emissionLinePlotLabels
 } from "../data/emissionLinePlotData"
 import { ScatterData } from "plotly.js"
-import { ParsedData } from "./interfaces"
+import { ParsedData, isValidFileType } from "./interfaces"
 import { findPeaks } from "./processing"
+import { ValidFileType } from "./interfaces"
+
+type ProcessByFileTypeTable = {
+  [T in ValidFileType]: {
+    parse: (data: string) => ParsedData
+    validate: (data: string) => boolean
+  }
+}
+
+const parseTable: ProcessByFileTypeTable = {
+  ".dat": { parse: parseDat, validate: validateDat },
+  ".csv": { parse: parseCsv, validate: validateCsv }
+} as const
 
 const generateLinspace = (
   startValue: number,
@@ -20,27 +33,8 @@ const generateLinspace = (
   return arr
 }
 
-export const validateData = (rawData: string, dataType: string): boolean => {
-  if (dataType === ".dat") {
-    const parsedData: string[] = rawData
-      .split("\n")
-      .map((e) => e.trim())
-      .filter((e) => e ?? "0")
-    const hasHeaderString: boolean = parsedData[0].split(" ").length === 2
-    const bodyData = parsedData.slice(1)
-    const hasValidFormat: boolean =
-      hasHeaderString &&
-      bodyData.every((e) => typeof e === "string") &&
-      !bodyData.map((e) => Number(e)).includes(NaN)
-
-    return hasValidFormat
-  }
-
-  return false
-}
-
-export const convertData = (rawData: string): ParsedData => {
-  const parsedData: string[] = rawData
+function parseDat(data: string): ParsedData {
+  const parsedData: string[] = data
     .split("\n")
     .map((e) => e.trim())
     .filter((e) => e ?? "0")
@@ -56,6 +50,72 @@ export const convertData = (rawData: string): ParsedData => {
     })
   }
   return plotData
+}
+
+function parseCsv(data: string): ParsedData {
+  const parsedData: number[][] = data
+    .trim()
+    .split("\n")
+    .map((e) =>
+      e
+        .trim()
+        .split(",")
+        .map((e) => Number(e) ?? "0")
+    )
+  const transposedData = parsedData[0].map((col, i) =>
+    parsedData.map((row) => row[i])
+  )
+  const plotData = {
+    x: transposedData[0],
+    y: transposedData[1]
+  }
+
+  return plotData
+}
+
+function validateDat(data: string): boolean {
+  const parsedData: string[] = data
+    .split("\n")
+    .map((e) => e.trim())
+    .filter((e) => e ?? "0")
+  const hasHeaderString: boolean = parsedData[0].split(" ").length === 2
+  const bodyData = parsedData.slice(1)
+  const hasValidFormat: boolean =
+    hasHeaderString &&
+    bodyData.every((e) => typeof e === "string") &&
+    !bodyData.map((e) => Number(e)).includes(NaN)
+
+  return hasValidFormat
+}
+
+function validateCsv(data: string): boolean {
+  const parsedData: number[][] = data
+    .trim()
+    .split("\n")
+    .map((e) =>
+      e
+        .trim()
+        .split(",")
+        .map((e) => Number(e) ?? "0")
+    )
+
+  const hasTwoColumns: boolean = parsedData
+    .map((e) => e.length === 2)
+    .every((e) => e === true)
+
+  return hasTwoColumns
+}
+
+export const convertData = (
+  data: string,
+  fileType: string
+): ParsedData | null => {
+  if (isValidFileType(fileType)) {
+    return parseTable[fileType as ValidFileType].validate(data)
+      ? parseTable[fileType as ValidFileType].parse(data)
+      : null
+  }
+  return null
 }
 
 export const constructXRFData = (
