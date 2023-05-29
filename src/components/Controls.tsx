@@ -2,6 +2,7 @@ import { IconReload } from "@tabler/icons-react"
 import { FileProps } from "../utils/interfaces"
 import { ScatterData } from "plotly.js"
 import { emissionLinePlotData } from "@/data/emissionLinePlotData"
+import Uploader from "./Uploader"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -50,17 +51,28 @@ export default function Controls({
     )
   }
   return (
-    <div className="flex w-full space-x-2">
+    <div className="flex w-full items-center justify-center space-x-2">
       <button
         onClick={resetPlotData}
         title="Reset all"
         disabled={
           !currentXRFData.length && !fileData.length && !selectedElements.length
         }
-        className="mx-auto text-acc disabled:text-sfg"
+        className="text-acc disabled:text-sfg"
       >
-        <IconReload className="h-8 w-8" />
+        <IconReload className="h-6 w-6" />
       </button>
+      <div
+        id="uploader"
+        title={"Upload files"}
+        className="hidden h-full items-center justify-center @2xs/sidebar:flex"
+      >
+        <Uploader
+          updateXRFData={updateXRFData}
+          updateFileData={updateFileData}
+          fileData={fileData}
+        />
+      </div>
     </div>
   )
 }

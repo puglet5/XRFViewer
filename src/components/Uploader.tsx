@@ -1,8 +1,8 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import Uppy from "@uppy/core"
 import { convertData, validateData } from "../utils/converters"
 import { FileProps } from "../utils/interfaces"
-import { DragDrop } from "@uppy/react"
+import { FileInput } from "@uppy/react"
 import { constructXRFData } from "../utils/converters"
 import { ScatterData } from "plotly.js"
 import { UppyFile } from "@uppy/core"
@@ -30,6 +30,7 @@ export default function Uploader({
   updateFileData,
   fileData
 }: Props) {
+  useEffect(() => {}, [])
   useEffect(() => {
     const handler = (files: UppyFile[]) => {
       files.map((e) => {
@@ -69,5 +70,5 @@ export default function Uploader({
       uppy.cancelAll()
     }
   }, [updateXRFData, fileData])
-  return <DragDrop uppy={uppy} />
+  return <FileInput uppy={uppy} />
 }

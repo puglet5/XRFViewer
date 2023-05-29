@@ -13,6 +13,7 @@ import { ScatterData } from "plotly.js"
 import { useEffect } from "react"
 import { createId } from "@paralleldrive/cuid2"
 import { Menu } from "@headlessui/react"
+import Uploader from "./Uploader"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -172,6 +173,19 @@ export default function FileDrawer({
             >
               <IconResize />
             </button>
+            <Menu>
+              <Menu.Button as="div" className={"ui-open:rotate-180"}>
+                <IconCaretDown></IconCaretDown>
+                <IconCaretUp className={"hidden"}></IconCaretUp>
+              </Menu.Button>
+              <Menu.Items className="right-100 absolute mr-2 mt-6 flex w-32 items-center justify-center rounded-sm border border-ptx bg-white">
+                <Menu.Item>
+                  <button title="Download .csv">
+                    <IconCsv className="my-auto" />
+                  </button>
+                </Menu.Item>
+              </Menu.Items>
+            </Menu>
           </div>
           <div className="hidden flex-col p-2 @2xs/sidebar:flex">
             <div className="flex flex-col space-y-1.5 text-sm">

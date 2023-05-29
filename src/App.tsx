@@ -2,7 +2,6 @@ import FileDrawer from "./components/FileDrawer"
 import { Resizable } from "re-resizable"
 import { useState, useEffect, useRef } from "react"
 import { FileProps } from "./utils/interfaces"
-import Uploader from "./components/Uploader"
 import Controls from "./components/Controls"
 import PeriodicTable from "./components/PeriodicTable"
 import {
@@ -274,23 +273,6 @@ export default function App() {
               >
                 <IconBorderAll className="h-8 w-8" />
               </button>
-            </div>
-          </div>
-
-          <div id="uploader" className="mt-2 h-48 ">
-            <div className="hidden h-full items-center justify-center @2xs/sidebar:flex">
-              <div className="m-4 h-full w-full flex-grow items-center justify-center">
-                <Uploader
-                  updateXRFData={setCurrentXRFData}
-                  updateFileData={setFileData}
-                  fileData={fileData}
-                />
-              </div>
-            </div>
-            <div className="hidden items-center justify-center @[1px]/sidebar:flex">
-              <div className="flex items-center justify-center text-acc @2xs/sidebar:hidden">
-                <IconUpload className="h-8 w-8"></IconUpload>
-              </div>
             </div>
           </div>
 
