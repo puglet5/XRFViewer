@@ -51,7 +51,7 @@ export default function FileDrawer({
     }
   }, [selectedFiles])
 
-  const removeFile = (fileIndex: number) => {
+  function removeFile(fileIndex: number) {
     const newFileData = [...fileData]
     newFileData.splice(fileIndex, 1)
     const newXRFData = [...currentXRFData]
@@ -62,7 +62,7 @@ export default function FileDrawer({
     updateXRFData(newXRFData)
   }
 
-  const toggleFileSelection = (fileIndex: number) => {
+  function toggleFileSelection(fileIndex: number) {
     const newFileData = [...fileData]
     newFileData[fileIndex].isSelected = !newFileData[fileIndex].isSelected
     localStorage.setItem("fileData", JSON.stringify(newFileData))
@@ -70,7 +70,7 @@ export default function FileDrawer({
     updateSelectedFiles(newFileData.flatMap((e, i) => (e.isSelected ? i : [])))
   }
 
-  const downloadCSV = (fileIndex: number) => {
+  function downloadCSV(fileIndex: number) {
     const data = currentXRFData[fileIndex]
     if (data.x && data.y) {
       const csvData = (data.x as number[])
@@ -90,7 +90,7 @@ export default function FileDrawer({
     }
   }
 
-  const toggleSelectAll = () => {
+  function toggleSelectAll() {
     if (selectedFiles.length) {
       const newFileData = fileData.map((e) => {
         return { ...e, isSelected: false }
@@ -104,7 +104,7 @@ export default function FileDrawer({
     }
   }
 
-  const constructFileDrawer = (data: FileProps[]) => {
+  function constructFileDrawer(data: FileProps[]) {
     return data.map((e, i) => {
       return (
         <div key={createId()}>

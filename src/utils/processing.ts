@@ -1,7 +1,7 @@
 import { Peak } from "../common/interfaces"
 import { ParsedData } from "../common/interfaces"
 
-const bluri = (radius: number) => {
+function bluri(radius: number) {
   const w = 2 * radius + 1
   return (
     T: number[],
@@ -24,7 +24,7 @@ const bluri = (radius: number) => {
   }
 }
 
-export const smooth = (values: number[], radius: number) => {
+export function smooth(values: number[], radius: number) {
   // adapted from https://github.com/d3/d3-array/blob/main/src/blur.js
   const length = values.length
   if (!length || !radius) return values
@@ -36,7 +36,7 @@ export const smooth = (values: number[], radius: number) => {
   return values
 }
 
-const calculateFirstDerivative = (data: number[], step: number) => {
+function calculateFirstDerivative(data: number[], step: number) {
   const [a, b, c, d] = [11 / 6, 3, 1.5, 1 / 3]
   const firstDerivative = data.flatMap((e, i) =>
     i < data.length - 4
@@ -47,7 +47,7 @@ const calculateFirstDerivative = (data: number[], step: number) => {
   return smooth(firstDerivative, 3)
 }
 
-export const findPeaks = (data: ParsedData): Peak[] => {
+export function findPeaks(data: ParsedData): Peak[] {
   const x: number[] = [...data.x]
   const y: number[] = [...data.y]
   const maxIntensity = Math.max(...y)

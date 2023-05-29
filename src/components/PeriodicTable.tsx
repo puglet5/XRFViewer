@@ -16,7 +16,7 @@ export default function PeriodicTable({
   const tableRef = useRef(null)
   const nodeRef = useRef(null)
 
-  const handleClick = (e: MouseEvent) => {
+  function handleClick(e: MouseEvent) {
     const elementId: string = (e.target as HTMLElement).id
     if (tableRef.current) {
       const elementCell = Array.from(

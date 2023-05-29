@@ -20,11 +20,11 @@ const parseTable: ProcessByFileTypeTable = {
   ".csv": { parse: parseCsv, validate: validateCsv }
 } as const
 
-const generateLinspace = (
+function generateLinspace(
   startValue: number,
   stopValue: number,
   cardinality: number
-) => {
+) {
   const arr = []
   const step = (stopValue - startValue) / (cardinality - 1)
   for (let i = 0; i < cardinality; i++) {
@@ -106,10 +106,7 @@ function validateCsv(data: string): boolean {
   return hasTwoColumns
 }
 
-export const convertData = (
-  data: string,
-  fileType: string
-): ParsedData | null => {
+export function convertData(data: string, fileType: string): ParsedData | null {
   if (isValidFileType(fileType)) {
     return parseTable[fileType as ValidFileType].validate(data)
       ? parseTable[fileType as ValidFileType].parse(data)
@@ -118,10 +115,10 @@ export const convertData = (
   return null
 }
 
-export const constructXRFData = (
+export function constructXRFData(
   parsedData: ParsedData,
   name: string
-): Partial<ScatterData> => {
+): Partial<ScatterData> {
   const peaks = findPeaks(parsedData)
   const peakIndices = peaks.map((e) => e.positionIndex)
   const text = parsedData.x.map((e, i) => {
@@ -146,10 +143,10 @@ export const constructXRFData = (
   }
 }
 
-export const sortElementDataByAtomicNumber = (
+export function sortElementDataByAtomicNumber(
   a: Partial<ScatterData>,
   b: Partial<ScatterData>
-) => {
+) {
   if (a.name && b.name) {
     if (elementSymbols.indexOf(a.name) < elementSymbols.indexOf(b.name)) {
       return -1
@@ -161,11 +158,11 @@ export const sortElementDataByAtomicNumber = (
   } else return 0
 }
 
-export const constructElementData = (
+export function constructElementData(
   atomicNumbers: number[],
   scaleFactor: number,
   selectedPoints: (number | undefined)[][]
-): Partial<ScatterData>[] => {
+): Partial<ScatterData>[] {
   const elementIndices = atomicNumbers
     .map((e) =>
       emissionLinesData.elements.findIndex((x) => x.atomicNumber === e)
@@ -214,9 +211,9 @@ export const constructElementData = (
   return plotData as Partial<ScatterData>[]
 }
 
-export const calculateElementDataScaleFactor = (
+export function calculateElementDataScaleFactor(
   XRFData: Partial<ScatterData>[]
-): number => {
+): number {
   const data = XRFData.flatMap((e) => e.y as number[]).filter((e) => e)
   if (!data?.length) {
     return 1

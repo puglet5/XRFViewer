@@ -39,7 +39,7 @@ export default function Controls({
   updateModifiedData,
   currentModifiedData
 }: Props) {
-  const resetPlotData = () => {
+  function resetPlotData() {
     localStorage.clear()
     updatePlotData([])
     updateSelectedElements([])

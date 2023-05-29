@@ -105,7 +105,7 @@ export default function App() {
     }
   }, [])
 
-  const toggleSidebar = () => {
+  function toggleSidebar() {
     if (sidebarRef.current) {
       if (sidebarRef.current.state.width !== 0) {
         sidebarRef.current.updateSize({ width: 0, height: "auto" })

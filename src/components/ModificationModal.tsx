@@ -37,7 +37,7 @@ export default function ModificationModal({
   const smoothingSliderRef = useRef<HTMLSpanElement>(null)
   const nodeRef = useRef(null)
 
-  const modifyXRFData = (scaleFactor: number, smoothingFactor: number) => {
+  function modifyXRFData(scaleFactor: number, smoothingFactor: number) {
     if (scaleFactor < 0 || smoothingFactor < 0) return
 
     const dataToModify = currentXRFData.flatMap((e, i) =>
@@ -56,12 +56,12 @@ export default function ModificationModal({
     updateModifiedData([...newXRFData])
   }
 
-  const cancelModifications = () => {
+  function cancelModifications() {
     updateModificationModalVisibility(false)
     updateModifiedData([])
   }
 
-  const applyModifications = (modifications: Modification[]) => {
+  function applyModifications(modifications: Modification[]) {
     const noModsApplied = modifications.every(
       (e) => e.scaleFactor === 1 && e.smoothingRadius === 0
     )
@@ -107,7 +107,7 @@ export default function ModificationModal({
     updateModificationModalVisibility(false)
   }
 
-  const constructModifications = (): Modification[] => {
+  function constructModifications(): Modification[] {
     if (!isNaN(Number(scalingSliderRef.current?.innerHTML ?? NaN))) {
       return selectedFiles.map(() => {
         return {

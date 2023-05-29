@@ -128,7 +128,7 @@ export default function ScatterPlot({
 
   const dragLayerRef = useRef<HTMLElement | null>(null)
 
-  const toggleLineHoverLabels = () => {
+  function toggleLineHoverLabels() {
     const elementDataIndices = plotData.flatMap((e, i) =>
       elementSymbols.includes(e.name!) ? i : []
     )
@@ -142,7 +142,6 @@ export default function ScatterPlot({
         })
         return hoverPoints
       })
-
       ;(Plotly as any).Fx.hover("plotMain", allHoverPoints)
       try {
         ;(Plotly as any).restyle("plotMain", {
@@ -165,7 +164,7 @@ export default function ScatterPlot({
     localStorage.setItem("lineLabelsVisibility", JSON.stringify(true))
   }
 
-  const selectPoints = (data: Readonly<PlotMouseEvent>) => {
+  function selectPoints(data: Readonly<PlotMouseEvent>) {
     const traceName: string = (data.points[0] as any).fullData.name
     if (!elementSymbols.includes(traceName)) {
       return
@@ -189,7 +188,7 @@ export default function ScatterPlot({
     )
   }
 
-  const resetLineLabelVisibility = () => {
+  function resetLineLabelVisibility() {
     if (JSON.parse(localStorage.getItem("lineLabelsVisibility")!)) {
       try {
         ;(Plotly as any).restyle("plotMain", {
@@ -203,7 +202,7 @@ export default function ScatterPlot({
     localStorage.setItem("lineLabelsVisibility", JSON.stringify(false))
   }
 
-  const savePlotImage = () => {
+  function savePlotImage() {
     const plotDiv = document.getElementById("plotMain")!
     html2canvas(plotDiv).then((canvas) => {
       const url = canvas.toDataURL()
@@ -215,7 +214,7 @@ export default function ScatterPlot({
     })
   }
 
-  const copyPlotImage = () => {
+  function copyPlotImage() {
     const plotDiv = document.getElementById("plotMain")!
     html2canvas(plotDiv).then((canvas) =>
       canvas.toBlob(
@@ -229,7 +228,7 @@ export default function ScatterPlot({
     )
   }
 
-  const resetPointSelection = () => {
+  function resetPointSelection() {
     const emptyEmissionLineData = Array.from(
       { length: emissionLinePlotData.length },
       () => []
@@ -241,7 +240,7 @@ export default function ScatterPlot({
     updateSelectedPoints(emptyEmissionLineData)
   }
 
-  const toggleInterpolation = () => {
+  function toggleInterpolation() {
     const interpolationShape = interpolationMode ? "linear" : "spline"
     try {
       Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
@@ -251,7 +250,7 @@ export default function ScatterPlot({
     setInterpolationMode(!interpolationMode)
   }
 
-  const toggleTextVisibility = () => {
+  function toggleTextVisibility() {
     const traceMode = !textVisibility ? "text+lines" : "lines"
 
     const traceIndices = plotData.flatMap((e, i) => {
