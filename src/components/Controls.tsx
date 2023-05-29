@@ -1,5 +1,5 @@
 import { IconReload } from "@tabler/icons-react"
-import { FileProps } from "../utils/interfaces"
+import { FileProps } from "../common/interfaces"
 import { ScatterData } from "plotly.js"
 import { emissionLinePlotData } from "@/data/emissionLinePlotData"
 import Uploader from "./Uploader"

@@ -4,9 +4,9 @@ import {
   emissionLinePlotLabels
 } from "../data/emissionLinePlotData"
 import { ScatterData } from "plotly.js"
-import { ParsedData, isValidFileType } from "./interfaces"
+import { ParsedData, isValidFileType } from "../common/interfaces"
 import { findPeaks } from "./processing"
-import { ValidFileType } from "./interfaces"
+import { ValidFileType } from "../common/interfaces"
 
 type ProcessByFileTypeTable = {
   [T in ValidFileType]: {

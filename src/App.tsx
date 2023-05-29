@@ -1,7 +1,7 @@
 import FileDrawer from "./components/FileDrawer"
 import { Resizable } from "re-resizable"
 import { useState, useEffect, useRef } from "react"
-import { FileProps } from "./utils/interfaces"
+import { FileProps } from "./common/interfaces"
 import Controls from "./components/Controls"
 import PeriodicTable from "./components/PeriodicTable"
 import {

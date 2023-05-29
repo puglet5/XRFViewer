@@ -1,5 +1,5 @@
-import { Peak } from "./interfaces"
-import { ParsedData } from "./interfaces"
+import { Peak } from "../common/interfaces"
+import { ParsedData } from "../common/interfaces"
 
 const bluri = (radius: number) => {
   const w = 2 * radius + 1

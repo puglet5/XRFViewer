@@ -126,7 +126,7 @@ export default function ScatterPlot({
   const [interpolationMode, setInterpolationMode] = useState<boolean>(false)
   const [textVisibility, setTextVisibility] = useState<boolean>(false)
 
-  let dragLayerRef = useRef<HTMLElement | null>(null)
+  const dragLayerRef = useRef<HTMLElement | null>(null)
 
   const toggleLineHoverLabels = () => {
     const elementDataIndices = plotData.flatMap((e, i) =>

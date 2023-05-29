@@ -6,7 +6,7 @@ import {
   isValidFileType,
   ValidFileType,
   ValidFileTypes
-} from "../utils/interfaces"
+} from "../common/interfaces"
 import { constructXRFData } from "../utils/converters"
 import { ScatterData } from "plotly.js"
 import { UppyFile } from "@uppy/core"
@@ -33,7 +33,6 @@ export default function Uploader({
   updateFileData,
   fileData
 }: Props) {
-  useEffect(() => {}, [])
   useEffect(() => {
     const handler = (files: UppyFile[]) => {
       files.map((e) => {

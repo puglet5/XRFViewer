@@ -1,4 +1,4 @@
-import { FileProps } from "../utils/interfaces"
+import { FileProps } from "../common/interfaces"
 
 interface Props {
   fileData: FileProps

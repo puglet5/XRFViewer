@@ -1,4 +1,4 @@
-import { FileProps, Modification } from "@/utils/interfaces"
+import { FileProps, Modification } from "../common/interfaces"
 import { Dialog } from "@headlessui/react"
 import { createId } from "@paralleldrive/cuid2"
 import { ScatterData } from "plotly.js-basic-dist-min"
@@ -62,16 +62,16 @@ export default function ModificationModal({
   }
 
   const applyModifications = (modifications: Modification[]) => {
-    let noModsApplied = modifications.every(
+    const noModsApplied = modifications.every(
       (e) => e.scaleFactor === 1 && e.smoothingRadius === 0
     )
     if (noModsApplied) return
 
     const newXRFData = currentModifiedData.map((data, i) => {
-      let isScaled = modifications[i].scaleFactor !== 1
-      let isSmoothed = modifications[i].smoothingRadius !== 0
+      const isScaled = modifications[i].scaleFactor !== 1
+      const isSmoothed = modifications[i].smoothingRadius !== 0
 
-      let name = `${data.name?.replace(" [modified]", "")} [${
+      const name = `${data.name?.replace(" [modified]", "")} [${
         isScaled ? "scaled " + modifications[i].scaleFactor?.toFixed(2) : ""
       }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
 
@@ -82,10 +82,10 @@ export default function ModificationModal({
     })
 
     const newFileData = selectedFiles.map((e, i) => {
-      let isScaled = modifications[i].scaleFactor !== 1
-      let isSmoothed = modifications[i].smoothingRadius !== 0
+      const isScaled = modifications[i].scaleFactor !== 1
+      const isSmoothed = modifications[i].smoothingRadius !== 0
 
-      let name = `${fileData[e].name.replace(" [modified]", "")} [${
+      const name = `${fileData[e].name.replace(" [modified]", "")} [${
         isScaled ? "scaled " + modifications[i].scaleFactor?.toFixed(2) : ""
       }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
 
