@@ -62,6 +62,12 @@ export default function ModificationModal({
   }
 
   const applyModifications = (modifications: Modification[]) => {
+    if (
+      modifications.every((e) => e.scaleFactor == 1 && e.smoothingRadius == 0)
+    ) {
+      return
+    }
+
     const newXRFData = currentModifiedData.map((data, i) => {
       return {
         ...data,
@@ -82,10 +88,7 @@ export default function ModificationModal({
         size: undefined,
         isModified: true,
         isSelected: false,
-        modifications: {
-          scaleFactor: modifications[i].scaleFactor,
-          smoothingRadius: modifications[i].smoothingRadius
-        }
+        modifications: modifications[i]
       }
     })
 
@@ -100,7 +103,7 @@ export default function ModificationModal({
       return selectedFiles.map(() => {
         return {
           scaleFactor: Number(scalingSliderRef.current?.innerHTML ?? 1),
-          smoothingRadius: Number(scalingSliderRef.current?.innerHTML ?? 0)
+          smoothingRadius: Number(smoothingSliderRef.current?.innerHTML ?? 0)
         }
       })
     } else return []
