@@ -5,7 +5,7 @@ import Plotly, {
   ScatterData
 } from "plotly.js-basic-dist-min"
 import { elementSymbols } from "@/data/elementData"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import html2canvas from "html2canvas"
 import {
   IconDeviceFloppy,
@@ -86,7 +86,8 @@ const layout: Partial<Layout> = {
     mirror: "ticks",
     title: {
       text: "Energy, keV"
-    }
+    },
+    hoverformat: ".2f"
   },
   yaxis: {
     showgrid: true,
@@ -97,7 +98,8 @@ const layout: Partial<Layout> = {
       text: "Intensity, cnts."
     },
     exponentformat: "none",
-    showexponent: "all"
+    showexponent: "all",
+    hoverformat: ".0f"
   },
   modebar: {
     orientation: "h"
@@ -123,6 +125,8 @@ export default function ScatterPlot({
   )
   const [interpolationMode, setInterpolationMode] = useState<boolean>(false)
   const [textVisibility, setTextVisibility] = useState<boolean>(false)
+
+  let dragLayerRef = useRef<HTMLElement | null>(null)
 
   const toggleLineHoverLabels = () => {
     const elementDataIndices = plotData.flatMap((e, i) =>
@@ -342,8 +346,18 @@ export default function ScatterPlot({
         layout={layout}
         config={config}
         className="h-[calc(100vh-3rem)] w-full"
-        onClick={selectPoints}
-        onHover={resetLineLabelVisibility}
+        onClick={function (data) {
+          selectPoints(data)
+        }}
+        onInitialized={function () {
+          dragLayerRef.current = document.querySelector(
+            ".draglayer"
+          ) as HTMLElement
+          dragLayerRef.current.classList.add("!cursor-pointer")
+        }}
+        onHover={function (data) {
+          resetLineLabelVisibility()
+        }}
       />
     </>
   )
