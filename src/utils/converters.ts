@@ -5,7 +5,6 @@ import {
 } from "../data/emissionLinePlotData"
 import { ScatterData } from "plotly.js"
 import { ParsedData, isValidFileType } from "../common/interfaces"
-import { findPeaks } from "./processing"
 import { ValidFileType } from "../common/interfaces"
 
 type ProcessByFileTypeTable = {
@@ -119,18 +118,6 @@ export function constructXRFData(
   parsedData: ParsedData,
   name: string
 ): Partial<ScatterData> {
-  const peaks = findPeaks(parsedData)
-  const peakIndices = peaks.map((e) => e.positionIndex)
-  const text = parsedData.x.map((e, i) => {
-    if (peakIndices.includes(i)) {
-      return (
-        peaks
-          .find((e) => e.positionIndex === i)
-          ?.position.toFixed(2)
-          .toString() ?? ""
-      )
-    } else return ""
-  })
   return {
     x: parsedData.x,
     y: parsedData.y,
@@ -138,8 +125,7 @@ export function constructXRFData(
     mode: "lines",
     textposition: "top center",
     hoverinfo: "x+y+name",
-    name: name,
-    text: text
+    name: name
   }
 }
 

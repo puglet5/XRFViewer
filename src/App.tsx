@@ -1,7 +1,7 @@
 import FileDrawer from "./components/FileDrawer"
 import { Resizable } from "re-resizable"
 import { useState, useEffect, useRef } from "react"
-import { FileProps } from "./common/interfaces"
+import { FileProps, Peak, PeakData } from "./common/interfaces"
 import Controls from "./components/Controls"
 import PeriodicTable from "./components/PeriodicTable"
 import {
@@ -37,8 +37,10 @@ export default function App() {
   const [selectedElementPoints, setSelectedElementPoints] = useState<
     (number | undefined)[][]
   >(Array.from({ length: emissionLinePlotData.length }, () => []))
-  const sidebarRef = useRef<Resizable>(null)
   const [selectedFiles, setSelectedFiles] = useState<number[]>([])
+  const [peakData, setPeakData] = useState<PeakData>({ set: [], modified: [] })
+
+  const sidebarRef = useRef<Resizable>(null)
 
   useEffect(() => {
     setPlotData([
@@ -117,7 +119,6 @@ export default function App() {
 
   useHotkeys("esc", () => {
     setPeriodicTableVisibility(false)
-    setModificationModalVisibility(false)
   })
   useHotkeys("ctrl+p", () =>
     setPeriodicTableVisibility(!periodicTableVisibility)
@@ -257,6 +258,7 @@ export default function App() {
               updateFileData={setFileData}
               updateXRFData={setCurrentXRFData}
               currentXRFData={currentXRFData}
+              updateModifiedData={setCurrentModifiedData}
               updateModificationModalVisibility={setModificationModalVisibility}
               modificationModalVisibility={modificationModalVisibility}
               selectedFiles={selectedFiles}
@@ -309,6 +311,9 @@ export default function App() {
       <div className="h-full w-full overflow-hidden">
         <div className="h-full bg-pbg">
           <ScatterPlot
+            currentXRFData={currentXRFData}
+            currentModifiedData={currentModifiedData}
+            peakData={peakData}
             plotData={plotData}
             elementData={currentElementData}
             updateElementData={setCurrentElementData}
@@ -324,6 +329,8 @@ export default function App() {
         selectedElements={selectedElements}
       />
       <ModificationModal
+        updatePeakData={setPeakData}
+        peakData={peakData}
         modificationModalVisibility={modificationModalVisibility}
         updateModificationModalVisibility={setModificationModalVisibility}
         selectedFiles={selectedFiles}

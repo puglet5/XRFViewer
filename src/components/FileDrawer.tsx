@@ -26,6 +26,9 @@ interface Props {
   fileData: FileProps[]
   selectedFiles: number[]
   updateSelectedFiles: React.Dispatch<React.SetStateAction<number[]>>
+  updateModifiedData: React.Dispatch<
+    React.SetStateAction<Partial<ScatterData>[]>
+  >
 }
 
 export default function FileDrawer({
@@ -36,7 +39,8 @@ export default function FileDrawer({
   updateModificationModalVisibility,
   modificationModalVisibility,
   updateSelectedFiles,
-  selectedFiles
+  selectedFiles,
+  updateModifiedData
 }: Props) {
   useEffect(() => {
     const selectedFileIndices = fileData.flatMap((e, i) => {
@@ -154,6 +158,15 @@ export default function FileDrawer({
     })
   }
 
+  function openModificationModal(): void {
+    const newModifiedData = currentXRFData.flatMap((e, i) =>
+      selectedFiles.includes(i) ? e : []
+    )
+
+    updateModifiedData(newModifiedData)
+    updateModificationModalVisibility(!modificationModalVisibility)
+  }
+
   return (
     <div>
       {fileData.length ? (
@@ -169,9 +182,7 @@ export default function FileDrawer({
               title={selectedFiles.length ? "Toggle modification modal" : ""}
               className={selectedFiles.length ? "" : "text-gray-300"}
               disabled={selectedFiles.length ? false : true}
-              onClick={() =>
-                updateModificationModalVisibility(!modificationModalVisibility)
-              }
+              onClick={() => openModificationModal()}
             >
               <IconResize />
             </button>

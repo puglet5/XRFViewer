@@ -28,6 +28,11 @@ export interface Peak {
   assignment?: string
 }
 
+export interface PeakData {
+  set: Peak[][]
+  modified: Peak[][]
+}
+
 export enum ValidFileTypes {
   CSV = ".csv",
   DAT = ".dat"

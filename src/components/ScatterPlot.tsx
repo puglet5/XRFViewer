@@ -5,7 +5,7 @@ import Plotly, {
   ScatterData
 } from "plotly.js-basic-dist-min"
 import { elementSymbols } from "@/data/elementData"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import html2canvas from "html2canvas"
 import {
   IconDeviceFloppy,
@@ -21,7 +21,7 @@ import {
 import { emissionLinePlotData } from "@/data/emissionLinePlotData"
 
 import createPlotlyComponent from "react-plotly.js/factory"
-const Plot = createPlotlyComponent(Plotly)
+import { Peak, PeakData } from "@/common/interfaces"
 
 interface Props {
   plotData: Partial<ScatterData>[]
@@ -33,7 +33,12 @@ interface Props {
   updateSelectedPoints: React.Dispatch<
     React.SetStateAction<(number | undefined)[][]>
   >
+  peakData: PeakData
+  currentModifiedData: Partial<ScatterData>[]
+  currentXRFData: Partial<ScatterData>[]
 }
+
+const Plot = createPlotlyComponent(Plotly)
 
 const config: Partial<Config> = {
   showTips: false,
@@ -118,7 +123,10 @@ export default function ScatterPlot({
   elementData,
   updateElementData,
   selectedPoints,
-  updateSelectedPoints
+  updateSelectedPoints,
+  peakData,
+  currentModifiedData,
+  currentXRFData
 }: Props) {
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(
     !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
@@ -127,6 +135,46 @@ export default function ScatterPlot({
   const [textVisibility, setTextVisibility] = useState<boolean>(false)
 
   const dragLayerRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    console.log(peakData)
+    if (peakData.modified.length) {
+      const modifiedDataArrayIndex = currentXRFData.length
+      peakData.modified.map((peaks, peaksIndex) => {
+        const x = currentModifiedData[peaksIndex].x as number[]
+        const peakIndices = peaks.map((e) => e.positionIndex)
+        const peakText = x.map((e, i) => {
+          if (peakIndices.includes(i)) {
+            return (
+              peaks
+                .find((e) => e.positionIndex === i)
+                ?.position.toFixed(2)
+                .toString() ?? ""
+            )
+          } else return ""
+        })
+
+        const update = {
+          mode: "text+lines",
+          text: [peakText],
+          textposition: "top center"
+        }
+
+        console.log(update)
+
+        try {
+          Plotly.restyle(
+            "plotMain",
+            //@ts-expect-error
+            update,
+            1
+          )
+        } catch (TypeError) {
+          console.warn("Caught Plotly restyle error")
+        }
+      })
+    }
+  }, [peakData])
 
   function toggleLineHoverLabels() {
     const elementDataIndices = plotData.flatMap((e, i) =>
@@ -357,6 +405,7 @@ export default function ScatterPlot({
         onHover={function (data) {
           resetLineLabelVisibility()
         }}
+        onRestyle={(e) => console.log(e)}
       />
     </>
   )
