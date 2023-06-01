@@ -159,8 +159,8 @@ export function constructElementData(
 
   const plotData = elementIndices.flatMap((e, i) => {
     const lineData = emissionLinePlotData[e]
-    let x = lineData.x
-    let y = lineData.y.map((e) => e * scaleFactor)
+    const x = lineData.x
+    const y = lineData.y.map((e) => e * scaleFactor)
     const text = lineData.x.map((x, pos) => {
       if ((pos % 3) - 1 === 0) {
         const label = emissionLinePlotLabels[e][(pos - 1) / 3].split(" ")
@@ -178,7 +178,7 @@ export function constructElementData(
       }
     })
 
-    let meta = {
+    const meta = {
       annotations: text.flatMap((e, i) => {
         if (e) {
           return {

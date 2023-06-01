@@ -4,7 +4,6 @@ import { ScatterData } from "plotly.js-basic-dist-min"
 import { useEffect, useRef, useState } from "react"
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
 import { IconSquarePlus, IconSquareX } from "@tabler/icons-react"
-import { useForm } from "react-hook-form"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -79,7 +78,7 @@ export default function ModificationModal({
       const name = `${selectedXRFPlotData[i].name} [modified]`
 
       let peaks
-      let meta: { annotations: any[] } = { annotations: [] }
+      const meta: { annotations: any[] } = { annotations: [] }
       if (modifications.peakDetection) {
         peaks = peakDetect(y, x)
         meta.annotations = peaks.map((e) => {
@@ -162,7 +161,7 @@ export default function ModificationModal({
     updateModifiedData([])
   }
 
-  let isVisible = !!selectedFiles.length
+  const isVisible = !!selectedFiles.length
 
   return (
     <div className={"m-2 block" + (isVisible ? "" : " hidden")}>

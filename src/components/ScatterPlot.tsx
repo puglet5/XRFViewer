@@ -115,9 +115,7 @@ const layout: Partial<Layout> = {
   }
 }
 
-export default function ScatterPlot({
-  plotData,
-}: Props) {
+export default function ScatterPlot({ plotData }: Props) {
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(
     !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
   )
@@ -128,10 +126,12 @@ export default function ScatterPlot({
 
   useEffect(() => {
     //@ts-expect-error
-    let annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
+    const annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
     try {
       Plotly.relayout("plotMain", { annotations: annotations })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }, [plotData])
 
   function toggleLineHoverLabels() {
