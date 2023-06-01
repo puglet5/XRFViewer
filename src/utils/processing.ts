@@ -102,7 +102,7 @@ export function peakDetect(data: ParsedData): Peak[] {
   return peaks
 }
 
-export function removeBaseline(data: ParsedData): number[1] {
+export function removeBaseline(data: ParsedData): number[] {
   let y: number[] = lls([...data.y])
 
   const w = 25
