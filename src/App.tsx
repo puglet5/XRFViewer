@@ -39,6 +39,7 @@ export default function App() {
   >(Array.from({ length: emissionLinePlotData.length }, () => []))
   const [selectedFiles, setSelectedFiles] = useState<number[]>([])
   const [peakData, setPeakData] = useState<PeakData>({ set: [], modified: [] })
+  const [plotRevision, setPlotRevision] = useState(0)
 
   const sidebarRef = useRef<Resizable>(null)
 
@@ -288,6 +289,8 @@ export default function App() {
             fileData={fileData}
             currentModifiedData={currentModifiedData}
             updateModifiedData={setCurrentModifiedData}
+            plotRevision={plotRevision}
+            updatePlotRevision={setPlotRevision}
           />
 
           <div
@@ -327,6 +330,7 @@ export default function App() {
             currentModifiedData={currentModifiedData}
             peakData={peakData}
             plotData={plotData}
+            plotRevision={plotRevision}
             elementData={currentElementData}
             updateElementData={setCurrentElementData}
             updateSelectedPoints={setSelectedElementPoints}

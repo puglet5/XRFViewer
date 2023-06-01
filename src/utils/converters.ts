@@ -45,9 +45,10 @@ function parseDat(data: string): ParsedData {
   const plotData = {
     x: xLinspace,
     y: parsedData.flatMap((e, i) => {
-      return i >= 2 ? parseFloat(e.trim()) : []
+      return i >= 1 ? parseFloat(e.trim()) : []
     })
   }
+
   return plotData
 }
 

@@ -13,7 +13,6 @@ import { ScatterData } from "plotly.js"
 import { useEffect } from "react"
 import { createId } from "@paralleldrive/cuid2"
 import { Menu } from "@headlessui/react"
-import Uploader from "./Uploader"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -36,8 +35,6 @@ export default function FileDrawer({
   updateFileData,
   updateXRFData,
   currentXRFData,
-  updateModificationModalVisibility,
-  modificationModalVisibility,
   updateSelectedFiles,
   selectedFiles,
   updateModifiedData
@@ -48,12 +45,6 @@ export default function FileDrawer({
     })
     updateSelectedFiles([...selectedFileIndices])
   }, [fileData])
-
-  useEffect(() => {
-    if (!selectedFiles.length) {
-      updateModificationModalVisibility(false)
-    }
-  }, [selectedFiles])
 
   function removeFile(fileIndex: number) {
     const newFileData = [...fileData]

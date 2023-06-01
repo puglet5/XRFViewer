@@ -43,6 +43,7 @@ export function smooth(values: number[], radius: number) {
   blur(values, temp, 0, length, 1)
   blur(temp, values, 0, length, 1)
   blur(values, temp, 0, length, 1)
+
   return values
 }
 
@@ -60,9 +61,8 @@ function clip(x: number, min: number, max: number): number {
   return Math.max(min, Math.min(x, max))
 }
 
-export function peakDetect(data: ParsedData): Peak[] {
-  const x: number[] = [...data.x]
-  const y: number[] = [...data.y]
+export function peakDetect(data: number[], x: number[]): Peak[] {
+  const y: number[] = [...data]
   const maxIntensity = Math.max(...y)
   const xStep = x[1] - x[0]
 

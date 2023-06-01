@@ -36,12 +36,14 @@ interface Props {
   peakData: PeakData
   currentModifiedData: Partial<ScatterData>[]
   currentXRFData: Partial<ScatterData>[]
+  plotRevision: number
 }
 
 const Plot = createPlotlyComponent(Plotly)
 
 const config: Partial<Config> = {
   showTips: false,
+  editable: true,
   scrollZoom: true,
   displaylogo: false,
   modeBarButtonsToRemove: [
@@ -120,7 +122,9 @@ const layout: Partial<Layout> = {
 export default function ScatterPlot({
   plotData,
   selectedPoints,
-  updateSelectedPoints
+  updateSelectedPoints,
+  plotRevision,
+  peakData
 }: Props) {
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(
     !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
@@ -129,6 +133,36 @@ export default function ScatterPlot({
   const [textVisibility, setTextVisibility] = useState<boolean>(false)
 
   const dragLayerRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    let annotations
+    if (peakData.modified.length) {
+      annotations = peakData.modified[0].map((e) => {
+        return {
+          ax: 0,
+          x: e.position,
+          y: e.intensity,
+          xref: "x",
+          yref: "y",
+          xanchor: "center",
+          yanchor: "center",
+          showarrow: true,
+          arrowhead: 7,
+          arrowside: "end",
+          arrowsize: 0.5,
+          align: "center",
+          opacity: 0.8,
+          text: e.position.toFixed(2).toString()
+        }
+      })
+    }
+
+    console.log(annotations)
+    try {
+      //@ts-expect-error
+      Plotly.relayout("plotMain", { annotations: annotations })
+    } catch (error) {}
+  }, [peakData])
 
   function toggleLineHoverLabels() {
     const elementDataIndices = plotData.flatMap((e, i) =>
@@ -335,6 +369,7 @@ export default function ScatterPlot({
         layout={layout}
         config={config}
         className="h-[calc(100vh-3rem)] w-full"
+        style={{ clipPath: "none" }}
         onClick={function (data) {
           selectPoints(data)
         }}
@@ -347,6 +382,7 @@ export default function ScatterPlot({
         onHover={function (data) {
           resetLineLabelVisibility()
         }}
+        revision={plotRevision}
       />
     </>
   )

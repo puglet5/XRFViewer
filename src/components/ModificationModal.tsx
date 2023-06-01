@@ -18,6 +18,8 @@ interface Props {
   selectedFiles: number[]
   updatePeakData: React.Dispatch<React.SetStateAction<PeakData>>
   peakData: PeakData
+  updatePlotRevision: React.Dispatch<React.SetStateAction<number>>
+  plotRevision: number
 }
 
 export default function ModificationModal({
@@ -29,7 +31,9 @@ export default function ModificationModal({
   currentModifiedData,
   updateModifiedData,
   updatePeakData,
-  peakData
+  peakData,
+  updatePlotRevision,
+  plotRevision
 }: Props) {
   const [modifications, setModifications] = useState<Modification>({
     scalingFactor: 1,
@@ -74,35 +78,20 @@ export default function ModificationModal({
 
       const name = `${selectedXRFPlotData[i].name} [modified]`
 
-      let peakText
       if (modifications.peakDetection) {
-        let peaks = peakDetect({ x, y })
-        const peakIndices = peaks.map((e) => e.positionIndex)
-        peakText = x.map((e, i) => {
-          if (peakIndices.includes(i)) {
-            return (
-              peaks
-                .find((e) => e.positionIndex === i)
-                ?.position.toFixed(2)
-                .toString() ?? ""
-            )
-          } else return ""
-        })
+        let peaks = peakDetect(y, x)
+        updatePeakData({ ...peakData, modified: [peaks] })
       }
 
       return {
         x,
         y,
         name,
-        mode: "text+lines",
+        mode: "lines",
         type: "scattergl",
-        line: { simplify: true },
-        textposition: "top center",
-        text: peakText ?? ""
+        line: { simplify: true }
       }
     })
-
-    console.log(newXRFData)
 
     //@ts-expect-error
     updateModifiedData(newXRFData)
