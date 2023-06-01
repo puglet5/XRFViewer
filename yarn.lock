@@ -638,13 +638,6 @@
     "@types/node" "*"
     xmlbuilder ">=11.0.1"
 
-"@types/plotly.js-basic-dist-min@^2.12.1":
-  version "2.12.1"
-  resolved "https://registry.yarnpkg.com/@types/plotly.js-basic-dist-min/-/plotly.js-basic-dist-min-2.12.1.tgz#257c0b04c42de737f5732b89bbe2baac4db607be"
-  integrity sha512-8jm/2TNlqbkBtym2fTS+vuBM2hkxYB8XRisUpsIRna4nIdVeJ7SFjNAof9r7USMWbp3ySC4Ij9HXsvB5f53+Ag==
-  dependencies:
-    "@types/plotly.js" "*"
-
 "@types/plotly.js@*":
   version "2.12.18"
   resolved "https://registry.yarnpkg.com/@types/plotly.js/-/plotly.js-2.12.18.tgz#7a231ce72a73fafe4842096b8c99d10a41b60962"
@@ -3261,10 +3254,10 @@ plist@^3.0.1, plist@^3.0.4:
     base64-js "^1.5.1"
     xmlbuilder "^15.1.1"
 
-plotly.js-basic-dist-min@^2.23.2:
+plotly.js-strict-dist@^2.23.2:
   version "2.23.2"
-  resolved "https://registry.yarnpkg.com/plotly.js-basic-dist-min/-/plotly.js-basic-dist-min-2.23.2.tgz#1376801b576dccdf1267deaec37bb119bfaa9dd8"
-  integrity sha512-y9njAxLbct0vomA4mM/BBheYVA/rHiJGQJH8uMitTb0z9/RbZ4oNrqSOgHHc4F816iGha0cj6P7PZVoVK9491g==
+  resolved "https://registry.yarnpkg.com/plotly.js-strict-dist/-/plotly.js-strict-dist-2.23.2.tgz#ea73d4f62d68b0c9e0c6f65178cd106a70e57e9d"
+  integrity sha512-a4cowRj+cm2qIHqHFH3lyNfFGD11430ypKEBbslT7JdtiZ9lvSodn29A5VU6Ke6BrTwRIsv08af9bXakxkKtyw==
 
 postcss-import@^15.1.0:
   version "15.1.0"

@@ -1,9 +1,6 @@
-import Plotly, {
-  Config,
-  Layout,
-  PlotMouseEvent,
-  ScatterData
-} from "plotly.js-basic-dist-min"
+import { Config, Layout, ScatterData } from "plotly.js"
+//@ts-ignore
+import Plotly from "plotly.js-strict-dist"
 import { elementSymbols } from "@/data/elementData"
 import { useEffect, useRef, useState } from "react"
 import html2canvas from "html2canvas"
@@ -18,10 +15,9 @@ import {
   IconTriangle,
   IconTriangleOff
 } from "@tabler/icons-react"
-import { emissionLinePlotData } from "@/data/emissionLinePlotData"
 
 import createPlotlyComponent from "react-plotly.js/factory"
-import { Peak, PeakData } from "@/common/interfaces"
+import { PeakData } from "@/common/interfaces"
 
 interface Props {
   plotData: Partial<ScatterData>[]

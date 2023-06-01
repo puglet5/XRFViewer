@@ -55,6 +55,10 @@ export default function FileDrawer({
     localStorage.setItem("currentXRFData", JSON.stringify(newXRFData))
     updateFileData(newFileData)
     updateXRFData(newXRFData)
+
+    if (!newFileData.length) {
+      updateModifiedData([])
+    }
   }
 
   function toggleFileSelection(fileIndex: number) {

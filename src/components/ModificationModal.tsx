@@ -1,6 +1,6 @@
 import { FileProps, Modification, PeakData } from "../common/interfaces"
 import { createId } from "@paralleldrive/cuid2"
-import { ScatterData } from "plotly.js-basic-dist-min"
+import { ScatterData } from "plotly.js"
 import { useEffect, useRef, useState } from "react"
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
 import { IconSquarePlus, IconSquareX } from "@tabler/icons-react"
@@ -113,7 +113,7 @@ export default function ModificationModal({
       }
     })
 
-    //@ts-expect-error
+    //@ts-ignore
     updateModifiedData(newXRFData)
   }
 
