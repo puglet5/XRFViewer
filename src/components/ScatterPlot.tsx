@@ -110,23 +110,17 @@ const layout: Partial<Layout> = {
     orientation: "h"
   },
   font: { family: "FiraCode", color: "black" },
-  hidesources: true,
   hoverlabel: {
     font: {
-      size: 9
+      size: 12
     }
   }
 }
 
 export default function ScatterPlot({
   plotData,
-  elementData,
-  updateElementData,
   selectedPoints,
-  updateSelectedPoints,
-  peakData,
-  currentModifiedData,
-  currentXRFData
+  updateSelectedPoints
 }: Props) {
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(
     !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
@@ -135,46 +129,6 @@ export default function ScatterPlot({
   const [textVisibility, setTextVisibility] = useState<boolean>(false)
 
   const dragLayerRef = useRef<HTMLElement | null>(null)
-
-  useEffect(() => {
-    console.log(peakData)
-    if (peakData.modified.length) {
-      const modifiedDataArrayIndex = currentXRFData.length
-      peakData.modified.map((peaks, peaksIndex) => {
-        const x = currentModifiedData[peaksIndex].x as number[]
-        const peakIndices = peaks.map((e) => e.positionIndex)
-        const peakText = x.map((e, i) => {
-          if (peakIndices.includes(i)) {
-            return (
-              peaks
-                .find((e) => e.positionIndex === i)
-                ?.position.toFixed(2)
-                .toString() ?? ""
-            )
-          } else return ""
-        })
-
-        const update = {
-          mode: "text+lines",
-          text: [peakText],
-          textposition: "top center"
-        }
-
-        console.log(update)
-
-        try {
-          Plotly.restyle(
-            "plotMain",
-            //@ts-expect-error
-            update,
-            1
-          )
-        } catch (TypeError) {
-          console.warn("Caught Plotly restyle error")
-        }
-      })
-    }
-  }, [peakData])
 
   function toggleLineHoverLabels() {
     const elementDataIndices = plotData.flatMap((e, i) =>
@@ -341,18 +295,6 @@ export default function ScatterPlot({
         >
           <IconTag></IconTag>
         </button>
-        <button
-          onClick={toggleTextVisibility}
-          title="Show peak labels"
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
-        >
-          {!textVisibility ? (
-            <IconTriangle></IconTriangle>
-          ) : (
-            <IconTriangleOff></IconTriangleOff>
-          )}
-        </button>
 
         <button
           onClick={savePlotImage}
@@ -405,7 +347,6 @@ export default function ScatterPlot({
         onHover={function (data) {
           resetLineLabelVisibility()
         }}
-        onRestyle={(e) => console.log(e)}
       />
     </>
   )

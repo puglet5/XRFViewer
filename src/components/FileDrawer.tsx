@@ -158,15 +158,6 @@ export default function FileDrawer({
     })
   }
 
-  function openModificationModal(): void {
-    const newModifiedData = currentXRFData.flatMap((e, i) =>
-      selectedFiles.includes(i) ? e : []
-    )
-
-    updateModifiedData(newModifiedData)
-    updateModificationModalVisibility(!modificationModalVisibility)
-  }
-
   return (
     <div>
       {fileData.length ? (
@@ -177,14 +168,6 @@ export default function FileDrawer({
               title={selectedFiles.length ? "Deselect all" : "Select all"}
             >
               {selectedFiles.length ? <IconDeselect /> : <IconSelectAll />}
-            </button>
-            <button
-              title={selectedFiles.length ? "Toggle modification modal" : ""}
-              className={selectedFiles.length ? "" : "text-gray-300"}
-              disabled={selectedFiles.length ? false : true}
-              onClick={() => openModificationModal()}
-            >
-              <IconResize />
             </button>
             <Menu>
               <Menu.Button as="div" className={"ui-open:rotate-180"}>

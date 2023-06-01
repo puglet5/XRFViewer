@@ -123,9 +123,9 @@ export function constructXRFData(
     y: parsedData.y,
     type: "scattergl",
     mode: "lines",
+    "line.simplify": true,
     textposition: "top center",
-    hoverinfo: "x+y+name",
-    name: name
+    name
   }
 }
 
@@ -182,6 +182,8 @@ export function constructElementData(
       mode: "lines+markers",
       hoverinfo: "text",
       fill: "none",
+      line: { width: 1 },
+      textposition: "top center",
       name: elements[i].symbol,
       text: text,
       selectedpoints: selectedPoints[e],

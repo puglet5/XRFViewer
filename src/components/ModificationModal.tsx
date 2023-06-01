@@ -1,17 +1,10 @@
-import {
-  FileProps,
-  Modification,
-  ParsedData,
-  Peak,
-  PeakData
-} from "../common/interfaces"
-import { Dialog } from "@headlessui/react"
+import { FileProps, Modification, PeakData } from "../common/interfaces"
 import { createId } from "@paralleldrive/cuid2"
-import { PlotData, ScatterData } from "plotly.js-basic-dist-min"
-import { useEffect, useRef } from "react"
-import Draggable from "react-draggable"
+import { ScatterData } from "plotly.js-basic-dist-min"
+import { useEffect, useRef, useState } from "react"
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
-import { IconActivity, IconTriangleSquareCircle } from "@tabler/icons-react"
+import { IconSquarePlus, IconSquareX } from "@tabler/icons-react"
+import { useForm } from "react-hook-form"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -23,16 +16,11 @@ interface Props {
   updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>
   fileData: FileProps[]
   selectedFiles: number[]
-  updateModificationModalVisibility: React.Dispatch<
-    React.SetStateAction<boolean>
-  >
-  modificationModalVisibility: boolean
   updatePeakData: React.Dispatch<React.SetStateAction<PeakData>>
   peakData: PeakData
 }
 
 export default function ModificationModal({
-  modificationModalVisibility,
   currentXRFData,
   updateFileData,
   updateXRFData,
@@ -40,14 +28,25 @@ export default function ModificationModal({
   selectedFiles,
   currentModifiedData,
   updateModifiedData,
-  updateModificationModalVisibility,
   updatePeakData,
   peakData
 }: Props) {
+  const [modifications, setModifications] = useState<Modification>({
+    scalingFactor: 1,
+    smoothingRadius: 0,
+    baselineCorrection: false,
+    peakDetection: false
+  })
+
   const scalingSliderRef = useRef<HTMLSpanElement>(null)
   const smoothingSliderRef = useRef<HTMLSpanElement>(null)
-  const nodeRef = useRef(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const baselineCheckboxRef = useRef<HTMLInputElement>(null)
+  const peakCheckboxRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    modifyXRFData(modifications)
+  }, [modifications])
 
   const selectedXRFPlotData = currentXRFData.flatMap((e, i) =>
     selectedFiles.includes(i) ? e : []
@@ -60,45 +59,62 @@ export default function ModificationModal({
     return { x, y }
   })
 
-  function modifyXRFData(scaleFactor: number, smoothingFactor: number) {
+  function modifyXRFData(modifications: Modification) {
     const newXRFData = dataToModify.map((data, i) => {
-      let y = data.y
+      let { x, y } = data
 
-      if (smoothingFactor) {
-        smooth(y, smoothingFactor)
-        y = y.map((e) => e * scaleFactor)
+      if (modifications.smoothingRadius) {
+        smooth(y, modifications.smoothingRadius)
+        y = y.map((e) => e * modifications.scalingFactor!)
       } else {
-        y = y.map((e) => e * scaleFactor)
+        y = y.map((e) => e * modifications.scalingFactor!)
       }
+
+      if (modifications.baselineCorrection) y = removeBaseline({ x, y })
 
       const name = `${selectedXRFPlotData[i].name} [modified]`
 
+      let peakText
+      if (modifications.peakDetection) {
+        let peaks = peakDetect({ x, y })
+        const peakIndices = peaks.map((e) => e.positionIndex)
+        peakText = x.map((e, i) => {
+          if (peakIndices.includes(i)) {
+            return (
+              peaks
+                .find((e) => e.positionIndex === i)
+                ?.position.toFixed(2)
+                .toString() ?? ""
+            )
+          } else return ""
+        })
+      }
+
       return {
-        ...data,
-        y: y,
-        name: name,
-        mode: "lines",
+        x,
+        y,
+        name,
+        mode: "text+lines",
         type: "scattergl",
-        textposition: "top center"
+        line: { simplify: true },
+        textposition: "top center",
+        text: peakText ?? ""
       }
     })
+
+    console.log(newXRFData)
 
     //@ts-expect-error
     updateModifiedData(newXRFData)
   }
 
-  function cancelModifications() {
-    updateModificationModalVisibility(false)
-    updateModifiedData([])
-  }
-
-  function applyModifications(modifications: Modification[]) {
+  function applyModifications(modifications: Modification) {
     const newXRFData = currentModifiedData.map((data, i) => {
-      const isScaled = modifications[i].scaleFactor !== 1
-      const isSmoothed = modifications[i].smoothingRadius !== 0
+      const isScaled = modifications.scalingFactor !== 1
+      const isSmoothed = modifications.smoothingRadius !== 0
 
       const name = `${data.name?.replace(" [modified]", "")} [${
-        isScaled ? "scaled " + modifications[i].scaleFactor?.toFixed(2) : ""
+        isScaled ? "scaled " + modifications.scalingFactor?.toFixed(2) : ""
       }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
 
       return {
@@ -107,14 +123,12 @@ export default function ModificationModal({
       }
     })
 
-    console.log(newXRFData)
-
     const newFileData = selectedFiles.map((e, i) => {
-      const isScaled = modifications[i].scaleFactor !== 1
-      const isSmoothed = modifications[i].smoothingRadius !== 0
+      const isScaled = modifications.scalingFactor !== 1
+      const isSmoothed = modifications.smoothingRadius !== 0
 
       const name = `${fileData[e].name.replace(" [modified]", "")} [${
-        isScaled ? "scaled " + modifications[i].scaleFactor?.toFixed(2) : ""
+        isScaled ? "scaled " + modifications.scalingFactor?.toFixed(2) : ""
       }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
 
       return {
@@ -125,7 +139,7 @@ export default function ModificationModal({
         size: undefined,
         isModified: true,
         isSelected: false,
-        modifications: modifications[i]
+        modifications: modifications
       }
     })
 
@@ -136,191 +150,126 @@ export default function ModificationModal({
       modified: []
     })
     updateModifiedData([])
-    updateModificationModalVisibility(false)
   }
 
-  function constructModifications(): Modification[] {
-    if (!isNaN(Number(scalingSliderRef.current?.innerHTML ?? NaN))) {
-      return selectedFiles.map(() => {
-        return {
-          scaleFactor: Number(scalingSliderRef.current?.innerHTML ?? 1),
-          smoothingRadius: Number(smoothingSliderRef.current?.innerHTML ?? 0)
-        }
-      })
-    } else return []
-  }
-
-  function modifyBaseline() {
-    let data: Partial<PlotData>[]
-    if (currentModifiedData.length) {
-      data = [...currentModifiedData]
-    } else {
-      data = currentXRFData.flatMap((e, i) =>
-        selectedFiles.includes(i) ? e : []
-      )
-    }
-
-    const newData = data.map((e) => {
-      return removeBaseline({ x: e.x as number[], y: e.y as number[] })
-    })
-    updateModifiedData(
-      data.map((e, i) => {
-        return {
-          ...e,
-          x: newData[i].x,
-          y: newData[i].y
-        }
-      })
-    )
-  }
-
-  function findPeaks() {
-    const data = [...currentModifiedData]
-
-    const peaks = data.map((e, i) => {
-      const x = e.x as number[]
-      const y = e.y as number[]
-
-      return peakDetect({ x, y })
-    })
-
-    updatePeakData({ ...peakData, modified: peaks })
-  }
-
-  function closeModal() {
-    updateModifiedData([])
-    updatePeakData({ ...peakData, modified: [] })
-    updateModificationModalVisibility(false)
-  }
+  let isVisible = !!selectedFiles.length
 
   return (
-    <Dialog
-      open={modificationModalVisibility}
-      onClose={() => {
-        closeModal()
-      }}
-      className="absolute left-0 top-0 z-50"
-      as="div"
-    >
-      <Dialog.Overlay>
-        <Draggable nodeRef={nodeRef} bounds={"html"} handle=".handle">
-          <div
-            className={`${
-              modificationModalVisibility ? "block" : "hidden"
-            } m-4 h-full w-full border  border-ptx bg-pbg`}
-            ref={nodeRef}
-          >
-            <div className="handle h-8 w-full cursor-move border-b border-ptx"></div>
-            <div className="flex flex-col p-4">
-              <Dialog.Title as={"div"} className={"text-center font-medium"}>
-                Modify selected data
-              </Dialog.Title>
-              <form
-                onReset={() => {
-                  modifyXRFData(1, 0)
-                  scalingSliderRef.current!.innerText = "1.00"
-                  smoothingSliderRef.current!.innerText = "0"
-                }}
-                id={"mainForm"}
-                className="flex flex-col"
-                ref={formRef}
-              >
-                <div id="scaling" className="flex space-x-2">
-                  <span>Scale Factor</span>
-                  <input
-                    type="range"
-                    id="scaleFactorSlider"
-                    min={0.02}
-                    max={5.0}
-                    step={0.01}
-                    defaultValue={1.0}
-                    onChange={(e) => {
-                      ;(e.target.nextSibling as HTMLSpanElement).innerText =
-                        e.target.value
-                      modifyXRFData(
-                        Number(e.target.value),
-                        Number(smoothingSliderRef.current?.innerText)
-                      )
-                    }}
-                  ></input>
-                  <span ref={scalingSliderRef} id="scaleFactorSliderValue">
-                    1.00
-                  </span>
-                </div>
-                <div id="smoothing" className="flex space-x-2">
-                  <span>Smoothing radius</span>
-                  <input
-                    type="range"
-                    id="smoothingRadiusSlider"
-                    min={0}
-                    max={3}
-                    step={1}
-                    defaultValue={0}
-                    onChange={(e) => {
-                      ;(e.target.nextSibling as HTMLSpanElement).innerText =
-                        e.target.value
-                      modifyXRFData(
-                        Number(scalingSliderRef.current?.innerText ?? 0),
-                        Number(e.target.value)
-                      )
-                    }}
-                  ></input>
-                  <span
-                    ref={smoothingSliderRef}
-                    id="smoothingRadiusSliderValue"
-                  >
-                    0
-                  </span>
-                </div>
-                <div className="mt-2 flex text-acc">
-                  <div id="peaks" className="flex" title={"Find peaks"}>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        findPeaks()
-                      }}
-                    >
-                      <IconTriangleSquareCircle></IconTriangleSquareCircle>
-                    </button>
-                  </div>
-                  <div
-                    id="backgorund"
-                    className="flex"
-                    title={"Remove background"}
-                  >
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        modifyBaseline()
-                      }}
-                    >
-                      <IconActivity></IconActivity>
-                    </button>
-                  </div>
-                </div>
-
-                <menu className="flex justify-center">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      formRef.current!.reset()
-                      updateModifiedData([])
-                    }}
-                  >
-                    Reset
-                  </button>
-                </menu>
-              </form>
-              <button
-                onClick={() => applyModifications(constructModifications())}
-              >
-                Apply
-              </button>
-              <button onClick={() => cancelModifications()}>Cancel</button>
-            </div>
+    <div className={"m-2 block" + (isVisible ? "" : " hidden")}>
+      <div className="flex flex-col">
+        <form
+          onReset={() => {
+            setModifications({
+              scalingFactor: 1,
+              smoothingRadius: 0,
+              baselineCorrection: false,
+              peakDetection: false
+            })
+            scalingSliderRef.current!.innerText = "1.00"
+            smoothingSliderRef.current!.innerText = "0"
+          }}
+          id={"mainForm"}
+          className="flex flex-col items-center"
+          ref={formRef}
+        >
+          <div id="scaling" className="flex space-x-2">
+            <span>SF</span>
+            <input
+              type="range"
+              id="scalingFactorSlider"
+              min={0.02}
+              max={5.0}
+              step={0.01}
+              defaultValue={1.0}
+              onChange={(e) => {
+                ;(e.target.nextSibling as HTMLSpanElement).innerText = Number(
+                  e.target.value
+                ).toFixed(2)
+                setModifications({
+                  ...modifications,
+                  scalingFactor: Number(e.target.value)
+                })
+              }}
+            ></input>
+            <span ref={scalingSliderRef} id="scalingFactorSliderValue">
+              1.00
+            </span>
           </div>
-        </Draggable>
-      </Dialog.Overlay>
-    </Dialog>
+          <div id="smoothing" className="flex space-x-2">
+            <span>SR</span>
+            <input
+              type="range"
+              id="smoothingRadiusSlider"
+              min={0}
+              max={3}
+              step={1}
+              defaultValue={0}
+              onChange={(e) => {
+                ;(e.target.nextSibling as HTMLSpanElement).innerText =
+                  e.target.value
+                setModifications({
+                  ...modifications,
+                  smoothingRadius: Number(e.target.value)
+                })
+              }}
+            ></input>
+            <span ref={smoothingSliderRef} id="smoothingRadiusSliderValue">
+              0
+            </span>
+          </div>
+          <div id="peaks" className="flex space-x-2">
+            <span>Peaks</span>
+            <input
+              type="checkbox"
+              defaultChecked={false}
+              ref={peakCheckboxRef}
+              onChange={(e) => {
+                setModifications({
+                  ...modifications,
+                  peakDetection: e.target.checked
+                })
+              }}
+            />
+          </div>
+          <div id="baseline" className="flex space-x-2">
+            <span>Baseline</span>
+            <input
+              type="checkbox"
+              defaultChecked={false}
+              ref={baselineCheckboxRef}
+              onChange={(e) => {
+                setModifications({
+                  ...modifications,
+                  baselineCorrection: e.target.checked
+                })
+              }}
+            />
+          </div>
+
+          <menu className="mt-2 flex justify-center text-acc ">
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                updateModifiedData([])
+                updatePeakData({ ...peakData, modified: [] })
+              }}
+            >
+              <IconSquareX />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                applyModifications(modifications)
+                updateModifiedData([])
+                updatePeakData({ ...peakData, modified: [] })
+              }}
+              title={"Apply"}
+            >
+              <IconSquarePlus />
+            </button>
+          </menu>
+        </form>
+      </div>
+    </div>
   )
 }

@@ -278,6 +278,18 @@ export default function App() {
             </div>
           </div>
 
+          <ModificationModal
+            updatePeakData={setPeakData}
+            peakData={peakData}
+            selectedFiles={selectedFiles}
+            currentXRFData={currentXRFData}
+            updateFileData={setFileData}
+            updateXRFData={setCurrentXRFData}
+            fileData={fileData}
+            currentModifiedData={currentModifiedData}
+            updateModifiedData={setCurrentModifiedData}
+          />
+
           <div
             id="spacer"
             className="hidden flex-grow items-center justify-center @[1px]/sidebar:flex"
@@ -327,19 +339,6 @@ export default function App() {
         visible={periodicTableVisibility}
         updateSelectedElements={setSelectedElements}
         selectedElements={selectedElements}
-      />
-      <ModificationModal
-        updatePeakData={setPeakData}
-        peakData={peakData}
-        modificationModalVisibility={modificationModalVisibility}
-        updateModificationModalVisibility={setModificationModalVisibility}
-        selectedFiles={selectedFiles}
-        currentXRFData={currentXRFData}
-        updateFileData={setFileData}
-        updateXRFData={setCurrentXRFData}
-        fileData={fileData}
-        currentModifiedData={currentModifiedData}
-        updateModifiedData={setCurrentModifiedData}
       />
     </main>
   )

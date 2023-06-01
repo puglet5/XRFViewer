@@ -97,13 +97,12 @@ export function peakDetect(data: ParsedData): Peak[] {
         }
       } else return []
     })
-    .filter((e) => (e?.intensity ?? 0) >= 0.02 * maxIntensity)
+    .filter((e) => (e?.intensity ?? 0) >= 0.001 * maxIntensity)
 
   return peaks
 }
 
-export function removeBaseline(data: ParsedData): ParsedData {
-  const x: number[] = [...data.x]
+export function removeBaseline(data: ParsedData): number[1] {
   let y: number[] = lls([...data.y])
 
   const w = 25
@@ -119,5 +118,5 @@ export function removeBaseline(data: ParsedData): ParsedData {
   y = ills(y)
   y = y.map((e, i) => clip(data.y[i] - e, -Infinity, Infinity))
 
-  return { x, y }
+  return y
 }

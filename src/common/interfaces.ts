@@ -15,8 +15,10 @@ export interface ParsedData {
 }
 
 export interface Modification {
-  scaleFactor?: number
+  scalingFactor?: number
   smoothingRadius?: number
+  baselineCorrection?: boolean
+  peakDetection?: boolean
 }
 
 export interface Peak {
