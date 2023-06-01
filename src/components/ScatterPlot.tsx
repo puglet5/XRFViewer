@@ -29,10 +29,6 @@ interface Props {
   updateElementData: React.Dispatch<
     React.SetStateAction<Partial<ScatterData>[]>
   >
-  selectedPoints: (number | undefined)[][]
-  updateSelectedPoints: React.Dispatch<
-    React.SetStateAction<(number | undefined)[][]>
-  >
   peakData: PeakData
   currentModifiedData: Partial<ScatterData>[]
   currentXRFData: Partial<ScatterData>[]
@@ -121,8 +117,6 @@ const layout: Partial<Layout> = {
 
 export default function ScatterPlot({
   plotData,
-  selectedPoints,
-  updateSelectedPoints
 }: Props) {
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(
     !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
@@ -133,6 +127,7 @@ export default function ScatterPlot({
   const dragLayerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
+    //@ts-expect-error
     let annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
     try {
       Plotly.relayout("plotMain", { annotations: annotations })
@@ -201,18 +196,6 @@ export default function ScatterPlot({
     )
   }
 
-  function resetPointSelection() {
-    const emptyEmissionLineData = Array.from(
-      { length: emissionLinePlotData.length },
-      () => []
-    )
-    localStorage.setItem(
-      "selectedElementPoints",
-      JSON.stringify(emptyEmissionLineData)
-    )
-    updateSelectedPoints(emptyEmissionLineData)
-  }
-
   function toggleInterpolation() {
     const interpolationShape = interpolationMode ? "linear" : "spline"
     try {
@@ -229,27 +212,6 @@ export default function ScatterPlot({
         id="plotControls"
         className="sticky z-20 flex w-full space-x-1 border-b border-ptx p-3 text-acc"
       >
-        <button
-          onClick={toggleLineHoverLabels}
-          title="Toggle emission line labels"
-          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
-          disabled={selectedPoints.flat().length ? false : true}
-        >
-          {!lineLabelsVisibility ? (
-            <IconTags></IconTags>
-          ) : (
-            <IconTagsOff></IconTagsOff>
-          )}
-        </button>
-        <button
-          onClick={resetPointSelection}
-          title="Reset point selection"
-          className={selectedPoints.flat().length ? "" : "!text-gray-300"}
-          disabled={selectedPoints.flat().length ? false : true}
-        >
-          <IconTag></IconTag>
-        </button>
-
         <button
           onClick={savePlotImage}
           title="Save plot as .png"

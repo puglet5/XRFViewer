@@ -34,9 +34,6 @@ export default function App() {
     useState<boolean>(false)
   const [modificationModalVisibility, setModificationModalVisibility] =
     useState<boolean>(false)
-  const [selectedElementPoints, setSelectedElementPoints] = useState<
-    (number | undefined)[][]
-  >(Array.from({ length: emissionLinePlotData.length }, () => []))
   const [selectedFiles, setSelectedFiles] = useState<number[]>([])
   const [peakData, setPeakData] = useState<PeakData>({ set: [], modified: [] })
   const [plotRevision, setPlotRevision] = useState(0)
@@ -74,8 +71,7 @@ export default function App() {
     setCurrentElementData(
       constructElementData(
         selectedElements.sort((a, b) => a - b),
-        elementScaleFactor,
-        selectedElementPoints
+        elementScaleFactor
       )
     )
     setPlotData([
@@ -84,29 +80,6 @@ export default function App() {
       ...currentElementData
     ])
   }, [selectedElements, currentXRFData, currentModifiedData])
-
-  useEffect(() => {
-    const elementScaleFactor = calculateElementDataScaleFactor(currentXRFData)
-    setCurrentElementData(
-      constructElementData(
-        selectedElements.sort((a, b) => a - b),
-        elementScaleFactor,
-        selectedElementPoints
-      )
-    )
-    setPlotData([...currentXRFData, ...currentElementData])
-  }, [selectedElementPoints])
-
-  useEffect(() => {
-    const storageSelectedElementPoints = localStorage.getItem(
-      "selectedElementPoints"
-    )
-    if (storageSelectedElementPoints) {
-      const parsedStorageSelectedElementPoints: (number | undefined)[][] =
-        JSON.parse(storageSelectedElementPoints)
-      setSelectedElementPoints(parsedStorageSelectedElementPoints)
-    }
-  }, [])
 
   function toggleSidebar() {
     if (sidebarRef.current) {
@@ -168,34 +141,7 @@ export default function App() {
         setCurrentElementData(
           constructElementData(
             selectedElements,
-            parsedStorageElementScaleFactor || 1,
-            selectedElementPoints
-          ).sort(sortElementDataByAtomicNumber)
-        )
-      }
-    }
-  }
-
-  if (!selectedElementPoints.length) {
-    const storageSelectedElements = localStorage.getItem("selectedElements")
-    const storageElementScaleFactor = localStorage.getItem("elementScaleFactor")
-    if (storageSelectedElements && storageElementScaleFactor) {
-      const parsedStorageSelectedElements: number[] = JSON.parse(
-        storageSelectedElements
-      )
-      const parsedStorageElementScaleFactor: number = JSON.parse(
-        storageElementScaleFactor
-      )
-      if (
-        parsedStorageSelectedElements &&
-        parsedStorageSelectedElements.length
-      ) {
-        setSelectedElements(parsedStorageSelectedElements.sort((a, b) => a - b))
-        setCurrentElementData(
-          constructElementData(
-            selectedElements,
-            parsedStorageElementScaleFactor || 1,
-            selectedElementPoints
+            parsedStorageElementScaleFactor || 1
           ).sort(sortElementDataByAtomicNumber)
         )
       }
@@ -308,12 +254,10 @@ export default function App() {
                 updatePeriodicTableVisibility={setPeriodicTableVisibility}
                 updateFileData={setFileData}
                 updateSelectedElements={setSelectedElements}
-                updateSelectedElementPoints={setSelectedElementPoints}
                 updatePlotData={setPlotData}
                 currentXRFData={currentXRFData}
                 periodicTableVisibility={periodicTableVisibility}
                 selectedElements={selectedElements}
-                selectedElementPoints={selectedElementPoints}
                 fileData={fileData}
                 updateModifiedData={setCurrentModifiedData}
                 currentModifiedData={currentModifiedData}
@@ -333,8 +277,6 @@ export default function App() {
             plotRevision={plotRevision}
             elementData={currentElementData}
             updateElementData={setCurrentElementData}
-            updateSelectedPoints={setSelectedElementPoints}
-            selectedPoints={selectedElementPoints}
           />
         </div>
       </div>

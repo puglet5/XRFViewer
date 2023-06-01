@@ -14,10 +14,6 @@ interface Props {
   periodicTableVisibility: boolean
   updatePlotData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
   updatePeriodicTableVisibility: React.Dispatch<React.SetStateAction<boolean>>
-  selectedElementPoints: (number | undefined)[][]
-  updateSelectedElementPoints: React.Dispatch<
-    React.SetStateAction<(number | undefined)[][]>
-  >
   updateModifiedData: React.Dispatch<
     React.SetStateAction<Partial<ScatterData>[]>
   >
@@ -34,8 +30,6 @@ export default function Controls({
   updatePlotData,
   updatePeriodicTableVisibility,
   periodicTableVisibility,
-  updateSelectedElementPoints,
-  selectedElementPoints,
   updateModifiedData,
   currentModifiedData
 }: Props) {
@@ -46,9 +40,6 @@ export default function Controls({
     updateXRFData([])
     updateFileData([])
     updateModifiedData([])
-    updateSelectedElementPoints(
-      Array.from({ length: emissionLinePlotData.length }, () => [])
-    )
   }
   return (
     <div className="flex w-full items-center justify-center space-x-2">
