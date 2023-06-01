@@ -147,8 +147,7 @@ export function sortElementDataByAtomicNumber(
 
 export function constructElementData(
   atomicNumbers: number[],
-  scaleFactor: number,
-  selectedPoints: (number | undefined)[][]
+  scaleFactor: number
 ): Partial<ScatterData>[] {
   const elementIndices = atomicNumbers
     .map((e) =>
@@ -160,6 +159,8 @@ export function constructElementData(
 
   const plotData = elementIndices.flatMap((e, i) => {
     const lineData = emissionLinePlotData[e]
+    let x = lineData.x
+    let y = lineData.y.map((e) => e * scaleFactor)
     const text = lineData.x.map((x, pos) => {
       if ((pos % 3) - 1 === 0) {
         const label = emissionLinePlotLabels[e][(pos - 1) / 3].split(" ")
@@ -176,23 +177,42 @@ export function constructElementData(
         return ""
       }
     })
+
+    let meta = {
+      annotations: text.flatMap((e, i) => {
+        if (e) {
+          return {
+            text: e,
+            ax: 0,
+            x: x[i],
+            y: y[i],
+            showarrow: true,
+            arrowhead: 3,
+            arrowside: "end",
+            arrowsize: 0.5,
+            visible: false,
+            clicktoshow: "onoff",
+            align: "center",
+            opacity: 1,
+            bgcolor: "rgba(255,255,255,1)",
+            bordercolor: "rgba(0,0,0,1)",
+            arrowwidth: 0.5
+          }
+        } else return []
+      })
+    }
+
     return {
-      x: lineData.x,
-      y: lineData.y.map((e) => e * scaleFactor),
+      x,
+      y,
       type: "scattergl",
-      mode: "lines+markers",
+      mode: "lines",
       hoverinfo: "text",
+      meta: meta,
       fill: "none",
       line: { width: 1 },
-      textposition: "top center",
       name: elements[i].symbol,
-      text: text,
-      selectedpoints: selectedPoints[e],
-      unselected: {
-        marker: {
-          size: 0
-        }
-      }
+      text: text
     }
   })
 

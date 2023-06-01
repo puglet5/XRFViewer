@@ -78,9 +78,29 @@ export default function ModificationModal({
 
       const name = `${selectedXRFPlotData[i].name} [modified]`
 
+      let peaks
+      let meta: { annotations: any[] } = { annotations: [] }
       if (modifications.peakDetection) {
-        let peaks = peakDetect(y, x)
-        updatePeakData({ ...peakData, modified: [peaks] })
+        peaks = peakDetect(y, x)
+        meta.annotations = peaks.map((e) => {
+          return {
+            ax: 0,
+            x: e.position,
+            y: e.intensity,
+            showarrow: true,
+            arrowhead: 3,
+            arrowside: "end",
+            arrowsize: 0.5,
+            visible: true,
+            clicktoshow: "onoff",
+            align: "center",
+            opacity: 1,
+            bgcolor: "rgba(255,255,255,1)",
+            bordercolor: "rgba(0,0,0,1)",
+            arrowwidth: 0.5,
+            text: e.position.toFixed(2).toString()
+          }
+        })
       }
 
       return {
@@ -89,7 +109,8 @@ export default function ModificationModal({
         name,
         mode: "lines",
         type: "scattergl",
-        line: { simplify: true }
+        line: { simplify: true },
+        meta
       }
     })
 

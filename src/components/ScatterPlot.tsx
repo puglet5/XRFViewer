@@ -43,9 +43,9 @@ const Plot = createPlotlyComponent(Plotly)
 
 const config: Partial<Config> = {
   showTips: false,
-  editable: true,
   scrollZoom: true,
   displaylogo: false,
+  editable: true,
   modeBarButtonsToRemove: [
     "zoom2d",
     "autoScale2d",
@@ -122,9 +122,7 @@ const layout: Partial<Layout> = {
 export default function ScatterPlot({
   plotData,
   selectedPoints,
-  updateSelectedPoints,
-  plotRevision,
-  peakData
+  updateSelectedPoints
 }: Props) {
   const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(
     !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
@@ -135,34 +133,11 @@ export default function ScatterPlot({
   const dragLayerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    let annotations
-    if (peakData.modified.length) {
-      annotations = peakData.modified[0].map((e) => {
-        return {
-          ax: 0,
-          x: e.position,
-          y: e.intensity,
-          xref: "x",
-          yref: "y",
-          xanchor: "center",
-          yanchor: "center",
-          showarrow: true,
-          arrowhead: 7,
-          arrowside: "end",
-          arrowsize: 0.5,
-          align: "center",
-          opacity: 0.8,
-          text: e.position.toFixed(2).toString()
-        }
-      })
-    }
-
-    console.log(annotations)
+    let annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
     try {
-      //@ts-expect-error
       Plotly.relayout("plotMain", { annotations: annotations })
     } catch (error) {}
-  }, [peakData])
+  }, [plotData])
 
   function toggleLineHoverLabels() {
     const elementDataIndices = plotData.flatMap((e, i) =>
@@ -198,44 +173,6 @@ export default function ScatterPlot({
     }
     setLineLabelsVisibility(!lineLabelsVisibility)
     localStorage.setItem("lineLabelsVisibility", JSON.stringify(true))
-  }
-
-  function selectPoints(data: Readonly<PlotMouseEvent>) {
-    const traceName: string = (data.points[0] as any).fullData.name
-    if (!elementSymbols.includes(traceName)) {
-      return
-    }
-    const point = data.points[0].pointIndex
-    const elementIndex = elementSymbols.indexOf(traceName)
-    const pointsToUpdate = selectedPoints
-
-    if (!pointsToUpdate[elementIndex].includes(point)) {
-      pointsToUpdate[elementIndex] = [...pointsToUpdate[elementIndex], point]
-      updateSelectedPoints([...pointsToUpdate])
-    } else {
-      pointsToUpdate[elementIndex] = pointsToUpdate[elementIndex].filter(
-        (e) => e != point
-      )
-      updateSelectedPoints([...pointsToUpdate])
-    }
-    localStorage.setItem(
-      "selectedElementPoints",
-      JSON.stringify(pointsToUpdate)
-    )
-  }
-
-  function resetLineLabelVisibility() {
-    if (JSON.parse(localStorage.getItem("lineLabelsVisibility")!)) {
-      try {
-        ;(Plotly as any).restyle("plotMain", {
-          selected: { marker: { opacity: 1 } }
-        })
-      } catch (TypeError) {
-        console.warn("Caught Plotly restyle TypeError")
-      }
-    }
-    setLineLabelsVisibility(false)
-    localStorage.setItem("lineLabelsVisibility", JSON.stringify(false))
   }
 
   function savePlotImage() {
@@ -284,23 +221,6 @@ export default function ScatterPlot({
       console.warn("Caught Plotly restyle error")
     }
     setInterpolationMode(!interpolationMode)
-  }
-
-  function toggleTextVisibility() {
-    const traceMode = !textVisibility ? "text+lines" : "lines"
-
-    const traceIndices = plotData.flatMap((e, i) => {
-      if (!elementSymbols.includes(e.name!)) {
-        return i
-      } else return []
-    })
-    try {
-      Plotly.restyle("plotMain", { mode: traceMode }, traceIndices)
-    } catch (TypeError) {
-      console.warn("Caught Plotly restyle error")
-    }
-
-    setTextVisibility(!textVisibility)
   }
 
   return (
@@ -370,19 +290,12 @@ export default function ScatterPlot({
         config={config}
         className="h-[calc(100vh-3rem)] w-full"
         style={{ clipPath: "none" }}
-        onClick={function (data) {
-          selectPoints(data)
-        }}
         onInitialized={function () {
           dragLayerRef.current = document.querySelector(
             ".draglayer"
           ) as HTMLElement
           dragLayerRef.current.classList.add("!cursor-pointer")
         }}
-        onHover={function (data) {
-          resetLineLabelVisibility()
-        }}
-        revision={plotRevision}
       />
     </>
   )
