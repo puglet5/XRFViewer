@@ -1,7 +1,7 @@
 import { FileProps, Modification, PeakData } from "../common/interfaces"
 import { createId } from "@paralleldrive/cuid2"
 import { ScatterData } from "plotly.js"
-import { useEffect, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
 import { IconSquarePlus, IconSquareX } from "@tabler/icons-react"
 
@@ -21,7 +21,7 @@ interface Props {
   plotRevision: number
 }
 
-export default function ModificationModal({
+function ModificationModal({
   currentXRFData,
   updateFileData,
   updateXRFData,
@@ -30,9 +30,7 @@ export default function ModificationModal({
   currentModifiedData,
   updateModifiedData,
   updatePeakData,
-  peakData,
-  updatePlotRevision,
-  plotRevision
+  peakData
 }: Props) {
   const [modifications, setModifications] = useState<Modification>({
     scalingFactor: 1,
@@ -49,20 +47,28 @@ export default function ModificationModal({
 
   useEffect(() => {
     modifyXRFData(modifications)
-  }, [modifications])
+  }, [modifications, selectedFiles])
 
-  const selectedXRFPlotData = currentXRFData.flatMap((e, i) =>
-    selectedFiles.includes(i) ? e : []
+  const selectedXRFPlotData = useMemo(
+    () =>
+      currentXRFData.flatMap((e, i) => (selectedFiles.includes(i) ? e : [])),
+    [currentXRFData, selectedFiles]
   )
 
-  const dataToModify = selectedXRFPlotData.map((data) => {
-    const x = [...(data.x as number[])]
-    const y = [...(data.y as number[])]
+  const dataToModify = useMemo(
+    () =>
+      selectedXRFPlotData.map((data) => {
+        const x = [...(data.x as number[])]
+        const y = [...(data.y as number[])]
 
-    return { x, y }
-  })
+        return { x, y }
+      }),
+    [selectedXRFPlotData, modifications]
+  )
 
   function modifyXRFData(modifications: Modification) {
+    console.time("modify")
+
     const newXRFData = dataToModify.map((data, i) => {
       let { x, y } = data
 
@@ -79,6 +85,7 @@ export default function ModificationModal({
 
       let peaks
       const meta: { annotations: any[] } = { annotations: [] }
+
       if (modifications.peakDetection) {
         peaks = peakDetect(y, x)
         meta.annotations = peaks.map((e) => {
@@ -115,6 +122,7 @@ export default function ModificationModal({
 
     //@ts-ignore
     updateModifiedData(newXRFData)
+    console.timeEnd("modify")
   }
 
   function applyModifications(modifications: Modification) {
@@ -282,3 +290,5 @@ export default function ModificationModal({
     </div>
   )
 }
+
+export default memo(ModificationModal)

@@ -1,6 +1,7 @@
 import { MouseEvent } from "react"
 import { useRef, useEffect } from "react"
 import Draggable from "react-draggable"
+import { memo } from "react"
 
 interface Props {
   visible: boolean
@@ -8,7 +9,7 @@ interface Props {
   selectedElements: number[]
 }
 
-export default function PeriodicTable({
+function PeriodicTable({
   visible,
   updateSelectedElements,
   selectedElements
@@ -516,3 +517,5 @@ export default function PeriodicTable({
     </div>
   )
 }
+
+export default memo(PeriodicTable)

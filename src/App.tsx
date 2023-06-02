@@ -12,7 +12,6 @@ import { useHotkeys } from "react-hotkeys-hook"
 import { ScatterData } from "plotly.js"
 import ScatterPlot from "./components/ScatterPlot"
 import { sortElementDataByAtomicNumber } from "./utils/converters"
-import { emissionLinePlotData } from "./data/emissionLinePlotData"
 import { pluralize, remToPx } from "./utils/ui"
 import { IconBorderAll, IconUpload } from "@tabler/icons-react"
 import ModificationModal from "./components/ModificationModal"
@@ -63,7 +62,6 @@ export default function App() {
       ...currentXRFData,
       ...currentModifiedData
     ])
-    localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
     localStorage.setItem(
       "elementScaleFactor",
       JSON.stringify(elementScaleFactor)
@@ -79,7 +77,30 @@ export default function App() {
       ...currentModifiedData,
       ...currentElementData
     ])
-  }, [selectedElements, currentXRFData, currentModifiedData])
+  }, [currentXRFData, currentModifiedData])
+
+  useEffect(() => {
+    localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
+    const elementScaleFactor = calculateElementDataScaleFactor([
+      ...currentXRFData,
+      ...currentModifiedData
+    ])
+    localStorage.setItem(
+      "elementScaleFactor",
+      JSON.stringify(elementScaleFactor)
+    )
+    setCurrentElementData(
+      constructElementData(
+        selectedElements.sort((a, b) => a - b),
+        elementScaleFactor
+      )
+    )
+    setPlotData([
+      ...currentXRFData,
+      ...currentModifiedData,
+      ...currentElementData
+    ])
+  }, [selectedElements])
 
   function toggleSidebar() {
     if (sidebarRef.current) {

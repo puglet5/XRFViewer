@@ -3,6 +3,7 @@ import { FileProps } from "../common/interfaces"
 import { ScatterData } from "plotly.js"
 import { emissionLinePlotData } from "@/data/emissionLinePlotData"
 import Uploader from "./Uploader"
+import { memo } from "react"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -20,7 +21,7 @@ interface Props {
   currentModifiedData: Partial<ScatterData>[]
 }
 
-export default function Controls({
+function Controls({
   updateXRFData,
   currentXRFData,
   updateFileData,
@@ -67,3 +68,5 @@ export default function Controls({
     </div>
   )
 }
+
+export default memo(Controls)

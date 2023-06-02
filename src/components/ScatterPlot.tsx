@@ -112,11 +112,7 @@ const layout: Partial<Layout> = {
 }
 
 export default function ScatterPlot({ plotData }: Props) {
-  const [lineLabelsVisibility, setLineLabelsVisibility] = useState<boolean>(
-    !!JSON.parse(localStorage.getItem("lineLabelsVisibility")!)
-  )
   const [interpolationMode, setInterpolationMode] = useState<boolean>(false)
-  const [textVisibility, setTextVisibility] = useState<boolean>(false)
 
   const dragLayerRef = useRef<HTMLElement | null>(null)
 
@@ -124,47 +120,18 @@ export default function ScatterPlot({ plotData }: Props) {
     //@ts-expect-error
     const annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
     try {
-      Plotly.relayout("plotMain", { annotations: annotations })
+      if (annotations.length) {
+        Plotly.relayout("plotMain", {
+          annotations: annotations
+        })
+      } else
+        Plotly.relayout("plotMain", {
+          annotations: []
+        })
     } catch (error) {
       console.log(error)
     }
   }, [plotData])
-
-  function toggleLineHoverLabels() {
-    const elementDataIndices = plotData.flatMap((e, i) =>
-      elementSymbols.includes(e.name!) ? i : []
-    )
-    if (!lineLabelsVisibility) {
-      const allHoverPoints = elementDataIndices.flatMap((e) => {
-        const trace = e
-        const points: number[][] = (plotData[e] as any)
-          .selectedpoints as number[][]
-        const hoverPoints = points.map((e: number[]) => {
-          return { curveNumber: trace, pointNumber: e }
-        })
-        return hoverPoints
-      })
-      ;(Plotly as any).Fx.hover("plotMain", allHoverPoints)
-      try {
-        ;(Plotly as any).restyle("plotMain", {
-          selected: { marker: { opacity: 0 } }
-        })
-      } catch (TypeError) {
-        console.warn("Caught plotly restyle TypeError")
-      }
-    } else {
-      try {
-        ;(Plotly as any).restyle("plotMain", {
-          selected: { marker: { opacity: 1 } }
-        })
-      } catch (TypeError) {
-        console.warn("Caught plotly restyle TypeError")
-      }
-      ;(Plotly as any).Fx.hover("plotMain", [])
-    }
-    setLineLabelsVisibility(!lineLabelsVisibility)
-    localStorage.setItem("lineLabelsVisibility", JSON.stringify(true))
-  }
 
   function savePlotImage() {
     const plotDiv = document.getElementById("plotMain")!

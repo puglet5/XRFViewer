@@ -66,22 +66,16 @@ export function peakDetect(data: number[], x: number[]): Peak[] {
   const maxIntensity = Math.max(...y)
   const xStep = x[1] - x[0]
 
-  const firstDerivative = smooth(calculateFirstDerivative(y, xStep), 1)
-
-  const radius = 6
+  const firstDerivative = smooth(
+    calculateFirstDerivative(smooth([...y], 1), xStep),
+    3
+  )
 
   const filteredDerivativeZeroes = x.map((_, i) => {
-    if (i > radius) {
-      if (firstDerivative[i] >= 0 && firstDerivative[i + 1] < 0) {
-        const localPoints = y.slice(i - radius, i + radius)
-        const localAverage =
-          localPoints.reduce((a, b) => a + b) / (2 * radius + 1)
-        if (y[i] >= 1.2 * localAverage) {
-          return {
-            index: i,
-            position: x[i]
-          }
-        }
+    if (firstDerivative[i] >= 0 && firstDerivative[i + 1] < 0) {
+      return {
+        index: i,
+        position: x[i]
       }
     }
   })
@@ -97,7 +91,7 @@ export function peakDetect(data: number[], x: number[]): Peak[] {
         }
       } else return []
     })
-    .filter((e) => (e?.intensity ?? 0) >= 0.001 * maxIntensity)
+    .filter((e) => (e?.intensity ?? 0) >= 0.02 * maxIntensity)
 
   return peaks
 }

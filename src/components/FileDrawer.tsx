@@ -10,7 +10,7 @@ import {
 } from "@tabler/icons-react"
 import File from "./File"
 import { ScatterData } from "plotly.js"
-import { useEffect } from "react"
+import { memo, useEffect } from "react"
 import { createId } from "@paralleldrive/cuid2"
 import { Menu } from "@headlessui/react"
 
@@ -30,7 +30,7 @@ interface Props {
   >
 }
 
-export default function FileDrawer({
+function FileDrawer({
   fileData,
   updateFileData,
   updateXRFData,
@@ -188,3 +188,5 @@ export default function FileDrawer({
     </div>
   )
 }
+
+export default memo(FileDrawer)
