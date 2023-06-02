@@ -23,33 +23,26 @@ interface Props {
 
 function Controls({
   updateXRFData,
-  currentXRFData,
   updateFileData,
   fileData,
   updateSelectedElements,
   selectedElements,
-  updatePlotData,
-  updatePeriodicTableVisibility,
-  periodicTableVisibility,
-  updateModifiedData,
-  currentModifiedData
+  updateModifiedData
 }: Props) {
   function resetPlotData() {
     localStorage.clear()
-    updatePlotData([])
     updateSelectedElements([])
     updateXRFData([])
     updateFileData([])
     updateModifiedData([])
   }
+
   return (
     <div className="flex w-full items-center justify-center space-x-2">
       <button
         onClick={resetPlotData}
         title="Reset all"
-        disabled={
-          !currentXRFData.length && !fileData.length && !selectedElements.length
-        }
+        disabled={!fileData.length && !selectedElements.length}
         className="text-acc disabled:text-sfg"
       >
         <IconReload className="h-6 w-6" />
