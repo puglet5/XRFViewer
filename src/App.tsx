@@ -48,13 +48,8 @@ export default function App() {
   }, [currentXRFData, currentElementData, currentModifiedData])
 
   useEffect(() => {
-    if (currentXRFData.length) {
-      localStorage.setItem("currentXRFData", JSON.stringify(currentXRFData))
-    }
-
-    if (fileData.length) {
-      localStorage.setItem("fileData", JSON.stringify(fileData))
-    }
+    localStorage.setItem("currentXRFData", JSON.stringify(currentXRFData))
+    localStorage.setItem("fileData", JSON.stringify(fileData))
   }, [currentXRFData, fileData])
 
   useEffect(() => {
@@ -72,11 +67,6 @@ export default function App() {
         elementScaleFactor
       )
     )
-    setPlotData([
-      ...currentXRFData,
-      ...currentModifiedData,
-      ...currentElementData
-    ])
   }, [currentXRFData, currentModifiedData])
 
   useEffect(() => {
@@ -95,11 +85,6 @@ export default function App() {
         elementScaleFactor
       )
     )
-    setPlotData([
-      ...currentXRFData,
-      ...currentModifiedData,
-      ...currentElementData
-    ])
   }, [selectedElements])
 
   function toggleSidebar() {

@@ -67,8 +67,6 @@ function ModificationModal({
   )
 
   function modifyXRFData(modifications: Modification) {
-    console.time("modify")
-
     const newXRFData = dataToModify.map((data, i) => {
       let { x, y } = data
 
@@ -122,7 +120,6 @@ function ModificationModal({
 
     //@ts-ignore
     updateModifiedData(newXRFData)
-    console.timeEnd("modify")
   }
 
   function applyModifications(modifications: Modification) {
@@ -172,7 +169,9 @@ function ModificationModal({
   const isVisible = !!selectedFiles.length
 
   return (
-    <div className={"m-2 block" + (isVisible ? "" : " hidden")}>
+    <div
+      className={"m-2" + (isVisible ? " hidden @2xs/sidebar:block" : " hidden")}
+    >
       <div className="flex flex-col">
         <form
           onReset={() => {

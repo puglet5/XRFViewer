@@ -10,7 +10,7 @@ import {
 } from "@tabler/icons-react"
 import File from "./File"
 import { ScatterData } from "plotly.js"
-import { memo, useEffect } from "react"
+import { memo, useEffect, useMemo } from "react"
 import { createId } from "@paralleldrive/cuid2"
 import { Menu } from "@headlessui/react"
 
@@ -103,8 +103,8 @@ function FileDrawer({
     }
   }
 
-  function constructFileDrawer(data: FileProps[]) {
-    return data.map((e, i) => {
+  const constructFileDrawer = useMemo(() => {
+    return fileData.map((e, i) => {
       return (
         <div key={createId()}>
           <div className="flex h-full w-full select-none flex-nowrap">
@@ -151,7 +151,7 @@ function FileDrawer({
         </div>
       )
     })
-  }
+  }, [fileData, selectedFiles])
 
   return (
     <div>
@@ -180,7 +180,7 @@ function FileDrawer({
           </div>
           <div className="hidden flex-col p-2 @2xs/sidebar:flex">
             <div className="flex flex-col space-y-1.5 text-sm">
-              {constructFileDrawer(fileData)}
+              {constructFileDrawer}
             </div>
           </div>
         </div>

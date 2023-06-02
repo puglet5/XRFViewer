@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { memo, useEffect } from "react"
 import Uppy from "@uppy/core"
 import { convertData } from "../utils/converters"
 import {
@@ -28,11 +28,7 @@ const uppy = new Uppy({
   }
 })
 
-export default function Uploader({
-  updateXRFData,
-  updateFileData,
-  fileData
-}: Props) {
+function Uploader({ updateXRFData, updateFileData, fileData }: Props) {
   useEffect(() => {
     const handler = (files: UppyFile[]) => {
       files.map((e) => {
@@ -72,3 +68,5 @@ export default function Uploader({
   }, [updateXRFData, fileData])
   return <FileInput uppy={uppy} />
 }
+
+export default memo(Uploader)
