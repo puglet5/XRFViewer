@@ -3,7 +3,11 @@ import { createId } from "@paralleldrive/cuid2"
 import { ScatterData } from "plotly.js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
-import { IconSquarePlus, IconSquareX } from "@tabler/icons-react"
+import {
+  IconSquareMinus,
+  IconSquarePlus,
+  IconSquareX
+} from "@tabler/icons-react"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -166,6 +170,21 @@ function ModificationModal({
     updateModifiedData([])
   }
 
+  function resetModifications() {
+    let modifications = {
+      scalingFactor: 1,
+      smoothingRadius: 0,
+      baselineCorrection: false,
+      peakDetection: false
+    }
+    scalingSliderRef.current!.innerText = "1.00"
+    smoothingSliderRef.current!.innerText = "0"
+    peakCheckboxRef.current!.checked = false
+    baselineCheckboxRef.current!.checked = false
+    setModifications(modifications)
+    modifyXRFData(modifications)
+  }
+
   const isVisible = !!selectedFiles.length
 
   return (
@@ -175,14 +194,7 @@ function ModificationModal({
       <div className="flex flex-col">
         <form
           onReset={() => {
-            setModifications({
-              scalingFactor: 1,
-              smoothingRadius: 0,
-              baselineCorrection: false,
-              peakDetection: false
-            })
-            scalingSliderRef.current!.innerText = "1.00"
-            smoothingSliderRef.current!.innerText = "0"
+            resetModifications()
           }}
           id={"mainForm"}
           className="flex flex-col items-center"
@@ -266,22 +278,23 @@ function ModificationModal({
             <button
               onClick={(e) => {
                 e.preventDefault()
-                updateModifiedData([])
-                updatePeakData({ ...peakData, modified: [] })
-              }}
-            >
-              <IconSquareX />
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault()
                 applyModifications(modifications)
                 updateModifiedData([])
                 updatePeakData({ ...peakData, modified: [] })
               }}
-              title={"Apply"}
+              title={"applyModifications"}
             >
               <IconSquarePlus />
+            </button>
+            <button
+              title={"Reset"}
+              id={"resetModifications"}
+              onClick={(e) => {
+                e.preventDefault()
+                formRef.current!.reset()
+              }}
+            >
+              <IconSquareMinus></IconSquareMinus>
             </button>
           </menu>
         </form>
