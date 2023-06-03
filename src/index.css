@@ -16,7 +16,7 @@ body {
 }
 
 td:not(:empty) {
-  @apply border border-ptx
+  @apply border border-ptx w-8 text-center bg-opacity-40 text-acc
 }
 
 .modebar-btn {

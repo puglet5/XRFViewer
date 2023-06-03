@@ -64,7 +64,7 @@ const layout: Partial<Layout> = {
     l: 100,
     r: 20,
     b: 60,
-    t: 10,
+    t: 30,
     pad: 0
   },
   title: "",

@@ -9,6 +9,13 @@ interface Props {
   selectedElements: number[]
 }
 
+const selectedElementClasses = [
+  "font-bold",
+  "!bg-opacity-100",
+  "z-100",
+  "sticky"
+]
+
 function PeriodicTable({
   visible,
   updateSelectedElements,
@@ -32,7 +39,7 @@ function PeriodicTable({
           if (!newSelectedElements.length)
             localStorage.setItem("selectedElements", "[]")
           updateSelectedElements(newSelectedElements.sort((a, b) => a - b))
-          elementCell.classList.remove("!outline", "!outline-2")
+          elementCell.classList.remove(...selectedElementClasses)
         } else {
           updateSelectedElements(
             [...selectedElements, elementNumber].sort((a, b) => a - b)
@@ -50,12 +57,14 @@ function PeriodicTable({
         (tableRef.current as HTMLTableElement).getElementsByTagName("td")
       ).filter((e) => selectedElements.includes(Number(e.id)))
 
-      selectedElementCells.map((e) => e.classList.add("!outline", "!outline-2"))
+      selectedElementCells.map((e) =>
+        e.classList.add(...selectedElementClasses)
+      )
 
       if (selectedElements.length === 0) {
         Array.from(
           (tableRef.current as HTMLTableElement).getElementsByTagName("td")
-        ).map((e) => e.classList.remove("!outline", "!outline-2"))
+        ).map((e) => e.classList.remove(...selectedElementClasses))
       }
     }
   }, [selectedElements])
@@ -80,7 +89,7 @@ function PeriodicTable({
               <tbody>
                 <tr>
                   <td id="1" className="bg-sky-300">
-                    <sup>1</sup>H
+                    H
                   </td>
                   <td></td>
                   <td></td>
@@ -100,15 +109,15 @@ function PeriodicTable({
                   <td></td>
                   <td></td>
                   <td id="2" className="bg-fuchsia-300">
-                    <sup>2</sup>He
+                    He
                   </td>
                 </tr>
                 <tr>
                   <td id="3" className="bg-cyan-300">
-                    <sup>3</sup>Li
+                    Li
                   </td>
                   <td id="4" className="bg-rose-300">
-                    <sup>4</sup>Be
+                    Be
                   </td>
                   <td></td>
                   <td></td>
@@ -122,30 +131,30 @@ function PeriodicTable({
                   <td></td>
                   <td></td>
                   <td id="5" className="bg-red-400">
-                    <sup>5</sup>B
+                    B
                   </td>
                   <td id="6" className="bg-lime-300">
-                    <sup>6</sup>C
+                    C
                   </td>
                   <td id="7" className="bg-lime-300">
-                    <sup>7</sup>N
+                    N
                   </td>
                   <td id="8" className="bg-lime-300">
-                    <sup>8</sup>O
+                    O
                   </td>
                   <td id="9" className="bg-lime-300">
-                    <sup>9</sup>F
+                    F
                   </td>
                   <td id="10" className="bg-fuchsia-300">
-                    <sup>10</sup>Ne
+                    Ne
                   </td>
                 </tr>
                 <tr>
                   <td id="11" className="bg-cyan-300">
-                    <sup>11</sup>Na
+                    Na
                   </td>
                   <td id="12" className="bg-rose-300">
-                    <sup>12</sup>Mg
+                    Mg
                   </td>
                   <td></td>
                   <td></td>
@@ -159,253 +168,253 @@ function PeriodicTable({
                   <td></td>
                   <td></td>
                   <td id="13" className="bg-sky-300">
-                    <sup>13</sup>Al
+                    Al
                   </td>
                   <td id="14" className="bg-red-400">
-                    <sup>14</sup>Si
+                    Si
                   </td>
                   <td id="15" className="bg-lime-300">
-                    <sup>15</sup>P
+                    P
                   </td>
                   <td id="16" className="bg-lime-300">
-                    <sup>16</sup>S
+                    S
                   </td>
                   <td id="17" className="bg-lime-300">
-                    <sup>17</sup>Cl
+                    Cl
                   </td>
                   <td id="18" className="bg-fuchsia-300">
-                    <sup>18</sup>Ar
+                    Ar
                   </td>
                 </tr>
                 <tr>
                   <td id="19" className="bg-cyan-300">
-                    <sup>19</sup>K
+                    K
                   </td>
                   <td id="20" className="bg-rose-300">
-                    <sup>20</sup>Ca
+                    Ca
                   </td>
                   <td id="21" className="bg-purple-300">
-                    <sup>21</sup>Sc
+                    Sc
                   </td>
                   <td></td>
                   <td id="22" className="bg-purple-300">
-                    <sup>22</sup>Ti
+                    Ti
                   </td>
                   <td id="23" className="bg-purple-300">
-                    <sup>23</sup>V
+                    V
                   </td>
                   <td id="24" className="bg-purple-300">
-                    <sup>24</sup>Cr
+                    Cr
                   </td>
                   <td id="25" className="bg-purple-300">
-                    <sup>25</sup>Mn
+                    Mn
                   </td>
                   <td id="26" className="bg-purple-300">
-                    <sup>26</sup>Fe
+                    Fe
                   </td>
                   <td id="27" className="bg-purple-300">
-                    <sup>27</sup>Co
+                    Co
                   </td>
                   <td id="28" className="bg-purple-300">
-                    <sup>28</sup>Ni
+                    Ni
                   </td>
                   <td id="29" className="bg-purple-300">
-                    <sup>29</sup>Cu
+                    Cu
                   </td>
                   <td id="30" className="bg-purple-300">
-                    <sup>30</sup>Zn
+                    Zn
                   </td>
                   <td id="31" className="bg-sky-300">
-                    <sup>31</sup>Ga
+                    Ga
                   </td>
                   <td id="32" className="bg-red-400">
-                    <sup>32</sup>Ge
+                    Ge
                   </td>
                   <td id="33" className="bg-red-400">
-                    <sup>33</sup>As
+                    As
                   </td>
                   <td id="34" className="bg-lime-300">
-                    <sup>34</sup>Se
+                    Se
                   </td>
                   <td id="35" className="bg-lime-300">
-                    <sup>35</sup>Br
+                    Br
                   </td>
                   <td id="36" className="bg-fuchsia-300">
-                    <sup>36</sup>Kr
+                    Kr
                   </td>
                 </tr>
                 <tr>
                   <td id="37" className="bg-cyan-300">
-                    <sup>37</sup>Rb
+                    Rb
                   </td>
                   <td id="38" className="bg-rose-300">
-                    <sup>38</sup>Sr
+                    Sr
                   </td>
                   <td id="39" className="bg-purple-300">
-                    <sup>39</sup>Y
+                    Y
                   </td>
                   <td></td>
 
                   <td id="40" className="bg-purple-300">
-                    <sup>40</sup>Zr
+                    Zr
                   </td>
                   <td id="41" className="bg-purple-300">
-                    <sup>41</sup>Nb
+                    Nb
                   </td>
                   <td id="42" className="bg-purple-300">
-                    <sup>42</sup>Mo
+                    Mo
                   </td>
                   <td id="43" className="bg-purple-300">
-                    <sup>43</sup>Tc
+                    Tc
                   </td>
                   <td id="44" className="bg-purple-300">
-                    <sup>44</sup>Ru
+                    Ru
                   </td>
                   <td id="45" className="bg-purple-300">
-                    <sup>45</sup>Th
+                    Th
                   </td>
                   <td id="46" className="bg-purple-300">
-                    <sup>46</sup>Pd
+                    Pd
                   </td>
                   <td id="47" className="bg-purple-300">
-                    <sup>47</sup>Ag
+                    Ag
                   </td>
                   <td id="48" className="bg-purple-300">
-                    <sup>48</sup>Cd
+                    Cd
                   </td>
                   <td id="49" className="bg-sky-300">
-                    <sup>49</sup>In
+                    In
                   </td>
                   <td id="50" className="bg-sky-300">
-                    <sup>50</sup>Sn
+                    Sn
                   </td>
                   <td id="51" className="bg-red-400">
-                    <sup>51</sup>Sb
+                    Sb
                   </td>
                   <td id="52" className="bg-red-400">
-                    <sup>52</sup>Te
+                    Te
                   </td>
                   <td id="53" className="bg-lime-300">
-                    <sup>53</sup>I
+                    I
                   </td>
                   <td id="54" className="bg-fuchsia-300">
-                    <sup>54</sup>Xe
+                    Xe
                   </td>
                 </tr>
                 <tr>
                   <td id="55" className="bg-cyan-300">
-                    <sup>55</sup>Cs
+                    Cs
                   </td>
                   <td id="56" className="bg-rose-300">
-                    <sup>56</sup>Ba
+                    Ba
                   </td>
                   <td id="57" className="bg-indigo-400">
-                    <sup>57</sup>La
+                    La
                   </td>
                   <td></td>
 
                   <td id="72" className="bg-purple-300">
-                    <sup>72</sup>Hf
+                    Hf
                   </td>
                   <td id="73" className="bg-purple-300">
-                    <sup>73</sup>Ta
+                    Ta
                   </td>
                   <td id="74" className="bg-purple-300">
-                    <sup>74</sup>W
+                    W
                   </td>
                   <td id="75" className="bg-purple-300">
-                    <sup>75</sup>Re
+                    Re
                   </td>
                   <td id="76" className="bg-purple-300">
-                    <sup>76</sup>Os
+                    Os
                   </td>
                   <td id="77" className="bg-purple-300">
-                    <sup>77</sup>Ir
+                    Ir
                   </td>
                   <td id="78" className="bg-purple-300">
-                    <sup>78</sup>Pt
+                    Pt
                   </td>
                   <td id="79" className="bg-purple-300">
-                    <sup>79</sup>Au
+                    Au
                   </td>
                   <td id="80" className="bg-purple-300">
-                    <sup>80</sup>Hg
+                    Hg
                   </td>
                   <td id="81" className="bg-sky-300">
-                    <sup>81</sup>Tl
+                    Tl
                   </td>
                   <td id="82" className="bg-sky-300">
-                    <sup>82</sup>Pb
+                    Pb
                   </td>
                   <td id="83" className="bg-sky-300">
-                    <sup>83</sup>Bi
+                    Bi
                   </td>
                   <td id="84" className="bg-sky-300">
-                    <sup>84</sup>Po
+                    Po
                   </td>
                   <td id="85" className="bg-sky-300">
-                    <sup>85</sup>At
+                    At
                   </td>
                   <td id="86" className="bg-fuchsia-300">
-                    <sup>86</sup>Rn
+                    Rn
                   </td>
                 </tr>
                 <tr>
                   <td id="87" className="bg-cyan-300">
-                    <sup>87</sup>Fr
+                    Fr
                   </td>
                   <td id="88" className="bg-rose-300">
-                    <sup>88</sup>Ra
+                    Ra
                   </td>
                   <td id="89" className="bg-yellow-700">
-                    <sup>89</sup>Ac
+                    Ac
                   </td>
                   <td></td>
 
                   <td id="104" className="bg-purple-300">
-                    <sup>104</sup>Rf
+                    Rf
                   </td>
                   <td id="105" className="bg-purple-300">
-                    <sup>105</sup>Db
+                    Db
                   </td>
                   <td id="106" className="bg-purple-300">
-                    <sup>106</sup>Sg
+                    Sg
                   </td>
                   <td id="107" className="bg-purple-300">
-                    <sup>107</sup>Bh
+                    Bh
                   </td>
                   <td id="108" className="bg-purple-300">
-                    <sup>108</sup>Hs
+                    Hs
                   </td>
                   <td id="109" className="bg-gray-300">
-                    <sup>109</sup>Mt
+                    Mt
                   </td>
                   <td id="110" className="bg-gray-300">
-                    <sup>110</sup>Ds
+                    Ds
                   </td>
                   <td id="111" className="bg-gray-300">
-                    <sup>111</sup>Rg
+                    Rg
                   </td>
                   <td id="112" className="bg-gray-300">
-                    <sup>112</sup>Cn
+                    Cn
                   </td>
                   <td id="113" className="bg-gray-300">
-                    <sup>113</sup>Nh
+                    Nh
                   </td>
                   <td id="114" className="bg-gray-300">
-                    <sup>114</sup>Fl
+                    Fl
                   </td>
                   <td id="115" className="bg-gray-300">
-                    <sup>115</sup>Mc
+                    Mc
                   </td>
                   <td id="116" className="bg-gray-300">
-                    <sup>116</sup>Lv
+                    Lv
                   </td>
                   <td id="117" className="bg-gray-300">
-                    <sup>117</sup>Ts
+                    Ts
                   </td>
                   <td id="118" className="bg-gray-300">
-                    <sup>118</sup>Og
+                    Og
                   </td>
                 </tr>
                 <tr>
@@ -417,46 +426,46 @@ function PeriodicTable({
                   <td></td>
                   <td></td>
                   <td id="58" className="bg-indigo-400">
-                    <sup>58</sup>Ce
+                    Ce
                   </td>
                   <td id="59" className="bg-indigo-400">
-                    <sup>59</sup>Pr
+                    Pr
                   </td>
                   <td id="60" className="bg-indigo-400">
-                    <sup>60</sup>Nd
+                    Nd
                   </td>
                   <td id="61" className="bg-indigo-400">
-                    <sup>61</sup>Pm
+                    Pm
                   </td>
                   <td id="62" className="bg-indigo-400">
-                    <sup>62</sup>Sm
+                    Sm
                   </td>
                   <td id="63" className="bg-indigo-400">
-                    <sup>63</sup>Eu
+                    Eu
                   </td>
                   <td id="64" className="bg-indigo-400">
-                    <sup>64</sup>Gd
+                    Gd
                   </td>
                   <td id="65" className="bg-indigo-400">
-                    <sup>65</sup>Tb
+                    Tb
                   </td>
                   <td id="66" className="bg-indigo-400">
-                    <sup>66</sup>Dy
+                    Dy
                   </td>
                   <td id="67" className="bg-indigo-400">
-                    <sup>67</sup>Ho
+                    Ho
                   </td>
                   <td id="68" className="bg-indigo-400">
-                    <sup>68</sup>Er
+                    Er
                   </td>
                   <td id="69" className="bg-indigo-400">
-                    <sup>69</sup>Tm
+                    Tm
                   </td>
                   <td id="70" className="bg-indigo-400">
-                    <sup>70</sup>Yb
+                    Yb
                   </td>
                   <td id="71" className="bg-indigo-400">
-                    <sup>71</sup>Lu
+                    Lu
                   </td>
                   <td></td>
                 </tr>
@@ -466,46 +475,46 @@ function PeriodicTable({
                   <td></td>
                   <td></td>
                   <td id="90" className="bg-yellow-700">
-                    <sup>90</sup>Th
+                    Th
                   </td>
                   <td id="91" className="bg-yellow-700">
-                    <sup>91</sup>Pa
+                    Pa
                   </td>
                   <td id="92" className="bg-yellow-700">
-                    <sup>92</sup>U
+                    U
                   </td>
                   <td id="93" className="bg-yellow-700">
-                    <sup>93</sup>Np
+                    Np
                   </td>
                   <td id="94" className="bg-yellow-700">
-                    <sup>94</sup>Pu
+                    Pu
                   </td>
                   <td id="95" className="bg-yellow-700">
-                    <sup>95</sup>Am
+                    Am
                   </td>
                   <td id="96" className="bg-yellow-700">
-                    <sup>96</sup>Cm
+                    Cm
                   </td>
                   <td id="97" className="bg-yellow-700">
-                    <sup>97</sup>Bk
+                    Bk
                   </td>
                   <td id="98" className="bg-yellow-700">
-                    <sup>98</sup>Cf
+                    Cf
                   </td>
                   <td id="99" className="bg-yellow-700">
-                    <sup>99</sup>Es
+                    Es
                   </td>
                   <td id="100" className="bg-yellow-700">
-                    <sup>100</sup>Fm
+                    Fm
                   </td>
                   <td id="101" className="bg-yellow-700">
-                    <sup>101</sup>Md
+                    Md
                   </td>
                   <td id="102" className="bg-yellow-700">
-                    <sup>102</sup>No
+                    No
                   </td>
                   <td id="103" className="bg-yellow-700">
-                    <sup>103</sup>Lr
+                    Lr
                   </td>
                   <td></td>
                 </tr>
