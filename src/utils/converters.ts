@@ -157,7 +157,7 @@ export function constructElementData(
 
   const elements = elementIndices.map((i) => emissionLinesData.elements[i])
 
-  const plotData = elementIndices.flatMap((e, i) => {
+  const plotData = elementIndices.map((e, i) => {
     const lineData = emissionLinePlotData[e]
     const x = lineData.x
     const y = lineData.y.map((e) => e * scaleFactor)
@@ -216,17 +216,16 @@ export function constructElementData(
     }
   })
 
-  if (!plotData.length) return []
+  if (!elementIndices.length) return []
   return plotData as Partial<ScatterData>[]
 }
 
 export function calculateElementDataScaleFactor(
   XRFData: Partial<ScatterData>[]
 ): number {
-  const data = XRFData.flatMap((e) => e.y as number[]).filter((e) => e)
-  if (!data?.length) {
-    return 1
-  }
-  const scaleFactor = Math.max(...data)
-  return scaleFactor / 2
+  const data = XRFData.flatMap((e) => e.y as number[])
+  if (!data?.length) return 1
+
+  const scaleFactor = Math.max(...data) / 2
+  return scaleFactor
 }

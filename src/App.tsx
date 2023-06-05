@@ -57,15 +57,15 @@ export default function App() {
       ...currentXRFData,
       ...currentModifiedData
     ])
-    localStorage.setItem(
-      "elementScaleFactor",
-      JSON.stringify(elementScaleFactor)
-    )
     setCurrentElementData(
       constructElementData(
         selectedElements.sort((a, b) => a - b),
         elementScaleFactor
       )
+    )
+    localStorage.setItem(
+      "elementScaleFactor",
+      JSON.stringify(elementScaleFactor)
     )
   }, [currentXRFData, currentModifiedData])
 
