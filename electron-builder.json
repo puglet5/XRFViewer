@@ -22,9 +22,13 @@
         "arch": [
           "x64"
         ]
-      }
+      },
+      "portable"
     ],
     "artifactName": "${productName}_${version}.${ext}"
+  },
+  "portable": {
+    "artifactName": "xrfviewer_portable.${ext}"
   },
   "nsis": {
     "oneClick": false,
