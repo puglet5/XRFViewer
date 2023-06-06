@@ -4,7 +4,6 @@ import { convertData } from "../utils/converters"
 import {
   FileProps,
   isValidFileType,
-  ValidFileType,
   ValidFileTypes
 } from "../common/interfaces"
 import { constructXRFData } from "../utils/converters"

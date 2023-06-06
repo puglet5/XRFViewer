@@ -4,7 +4,6 @@ import {
   IconX,
   IconSelectAll,
   IconDeselect,
-  IconResize,
   IconCaretDown,
   IconCaretUp
 } from "@tabler/icons-react"
@@ -121,7 +120,7 @@ function FileDrawer({
                 {e.type.replace(".", "").toUpperCase()}
               </span>
             </button>
-            <File fileData={e} isSelected={e.isSelected} />
+            <File fileData={e} />
             <div className="my-auto ml-2 flex flex-nowrap text-acc">
               <button
                 onClick={() => removeFile(i)}

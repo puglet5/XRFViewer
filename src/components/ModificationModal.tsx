@@ -3,11 +3,7 @@ import { createId } from "@paralleldrive/cuid2"
 import { ScatterData } from "plotly.js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
-import {
-  IconSquareMinus,
-  IconSquarePlus,
-  IconSquareX
-} from "@tabler/icons-react"
+import { IconSquareMinus, IconSquarePlus } from "@tabler/icons-react"
 
 interface Props {
   updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
@@ -127,7 +123,7 @@ function ModificationModal({
   }
 
   function applyModifications(modifications: Modification) {
-    const newXRFData = currentModifiedData.map((data, i) => {
+    const newXRFData = currentModifiedData.map((data) => {
       const isScaled = modifications.scalingFactor !== 1
       const isSmoothed = modifications.smoothingRadius !== 0
 
@@ -141,7 +137,7 @@ function ModificationModal({
       }
     })
 
-    const newFileData = selectedFiles.map((e, i) => {
+    const newFileData = selectedFiles.map((e) => {
       const isScaled = modifications.scalingFactor !== 1
       const isSmoothed = modifications.smoothingRadius !== 0
 

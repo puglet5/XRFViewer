@@ -19,7 +19,7 @@ module.exports = {
   plugins: ["react-refresh"],
   rules: {
     "react/react-in-jsx-scope": "off",
-    "react-refresh/only-export-components": "warn",
+    "react-refresh/only-export-components": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
   }
 }

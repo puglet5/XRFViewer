@@ -3,10 +3,9 @@ import { FileProps } from "../common/interfaces"
 
 interface Props {
   fileData: FileProps
-  isSelected: boolean
 }
 
-function File({ fileData, isSelected }: Props) {
+function File({ fileData }: Props) {
   return (
     <span className="my-auto flex flex-grow space-x-2 overflow-hidden whitespace-nowrap">
       <span className="overflow-hidden text-ellipsis" title={fileData.name}>

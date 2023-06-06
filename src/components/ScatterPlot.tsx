@@ -169,7 +169,7 @@ function ScatterPlot({ plotData }: Props) {
         config={config}
         className="h-[calc(100vh-3rem)] w-full"
         style={{ clipPath: "none" }}
-        onInitialized={function () {
+        onInitialized={() => {
           dragLayerRef.current = document.querySelector(
             ".draglayer"
           ) as HTMLElement
