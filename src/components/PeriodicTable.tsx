@@ -31,7 +31,7 @@ function PeriodicTable({
         (tableRef.current as HTMLTableElement).getElementsByTagName("td")
       ).filter((e) => e.id === elementId)[0]
       if (elementId) {
-        const elementNumber = Number(elementId)
+        const elementNumber = +elementId
         if (selectedElements.includes(elementNumber)) {
           const newSelectedElements = selectedElements.filter(
             (e) => e !== elementNumber
@@ -55,7 +55,7 @@ function PeriodicTable({
     if (tableRef.current) {
       const selectedElementCells = Array.from(
         (tableRef.current as HTMLTableElement).getElementsByTagName("td")
-      ).filter((e) => selectedElements.includes(Number(e.id)))
+      ).filter((e) => selectedElements.includes(+e.id))
 
       selectedElementCells.map((e) =>
         e.classList.add(...selectedElementClasses)

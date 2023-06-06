@@ -60,7 +60,7 @@ function parseCsv(data: string): ParsedData {
       e
         .trim()
         .split(",")
-        .map((e) => Number(e) ?? "0")
+        .map((e) => +e ?? "0")
     )
   const transposedData = parsedData[0].map((col, i) =>
     parsedData.map((row) => row[i])
@@ -83,7 +83,7 @@ function validateDat(data: string): boolean {
   const hasValidFormat: boolean =
     hasHeaderString &&
     bodyData.every((e) => typeof e === "string") &&
-    !bodyData.map((e) => Number(e)).includes(NaN)
+    !bodyData.map((e) => +e).includes(NaN)
 
   return hasValidFormat
 }
@@ -96,7 +96,7 @@ function validateCsv(data: string): boolean {
       e
         .trim()
         .split(",")
-        .map((e) => Number(e) ?? "0")
+        .map((e) => +e ?? "0")
     )
 
   const hasTwoColumns: boolean = parsedData

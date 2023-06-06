@@ -1,7 +1,7 @@
 import FileDrawer from "./components/FileDrawer"
 import { Resizable } from "re-resizable"
 import { useState, useEffect, useRef } from "react"
-import { FileProps, Peak, PeakData } from "./common/interfaces"
+import { FileProps, PeakData } from "./common/interfaces"
 import Controls from "./components/Controls"
 import PeriodicTable from "./components/PeriodicTable"
 import {
@@ -13,7 +13,7 @@ import { ScatterData } from "plotly.js"
 import ScatterPlot from "./components/ScatterPlot"
 import { sortElementDataByAtomicNumber } from "./utils/converters"
 import { pluralize, remToPx } from "./utils/ui"
-import { IconBorderAll, IconUpload } from "@tabler/icons-react"
+import { IconBorderAll } from "@tabler/icons-react"
 import ModificationModal from "./components/ModificationModal"
 
 export default function App() {
@@ -158,8 +158,8 @@ export default function App() {
     <main className="flex h-screen bg-pbg ">
       <Resizable
         className="overflow-visible"
-        bounds={"window"}
-        enable={{
+        bounds={ "window" }
+        enable={ {
           top: false,
           right: true,
           bottom: false,
@@ -168,14 +168,14 @@ export default function App() {
           bottomRight: false,
           bottomLeft: false,
           topLeft: false
-        }}
-        minWidth={0}
-        snap={{
+        } }
+        minWidth={ 0 }
+        snap={ {
           x: [0, remToPx(4), ...Array.from({ length: 200 }, (_, i) => i + 200)]
-        }}
-        defaultSize={{ width: 300, height: "100%" }}
-        maxWidth={400}
-        handleStyles={{
+        } }
+        defaultSize={ { width: 300, height: "100%" } }
+        maxWidth={ 400 }
+        handleStyles={ {
           right: {
             position: "absolute",
             width: "20px",
@@ -184,46 +184,46 @@ export default function App() {
             cursor: "col-resize",
             right: "-20px"
           }
-        }}
-        handleClasses={{ right: "select-none z-20" }}
-        onResizeStop={() => window.dispatchEvent(new Event("resize"))}
-        ref={sidebarRef}
+        } }
+        handleClasses={ { right: "select-none z-20" } }
+        onResizeStop={ () => window.dispatchEvent(new Event("resize")) }
+        ref={ sidebarRef }
       >
         <div className="z-20 flex h-full flex-col border-r border-ptx bg-neutral-100 @container/sidebar">
           <div className="mt-2 hidden w-full flex-col items-center justify-center text-acc @2xs/sidebar:flex ">
             <span className="text-center">
-              Showing {pluralize(fileData.length, "file")}
+              Showing { pluralize(fileData.length, "file") }
             </span>
-            {fileData.length ? (
+            { fileData.length ? (
               <span className="text-center text-xs text-gray-600">
-                {fileData.filter((e) => e.isSelected === true).length} selected
+                { fileData.filter((e) => e.isSelected === true).length } selected
               </span>
             ) : (
               <div className="pb-4"></div>
-            )}
+            ) }
           </div>
           <div
             id="files"
             className="max-h-[50%] overflow-scroll border-ptx @2xs/sidebar:border-b"
           >
             <FileDrawer
-              fileData={fileData}
-              updateFileData={setFileData}
-              updateXRFData={setCurrentXRFData}
-              currentXRFData={currentXRFData}
-              updateModifiedData={setCurrentModifiedData}
-              updateModificationModalVisibility={setModificationModalVisibility}
-              modificationModalVisibility={modificationModalVisibility}
-              selectedFiles={selectedFiles}
-              updateSelectedFiles={setSelectedFiles}
+              fileData={ fileData }
+              updateFileData={ setFileData }
+              updateXRFData={ setCurrentXRFData }
+              currentXRFData={ currentXRFData }
+              updateModifiedData={ setCurrentModifiedData }
+              updateModificationModalVisibility={ setModificationModalVisibility }
+              modificationModalVisibility={ modificationModalVisibility }
+              selectedFiles={ selectedFiles }
+              updateSelectedFiles={ setSelectedFiles }
             />
           </div>
 
           <div id="table" className="mt-2">
             <div className="hidden items-center justify-center @[1px]/sidebar:flex @2xs/sidebar:hidden">
               <button
-                onClick={() => setPeriodicTableVisibility(true)}
-                disabled={periodicTableVisibility}
+                onClick={ () => setPeriodicTableVisibility(true) }
+                disabled={ periodicTableVisibility }
                 className="text-acc disabled:text-sfg"
               >
                 <IconBorderAll className="h-8 w-8" />
@@ -232,17 +232,17 @@ export default function App() {
           </div>
 
           <ModificationModal
-            updatePeakData={setPeakData}
-            peakData={peakData}
-            selectedFiles={selectedFiles}
-            currentXRFData={currentXRFData}
-            updateFileData={setFileData}
-            updateXRFData={setCurrentXRFData}
-            fileData={fileData}
-            currentModifiedData={currentModifiedData}
-            updateModifiedData={setCurrentModifiedData}
-            plotRevision={plotRevision}
-            updatePlotRevision={setPlotRevision}
+            updatePeakData={ setPeakData }
+            peakData={ peakData }
+            selectedFiles={ selectedFiles }
+            currentXRFData={ currentXRFData }
+            updateFileData={ setFileData }
+            updateXRFData={ setCurrentXRFData }
+            fileData={ fileData }
+            currentModifiedData={ currentModifiedData }
+            updateModifiedData={ setCurrentModifiedData }
+            plotRevision={ plotRevision }
+            updatePlotRevision={ setPlotRevision }
           />
 
           <div
@@ -256,17 +256,17 @@ export default function App() {
           >
             <div className="flex items-center justify-center">
               <Controls
-                updateXRFData={setCurrentXRFData}
-                updatePeriodicTableVisibility={setPeriodicTableVisibility}
-                updateFileData={setFileData}
-                updateSelectedElements={setSelectedElements}
-                updatePlotData={setPlotData}
-                currentXRFData={currentXRFData}
-                periodicTableVisibility={periodicTableVisibility}
-                selectedElements={selectedElements}
-                fileData={fileData}
-                updateModifiedData={setCurrentModifiedData}
-                currentModifiedData={currentModifiedData}
+                updateXRFData={ setCurrentXRFData }
+                updatePeriodicTableVisibility={ setPeriodicTableVisibility }
+                updateFileData={ setFileData }
+                updateSelectedElements={ setSelectedElements }
+                updatePlotData={ setPlotData }
+                currentXRFData={ currentXRFData }
+                periodicTableVisibility={ periodicTableVisibility }
+                selectedElements={ selectedElements }
+                fileData={ fileData }
+                updateModifiedData={ setCurrentModifiedData }
+                currentModifiedData={ currentModifiedData }
               />
             </div>
           </div>
@@ -276,21 +276,21 @@ export default function App() {
       <div className="h-full w-full overflow-hidden">
         <div className="h-full bg-pbg">
           <ScatterPlot
-            currentXRFData={currentXRFData}
-            currentModifiedData={currentModifiedData}
-            peakData={peakData}
-            plotData={plotData}
-            plotRevision={plotRevision}
-            elementData={currentElementData}
-            updateElementData={setCurrentElementData}
+            currentXRFData={ currentXRFData }
+            currentModifiedData={ currentModifiedData }
+            peakData={ peakData }
+            plotData={ plotData }
+            plotRevision={ plotRevision }
+            elementData={ currentElementData }
+            updateElementData={ setCurrentElementData }
           />
         </div>
       </div>
 
       <PeriodicTable
-        visible={periodicTableVisibility}
-        updateSelectedElements={setSelectedElements}
-        selectedElements={selectedElements}
+        visible={ periodicTableVisibility }
+        updateSelectedElements={ setSelectedElements }
+        selectedElements={ selectedElements }
       />
     </main>
   )

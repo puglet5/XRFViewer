@@ -171,7 +171,7 @@ function ModificationModal({
   }
 
   function resetModifications() {
-    let modifications = {
+    const modifications = {
       scalingFactor: 1,
       smoothingRadius: 0,
       baselineCorrection: false,
@@ -210,12 +210,11 @@ function ModificationModal({
               step={0.01}
               defaultValue={1.0}
               onChange={(e) => {
-                ;(e.target.nextSibling as HTMLSpanElement).innerText = Number(
-                  e.target.value
-                ).toFixed(2)
+                ;(e.target.nextSibling as HTMLSpanElement).innerText = (+e
+                  .target.value).toFixed(2)
                 setModifications({
                   ...modifications,
-                  scalingFactor: Number(e.target.value)
+                  scalingFactor: +e.target.value
                 })
               }}
             ></input>
@@ -237,7 +236,7 @@ function ModificationModal({
                   e.target.value
                 setModifications({
                   ...modifications,
-                  smoothingRadius: Number(e.target.value)
+                  smoothingRadius: +e.target.value
                 })
               }}
             ></input>

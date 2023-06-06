@@ -7,7 +7,7 @@ import {
   IconDeviceFloppy,
   IconCopy,
   IconVector,
-  IconVectorOff,
+  IconVectorOff
 } from "@tabler/icons-react"
 
 import createPlotlyComponent from "react-plotly.js/factory"
@@ -53,7 +53,7 @@ const config: Partial<Config> = {
   doubleClick: "reset+autosize"
 }
 
-let layout: Partial<Layout> = {
+const layout: Partial<Layout> = {
   margin: {
     l: 100,
     r: 20,
@@ -115,8 +115,7 @@ function ScatterPlot({ plotData }: Props) {
     const annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
     if (annotations.length) {
       layout.annotations = annotations
-    }
-    else {
+    } else {
       layout.annotations = []
     }
   }, [plotData])
@@ -164,51 +163,51 @@ function ScatterPlot({ plotData }: Props) {
         className="sticky z-20 flex w-full space-x-1 border-b border-ptx p-3 text-acc"
       >
         <button
-          onClick={ savePlotImage }
+          onClick={savePlotImage}
           title="Save plot as .png"
-          className={ plotData.flat().length ? "" : "!text-gray-300" }
-          disabled={ plotData.flat().length ? false : true }
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
         >
           <IconDeviceFloppy></IconDeviceFloppy>
         </button>
         <button
-          onClick={ copyPlotImage }
+          onClick={copyPlotImage}
           title="Copy plot image to clipboard"
-          className={ plotData.flat().length ? "" : "!text-gray-300" }
-          disabled={ plotData.flat().length ? false : true }
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
         >
           <IconCopy></IconCopy>
         </button>
         <button
-          onClick={ toggleInterpolation }
+          onClick={toggleInterpolation}
           title={
             !interpolationMode
               ? "Enable interpolation"
               : "Disable interpolation"
           }
-          className={ plotData.flat().length ? "" : "!text-gray-300" }
-          disabled={ plotData.flat().length ? false : true }
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
         >
-          { !interpolationMode ? (
+          {!interpolationMode ? (
             <IconVector></IconVector>
           ) : (
             <IconVectorOff></IconVectorOff>
-          ) }
+          )}
         </button>
       </div>
       <Plot
         divId="plotMain"
-        data={ plotData }
-        layout={ layout }
-        config={ config }
+        data={plotData}
+        layout={layout}
+        config={config}
         className="h-[calc(100vh-3rem)] w-full"
-        style={ { clipPath: "none" } }
-        onInitialized={ function () {
+        style={{ clipPath: "none" }}
+        onInitialized={function () {
           dragLayerRef.current = document.querySelector(
             ".draglayer"
           ) as HTMLElement
           dragLayerRef.current.classList.add("!cursor-pointer")
-        } }
+        }}
       />
     </>
   )
