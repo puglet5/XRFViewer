@@ -1,14 +1,9 @@
 import { Config, Layout, ScatterData } from "plotly.js"
 //@ts-ignore
 import Plotly from "plotly.js-strict-dist"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef } from "react"
 import html2canvas from "html2canvas"
-import {
-  IconDeviceFloppy,
-  IconCopy,
-  IconVector,
-  IconVectorOff
-} from "@tabler/icons-react"
+import { IconDeviceFloppy, IconCopy } from "@tabler/icons-react"
 
 import createPlotlyComponent from "react-plotly.js/factory"
 import { PeakData } from "@/common/interfaces"
@@ -106,8 +101,6 @@ const layout: Partial<Layout> = {
 }
 
 function ScatterPlot({ plotData }: Props) {
-  const [interpolationMode, setInterpolationMode] = useState<boolean>(false)
-
   const dragLayerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
@@ -146,16 +139,6 @@ function ScatterPlot({ plotData }: Props) {
     )
   }
 
-  function toggleInterpolation() {
-    const interpolationShape = interpolationMode ? "linear" : "spline"
-    try {
-      Plotly.restyle("plotMain", { line: { shape: interpolationShape } })
-    } catch (TypeError) {
-      console.warn("Caught Plotly restyle error")
-    }
-    setInterpolationMode(!interpolationMode)
-  }
-
   return (
     <>
       <div
@@ -177,22 +160,6 @@ function ScatterPlot({ plotData }: Props) {
           disabled={plotData.flat().length ? false : true}
         >
           <IconCopy></IconCopy>
-        </button>
-        <button
-          onClick={toggleInterpolation}
-          title={
-            !interpolationMode
-              ? "Enable interpolation"
-              : "Disable interpolation"
-          }
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
-        >
-          {!interpolationMode ? (
-            <IconVector></IconVector>
-          ) : (
-            <IconVectorOff></IconVectorOff>
-          )}
         </button>
       </div>
       <Plot
