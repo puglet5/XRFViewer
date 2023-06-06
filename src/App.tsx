@@ -191,11 +191,11 @@ export default function App() {
       >
         <div className="z-20 flex h-full flex-col border-r border-ptx bg-neutral-100 @container/sidebar">
           <div className="mt-2 hidden w-full flex-col items-center justify-center text-acc @2xs/sidebar:flex ">
-            <span className="text-center">
+            <span className="select-none text-center">
               Showing {pluralize(fileData.length, "file")}
             </span>
             {fileData.length ? (
-              <span className="text-center text-xs text-gray-600">
+              <span className="select-none text-center text-xs text-gray-600">
                 {fileData.filter((e) => e.isSelected === true).length} selected
               </span>
             ) : (
