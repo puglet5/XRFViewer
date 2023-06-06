@@ -23,25 +23,35 @@ function blur(
 }
 
 function calculateFirstDerivative(data: number[], step: number) {
-  const [a, b, c, d] = [11 / 6, 3, 1.5, 1 / 3]
+  const [a, b, c, d] = [-11 / 6, 3, -1.5, 1 / 3]
   const firstDerivative = data.flatMap((e, i) =>
     i < data.length - 4
-      ? (-a * data[i] + b * data[i + 1] - c * data[i + 2] + d * data[i + 3]) /
+      ? (a * data[i] + b * data[i + 1] + c * data[i + 2] + d * data[i + 3]) /
         step
       : 0
   )
   return firstDerivative
 }
 
+function calculateSecondDerivative(data: number[], step: number) {
+  const [a, b, c, d] = [2, -5, 4, -1]
+  const secondDerivative = data.flatMap((e, i) =>
+    i < data.length - 4
+      ? (a * data[i] + b * data[i + 1] + c * data[i + 2] + d * data[i + 3]) /
+        step
+      : 0
+  )
+  return secondDerivative
+}
+
 export function smooth(values: number[], radius: number) {
   // adapted from https://github.com/d3/d3-array/blob/main/src/blur.js
   const length = values.length
   const temp = [...values]
-  blur(values, temp, 0, length, 1, radius)
-  blur(temp, values, 0, length, 1, radius)
-  blur(values, temp, 0, length, 1, radius)
+  const smoothed = [...values]
+  blur(smoothed, temp, 0, length, 1, radius)
 
-  return values
+  return smoothed
 }
 
 function lls(data: number[]): number[] {
@@ -63,16 +73,28 @@ export function peakDetect(data: number[], x: number[]): Peak[] {
   const maxIntensity = Math.max(...y)
   const xStep = x[1] - x[0]
 
-  const firstDerivative = smooth(
-    calculateFirstDerivative(smooth([...y], 1), xStep),
-    3
-  )
+  const secondDerivative = smooth(calculateSecondDerivative(y, xStep), 3)
+  const secondDerivativeMax = Math.max(...secondDerivative)
+
+  let smoothedY = smooth(y, 2)
+
+  const radius = 10
 
   const filteredDerivativeZeroes = x.map((_, i) => {
-    if (firstDerivative[i] >= 0 && firstDerivative[i + 1] < 0) {
-      return {
-        index: i,
-        position: x[i]
+    if (i > radius) {
+      const localAverage =
+        smoothedY.slice(i - radius, i + radius).reduce((a, b) => a + b, 0) /
+        (2 * radius + 1)
+      const isPeak =
+        smoothedY[i] > smoothedY[i + 1] &&
+        smoothedY[i] > smoothedY[i - 1] &&
+        smoothedY[i] >= 1.1 * localAverage
+      const sharpness = -secondDerivative[i] / secondDerivativeMax
+      if (isPeak && sharpness >= 0.02) {
+        return {
+          index: i,
+          position: x[i]
+        }
       }
     }
   })
@@ -88,7 +110,7 @@ export function peakDetect(data: number[], x: number[]): Peak[] {
         }
       } else return []
     })
-    .filter((e) => (e?.intensity ?? 0) >= 0.02 * maxIntensity)
+    .filter((e) => (e?.intensity ?? 0) >= 0.01 * maxIntensity)
 
   return peaks
 }

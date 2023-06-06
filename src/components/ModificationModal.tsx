@@ -63,7 +63,7 @@ function ModificationModal({
 
         return { x, y }
       }),
-    [selectedXRFPlotData, modifications]
+    [selectedXRFPlotData]
   )
 
   function modifyXRFData(modifications: Modification) {
@@ -71,13 +71,15 @@ function ModificationModal({
       let { x, y } = data
 
       if (modifications.smoothingRadius) {
-        smooth(y, modifications.smoothingRadius)
+        y = smooth(y, modifications.smoothingRadius)
         y = y.map((e) => e * modifications.scalingFactor!)
       } else {
         y = y.map((e) => e * modifications.scalingFactor!)
       }
 
-      if (modifications.baselineCorrection) y = removeBaseline({ x, y })
+      if (modifications.baselineCorrection) {
+        y = removeBaseline({ x, y })
+      }
 
       const name = `${selectedXRFPlotData[i].name} [modified]`
 
@@ -185,7 +187,10 @@ function ModificationModal({
 
   return (
     <div
-      className={"m-2" + (isVisible ? " hidden @2xs/sidebar:block" : " hidden")}
+      className={
+        "m-2 select-none" +
+        (isVisible ? " hidden @2xs/sidebar:block" : " hidden")
+      }
     >
       <div className="flex flex-col">
         <form
