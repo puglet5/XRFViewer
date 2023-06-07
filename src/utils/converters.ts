@@ -1,11 +1,11 @@
-import { elementSymbols, emissionLinesData } from "../data/elementData"
 import {
   emissionLinePlotData,
   emissionLinePlotLabels
-} from "../data/emissionLinePlotData"
+} from "../data/elementData"
 import { ScatterData } from "plotly.js"
 import { ParsedData, isValidFileType } from "../common/interfaces"
 import { ValidFileType } from "../common/interfaces"
+import { ElementSymbol, elementSymbols } from "@/data/elementData"
 
 type ProcessByFileTypeTable = {
   [T in ValidFileType]: {
@@ -135,10 +135,16 @@ export function sortElementDataByAtomicNumber(
   b: Partial<ScatterData>
 ) {
   if (a.name && b.name) {
-    if (elementSymbols.indexOf(a.name) < elementSymbols.indexOf(b.name)) {
+    if (
+      elementSymbols.indexOf(a.name as ElementSymbol) <
+      elementSymbols.indexOf(b.name as ElementSymbol)
+    ) {
       return -1
     }
-    if (elementSymbols.indexOf(a.name) < elementSymbols.indexOf(b.name)) {
+    if (
+      elementSymbols.indexOf(a.name as ElementSymbol) <
+      elementSymbols.indexOf(b.name as ElementSymbol)
+    ) {
       return 1
     }
     return 0
@@ -149,27 +155,18 @@ export function constructElementData(
   atomicNumbers: number[],
   scaleFactor: number
 ): Partial<ScatterData>[] {
-  const elementIndices = atomicNumbers
-    .map((e) =>
-      emissionLinesData.elements.findIndex((x) => x.atomicNumber === e)
-    )
-    .filter((e) => e >= 0)
-
-  const elements = elementIndices.map((i) => emissionLinesData.elements[i])
-
-  const plotData = elementIndices.map((e, i) => {
+  const plotData = atomicNumbers.map((e) => {
     const lineData = emissionLinePlotData[e]
+    if (lineData === undefined) return {}
     const x = lineData.x
     const y = lineData.y.map((e) => e * scaleFactor)
     const text = lineData.x.map((x, pos) => {
       if ((pos % 3) - 1 === 0) {
         const label = emissionLinePlotLabels[e][(pos - 1) / 3].split(" ")
         if (!label[1]) {
-          return `${x.toFixed(2).toString()} ${elements[i].symbol} (${
-            label[0]
-          })`
+          return `${x.toFixed(2).toString()} ${elementSymbols[e]} (${label[0]})`
         } else {
-          return `${x.toFixed(2).toString()} ${elements[i].symbol} (${
+          return `${x.toFixed(2).toString()} ${elementSymbols[e]} (${
             label[0]
           }<sub>${label[1]}</sub>)`
         }
@@ -210,13 +207,12 @@ export function constructElementData(
       hoverinfo: "text",
       meta: meta,
       fill: "none",
-      line: { width: 1 },
-      name: elements[i].symbol,
+      line: { width: 1, simplify: true },
+      name: elementSymbols[e],
       text: text
     }
   })
 
-  if (!elementIndices.length) return []
   return plotData as Partial<ScatterData>[]
 }
 
@@ -226,6 +222,6 @@ export function calculateElementDataScaleFactor(
   const data = XRFData.flatMap((e) => e.y as number[])
   if (!data?.length) return 1
 
-  const scaleFactor = Math.max(...data) / 2
+  const scaleFactor = Math.max(...data) * 0.8
   return scaleFactor
 }

@@ -76,7 +76,7 @@ export function peakDetect(data: number[], x: number[]): Peak[] {
   const secondDerivative = smooth(calculateSecondDerivative(y, xStep), 3)
   const secondDerivativeMax = Math.max(...secondDerivative)
 
-  let smoothedY = smooth(y, 2)
+  const smoothedY = smooth(y, 2)
 
   const radius = 10
 
@@ -133,3 +133,12 @@ export function removeBaseline(data: ParsedData): number[] {
 
   return y
 }
+
+export const groupBy = <T>(
+  array: T[],
+  predicate: (value: T, index: number, array: T[]) => string
+) =>
+  array.reduce((acc, value, index, array) => {
+    ;(acc[predicate(value, index, array)] ||= []).push(value)
+    return acc
+  }, {} as { [key: string]: T[] })
