@@ -3,11 +3,15 @@ import { Config, Layout, ScatterData } from "plotly.js"
 import Plotly from "plotly.js-strict-dist"
 import { memo, useEffect, useRef, useState } from "react"
 import html2canvas from "html2canvas"
-import { IconDeviceFloppy, IconCopy } from "@tabler/icons-react"
+import {
+  IconDeviceFloppy,
+  IconCopy,
+  IconAlignBoxRightMiddle,
+  IconTooltip
+} from "@tabler/icons-react"
 
 import createPlotlyComponent from "react-plotly.js/factory"
 import { PeakData } from "@/common/interfaces"
-import { debounce } from "lodash"
 
 interface Props {
   plotData: Partial<ScatterData>[]
@@ -20,34 +24,7 @@ interface Props {
   currentXRFData: Partial<ScatterData>[]
   plotRevision: number
 }
-
 const Plot = createPlotlyComponent(Plotly)
-
-const config: Partial<Config> = {
-  showTips: false,
-  scrollZoom: true,
-  displaylogo: false,
-  editable: true,
-  modeBarButtonsToRemove: [
-    "zoom2d",
-    "autoScale2d",
-    "lasso2d",
-    "select2d",
-    "zoomIn2d",
-    "zoomOut2d",
-    "pan2d",
-    "resetScale2d"
-  ],
-  modeBarButtonsToAdd: ["hoverclosest", "hovercompare"],
-  responsive: true,
-  displayModeBar: false,
-  toImageButtonOptions: {
-    format: "png",
-    filename: "XRFViewer_data",
-    scale: 4
-  },
-  doubleClick: "reset+autosize"
-}
 
 function ScatterPlot({ plotData }: Props) {
   const dragLayerRef = useRef<HTMLElement | null>(null)
@@ -110,6 +87,31 @@ function ScatterPlot({ plotData }: Props) {
     },
     hovermode: "closest",
     hoverdistance: -1
+  })
+  const [config, setConfig] = useState<Partial<Config>>({
+    showTips: false,
+    scrollZoom: true,
+    displaylogo: false,
+    editable: true,
+    modeBarButtonsToRemove: [
+      "zoom2d",
+      "autoScale2d",
+      "lasso2d",
+      "select2d",
+      "zoomIn2d",
+      "zoomOut2d",
+      "pan2d",
+      "resetScale2d"
+    ],
+    modeBarButtonsToAdd: ["hoverclosest", "hovercompare"],
+    responsive: true,
+    displayModeBar: false,
+    toImageButtonOptions: {
+      format: "png",
+      filename: "XRFViewer_data",
+      scale: 4
+    },
+    doubleClick: "reset+autosize"
   })
 
   useEffect(() => {
@@ -187,19 +189,28 @@ function ScatterPlot({ plotData }: Props) {
         className="sticky z-20 flex w-full space-x-1 border-b border-ptx p-3 text-acc"
       >
         <button
+          onClick={() => {
+            setLayout({ ...layout, showlegend: !layout.showlegend })
+          }}
+          title={"Toggle legend"}
+        >
+          <IconAlignBoxRightMiddle />
+        </button>
+        <button
+          onClick={() => {
+            setLayout({ ...layout, hoverdistance: -1 - layout.hoverdistance! })
+          }}
+          title={"Toggle hover labels"}
+        >
+          <IconTooltip />
+        </button>
+        <button
           onClick={savePlotImage}
           title="Save plot as .png"
           className={plotData.flat().length ? "" : "!text-gray-300"}
           disabled={plotData.flat().length ? false : true}
         >
           <IconDeviceFloppy></IconDeviceFloppy>
-        </button>
-        <button
-          onClick={() => {
-            setLayout({ ...layout, showlegend: !layout.showlegend })
-          }}
-        >
-          Legend
         </button>
         <button
           onClick={copyPlotImage}
