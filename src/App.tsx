@@ -1,90 +1,91 @@
-import FileDrawer from "./components/FileDrawer"
-import { Resizable } from "re-resizable"
-import { useState, useEffect, useRef } from "react"
-import { FileProps, PeakData } from "./common/interfaces"
-import Controls from "./components/Controls"
-import PeriodicTable from "./components/PeriodicTable"
-import {
-  constructElementData,
-  calculateElementDataScaleFactor
-} from "./utils/converters"
-import { useHotkeys } from "react-hotkeys-hook"
-import { ScatterData } from "plotly.js"
-import ScatterPlot from "./components/ScatterPlot"
-import { sortElementDataByAtomicNumber } from "./utils/converters"
-import { pluralize, remToPx } from "./utils/ui"
 import { IconBorderAll } from "@tabler/icons-react"
+import { ScatterData } from "plotly.js"
+import { Resizable } from "re-resizable"
+import { useEffect, useRef, useState } from "react"
+import { useHotkeys } from "react-hotkeys-hook"
+import { XRFData } from "./common/interfaces"
+import Controls from "./components/Controls"
+import FileDrawer from "./components/FileDrawer"
 import ModificationModal from "./components/ModificationModal"
+import PeriodicTable from "./components/PeriodicTable"
+import ScatterPlot from "./components/ScatterPlot"
+import {
+  calculateElementDataScaleFactor,
+  constructElementData
+} from "./utils/converters"
+import { pluralize, remToPx } from "./utils/ui"
 
 export default function App() {
-  const [selectedElements, setSelectedElements] = useState<number[]>([])
+  const [selectedElements, setSelectedElements] = useState<number[]>(
+    JSON.parse(localStorage.getItem("selectedElements") ?? "[]")
+  )
   const [currentElementData, setCurrentElementData] = useState<
     Partial<ScatterData>[]
   >([])
-  const [currentXRFData, setCurrentXRFData] = useState<Partial<ScatterData>[]>(
-    []
-  )
-  const [currentModifiedData, setCurrentModifiedData] = useState<
-    Partial<ScatterData>[]
-  >([])
-  const [fileData, setFileData] = useState<FileProps[]>([])
   const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
   const [periodicTableVisibility, setPeriodicTableVisibility] =
     useState<boolean>(false)
-  const [modificationModalVisibility, setModificationModalVisibility] =
-    useState<boolean>(false)
-  const [selectedFiles, setSelectedFiles] = useState<number[]>([])
-  const [peakData, setPeakData] = useState<PeakData>({ set: [], modified: [] })
-  const [plotRevision, setPlotRevision] = useState(0)
+
+  const [data, setData] = useState<XRFData[]>(
+    JSON.parse(localStorage.getItem("data") ?? "[]")
+  )
+
+  const [elementScaleFactor, setElementScaleFactor] = useState<number>(
+    JSON.parse(localStorage.getItem("elementScaleFactor") ?? "1")
+  )
 
   const sidebarRef = useRef<Resizable>(null)
 
   useEffect(() => {
-    setPlotData([
-      ...currentXRFData,
-      ...currentModifiedData,
-      ...currentElementData
-    ])
-  }, [currentXRFData, currentElementData, currentModifiedData])
+    setPlotData([...data.map((e) => e.plotData), ...currentElementData])
+  }, [data, currentElementData])
 
   useEffect(() => {
-    localStorage.setItem("currentXRFData", JSON.stringify(currentXRFData))
-    localStorage.setItem("fileData", JSON.stringify(fileData))
-  }, [currentXRFData, fileData])
-
-  useEffect(() => {
-    const elementScaleFactor = calculateElementDataScaleFactor([
-      ...currentXRFData,
-      ...currentModifiedData
-    ])
-    setCurrentElementData(
-      constructElementData(
-        selectedElements.sort((a, b) => a - b),
-        elementScaleFactor
-      )
-    )
-    localStorage.setItem(
-      "elementScaleFactor",
-      JSON.stringify(elementScaleFactor)
-    )
-  }, [currentXRFData, currentModifiedData])
+    localStorage.setItem("data", JSON.stringify(data))
+  }, [data.length])
 
   useEffect(() => {
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
-    const elementScaleFactor = calculateElementDataScaleFactor([
-      ...currentXRFData,
-      ...currentModifiedData
-    ])
+  }, [selectedElements])
+
+  useEffect(() => {
     localStorage.setItem(
       "elementScaleFactor",
       JSON.stringify(elementScaleFactor)
     )
-    setCurrentElementData(
-      constructElementData(
-        selectedElements.sort((a, b) => a - b),
-        elementScaleFactor
+  }, [elementScaleFactor])
+
+  useEffect(() => {
+    if (selectedElements.length) {
+      const elementScaleFactor = calculateElementDataScaleFactor(
+        data.map((e) => e.data.y)
       )
-    )
+      setElementScaleFactor(elementScaleFactor)
+      setCurrentElementData(
+        constructElementData(
+          selectedElements.sort((a, b) => a - b),
+          elementScaleFactor
+        )
+      )
+    }
+  }, [data])
+
+  useEffect(() => {
+    if (selectedElements.length) {
+      const elementScaleFactor = calculateElementDataScaleFactor(
+        data.map((e) => e.data.y)
+      )
+      setElementScaleFactor(elementScaleFactor)
+      setCurrentElementData(
+        constructElementData(
+          selectedElements.sort((a, b) => a - b),
+          elementScaleFactor
+        )
+      )
+    } else {
+      setElementScaleFactor(1)
+      setCurrentElementData([])
+    }
   }, [selectedElements])
 
   function toggleSidebar() {
@@ -107,52 +108,6 @@ export default function App() {
     toggleSidebar()
     window.dispatchEvent(new Event("resize"))
   })
-
-  if (!currentXRFData.length) {
-    const storageXRFData = localStorage.getItem("currentXRFData")
-    if (storageXRFData) {
-      const parsedStrorageXRFData: Partial<ScatterData>[] =
-        JSON.parse(storageXRFData)
-      if (parsedStrorageXRFData && parsedStrorageXRFData.length) {
-        setCurrentXRFData(parsedStrorageXRFData)
-      }
-    }
-  }
-
-  if (!fileData.length) {
-    const storageFileData = localStorage.getItem("fileData")
-    if (storageFileData) {
-      const parsedStorageFileData: FileProps[] = JSON.parse(storageFileData)
-      if (parsedStorageFileData && parsedStorageFileData.length) {
-        setFileData(parsedStorageFileData)
-      }
-    }
-  }
-
-  if (!selectedElements.length) {
-    const storageSelectedElements = localStorage.getItem("selectedElements")
-    const storageElementScaleFactor = localStorage.getItem("elementScaleFactor")
-    if (storageSelectedElements && storageElementScaleFactor) {
-      const parsedStorageSelectedElements: number[] = JSON.parse(
-        storageSelectedElements
-      )
-      const parsedStorageElementScaleFactor: number = JSON.parse(
-        storageElementScaleFactor
-      )
-      if (
-        parsedStorageSelectedElements &&
-        parsedStorageSelectedElements.length
-      ) {
-        setSelectedElements(parsedStorageSelectedElements.sort((a, b) => a - b))
-        setCurrentElementData(
-          constructElementData(
-            selectedElements,
-            parsedStorageElementScaleFactor || 1
-          ).sort(sortElementDataByAtomicNumber)
-        )
-      }
-    }
-  }
 
   return (
     <main className="flex h-screen bg-pbg ">
@@ -192,11 +147,11 @@ export default function App() {
         <div className="z-20 flex h-full flex-col border-r border-ptx bg-neutral-100 @container/sidebar">
           <div className="mt-2 hidden w-full flex-col items-center justify-center text-acc @2xs/sidebar:flex ">
             <span className="select-none text-center">
-              Showing {pluralize(fileData.length, "file")}
+              Showing {pluralize(data.length, "file")}
             </span>
-            {fileData.length ? (
+            {data.length ? (
               <span className="select-none text-center text-xs text-gray-600">
-                {fileData.filter((e) => e.isSelected === true).length} selected
+                {data.filter((e) => e.isSelected === true).length} selected
               </span>
             ) : (
               <div className="pb-4"></div>
@@ -206,17 +161,7 @@ export default function App() {
             id="files"
             className="max-h-[50%] overflow-scroll border-ptx @2xs/sidebar:border-b"
           >
-            <FileDrawer
-              fileData={fileData}
-              updateFileData={setFileData}
-              updateXRFData={setCurrentXRFData}
-              currentXRFData={currentXRFData}
-              updateModifiedData={setCurrentModifiedData}
-              updateModificationModalVisibility={setModificationModalVisibility}
-              modificationModalVisibility={modificationModalVisibility}
-              selectedFiles={selectedFiles}
-              updateSelectedFiles={setSelectedFiles}
-            />
+            <FileDrawer data={data} setData={setData} />
           </div>
 
           <div id="table" className="mt-2">
@@ -231,19 +176,7 @@ export default function App() {
             </div>
           </div>
 
-          <ModificationModal
-            updatePeakData={setPeakData}
-            peakData={peakData}
-            selectedFiles={selectedFiles}
-            currentXRFData={currentXRFData}
-            updateFileData={setFileData}
-            updateXRFData={setCurrentXRFData}
-            fileData={fileData}
-            currentModifiedData={currentModifiedData}
-            updateModifiedData={setCurrentModifiedData}
-            plotRevision={plotRevision}
-            updatePlotRevision={setPlotRevision}
-          />
+          <ModificationModal data={data} setData={setData} />
 
           <div
             id="spacer"
@@ -256,17 +189,13 @@ export default function App() {
           >
             <div className="flex items-center justify-center">
               <Controls
-                updateXRFData={setCurrentXRFData}
                 updatePeriodicTableVisibility={setPeriodicTableVisibility}
-                updateFileData={setFileData}
                 updateSelectedElements={setSelectedElements}
                 updatePlotData={setPlotData}
-                currentXRFData={currentXRFData}
                 periodicTableVisibility={periodicTableVisibility}
                 selectedElements={selectedElements}
-                fileData={fileData}
-                updateModifiedData={setCurrentModifiedData}
-                currentModifiedData={currentModifiedData}
+                data={data}
+                setData={setData}
               />
             </div>
           </div>
@@ -275,15 +204,7 @@ export default function App() {
 
       <div className="h-full w-full overflow-hidden">
         <div className="h-full bg-pbg">
-          <ScatterPlot
-            currentXRFData={currentXRFData}
-            currentModifiedData={currentModifiedData}
-            peakData={peakData}
-            plotData={plotData}
-            plotRevision={plotRevision}
-            elementData={currentElementData}
-            updateElementData={setCurrentElementData}
-          />
+          <ScatterPlot plotData={plotData} />
         </div>
       </div>
 

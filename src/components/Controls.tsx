@@ -1,39 +1,29 @@
 import { IconReload } from "@tabler/icons-react"
-import { FileProps } from "../common/interfaces"
 import { ScatterData } from "plotly.js"
-import Uploader from "./Uploader"
 import { memo } from "react"
+import { XRFData } from "../common/interfaces"
+import Uploader from "./Uploader"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
-  currentXRFData: Partial<ScatterData>[]
-  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>
-  fileData: FileProps[]
   updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>
   selectedElements: number[]
   periodicTableVisibility: boolean
   updatePlotData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
   updatePeriodicTableVisibility: React.Dispatch<React.SetStateAction<boolean>>
-  updateModifiedData: React.Dispatch<
-    React.SetStateAction<Partial<ScatterData>[]>
-  >
-  currentModifiedData: Partial<ScatterData>[]
+  data: XRFData[]
+  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
 }
 
 function Controls({
-  updateXRFData,
-  updateFileData,
-  fileData,
   updateSelectedElements,
   selectedElements,
-  updateModifiedData
+  data,
+  setData
 }: Props) {
   function resetPlotData() {
     localStorage.clear()
     updateSelectedElements([])
-    updateXRFData([])
-    updateFileData([])
-    updateModifiedData([])
+    setData([])
   }
 
   return (
@@ -41,7 +31,7 @@ function Controls({
       <button
         onClick={resetPlotData}
         title="Reset all"
-        disabled={!fileData.length && !selectedElements.length}
+        disabled={!data.length && !selectedElements.length}
         className="text-acc disabled:text-sfg"
       >
         <IconReload className="h-6 w-6" />
@@ -51,11 +41,7 @@ function Controls({
         title={"Upload files"}
         className="hidden h-full items-center justify-center @2xs/sidebar:flex"
       >
-        <Uploader
-          updateXRFData={updateXRFData}
-          updateFileData={updateFileData}
-          fileData={fileData}
-        />
+        <Uploader data={data} setData={setData} />
       </div>
     </div>
   )

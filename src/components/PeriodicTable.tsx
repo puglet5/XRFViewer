@@ -1,7 +1,5 @@
-import { MouseEvent } from "react"
-import { useRef, useEffect } from "react"
+import { MouseEvent, memo, useEffect, useRef } from "react"
 import Draggable from "react-draggable"
-import { memo } from "react"
 
 interface Props {
   visible: boolean

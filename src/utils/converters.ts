@@ -1,11 +1,15 @@
+import { ScatterData } from "plotly.js"
+import {
+  ElementSymbol,
+  ParsedData,
+  ValidFileType,
+  elementSymbols,
+  isValidFileType
+} from "../common/interfaces"
 import {
   emissionLinePlotData,
   emissionLinePlotLabels
 } from "../data/elementData"
-import { ScatterData } from "plotly.js"
-import { ParsedData, isValidFileType } from "../common/interfaces"
-import { ValidFileType } from "../common/interfaces"
-import { ElementSymbol, elementSymbols } from "@/data/elementData"
 
 type ProcessByFileTypeTable = {
   [T in ValidFileType]: {
@@ -216,12 +220,9 @@ export function constructElementData(
   return plotData as Partial<ScatterData>[]
 }
 
-export function calculateElementDataScaleFactor(
-  XRFData: Partial<ScatterData>[]
-): number {
-  const data = XRFData.flatMap((e) => e.y as number[])
-  if (!data?.length) return 1
-
-  const scaleFactor = Math.max(...data) * 0.8
-  return scaleFactor
+export function calculateElementDataScaleFactor(data: number[][]): number {
+  const y = data.flat()
+  if (y.length) {
+    return Math.max(...y) * 0.8
+  } else return 1
 }

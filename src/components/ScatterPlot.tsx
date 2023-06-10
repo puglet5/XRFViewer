@@ -1,28 +1,21 @@
-import { Config, Layout, ScatterData } from "plotly.js"
+import {
+  IconAlignBoxRightMiddle,
+  IconArrowAutofitContent,
+  IconAxisY,
+  IconCopy,
+  IconDeviceFloppy,
+  IconTooltip
+} from "@tabler/icons-react"
+import html2canvas from "html2canvas"
+import { AxisType, Config, Layout, ScatterData } from "plotly.js"
 //@ts-ignore
 import Plotly from "plotly.js-strict-dist"
 import { memo, useEffect, useRef, useState } from "react"
-import html2canvas from "html2canvas"
-import {
-  IconDeviceFloppy,
-  IconCopy,
-  IconAlignBoxRightMiddle,
-  IconTooltip
-} from "@tabler/icons-react"
 
 import createPlotlyComponent from "react-plotly.js/factory"
-import { PeakData } from "@/common/interfaces"
 
 interface Props {
   plotData: Partial<ScatterData>[]
-  elementData: Partial<ScatterData>[]
-  updateElementData: React.Dispatch<
-    React.SetStateAction<Partial<ScatterData>[]>
-  >
-  peakData: PeakData
-  currentModifiedData: Partial<ScatterData>[]
-  currentXRFData: Partial<ScatterData>[]
-  plotRevision: number
 }
 const Plot = createPlotlyComponent(Plotly)
 
@@ -62,12 +55,14 @@ function ScatterPlot({ plotData }: Props) {
       title: {
         text: "Energy, keV"
       },
-      hoverformat: ".2f"
+      hoverformat: ".2f",
+      autorange: true
     },
     yaxis: {
       showgrid: true,
       zeroline: true,
       showline: true,
+      autorange: true,
       mirror: "ticks",
       title: {
         text: "Intensity, cnts."
@@ -85,7 +80,7 @@ function ScatterPlot({ plotData }: Props) {
         size: 12
       }
     },
-    hovermode: "closest",
+    hovermode: "x",
     hoverdistance: -1
   })
   const [config, setConfig] = useState<Partial<Config>>({
@@ -118,9 +113,9 @@ function ScatterPlot({ plotData }: Props) {
     //@ts-expect-error
     const annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
     if (annotations.length) {
-      layout.annotations = annotations
+      setLayout({ ...layout, annotations })
     } else {
-      layout.annotations = []
+      setLayout({ ...layout, annotations: [] })
     }
   }, [plotData])
 
@@ -152,29 +147,29 @@ function ScatterPlot({ plotData }: Props) {
 
   function attachPlotMouseListener() {
     // https://github.com/plotly/plotly.js/issues/1548
-    let gd = document.getElementById("plotMain") as any
-    let margin = gd._fullLayout.margin
-    let offsets = gd.getBoundingClientRect()
+    const gd = document.getElementById("plotMain") as any
+    const margin = gd._fullLayout.margin
+    const offsets = gd.getBoundingClientRect()
 
     //Calculate linear function to convert x coord
-    let xy1 = gd.layout.xaxis.range[0]
-    let xy2 = gd.layout.xaxis.range[1]
-    let xx1 = offsets.left + margin.l
-    let xx2 = offsets.left + gd.offsetWidth - margin.r
-    let mx = (xy2 - xy1) / (xx2 - xx1)
-    let cx = -(mx * xx1) + xy1
+    const xy1 = gd.layout.xaxis.range[0]
+    const xy2 = gd.layout.xaxis.range[1]
+    const xx1 = offsets.left + margin.l
+    const xx2 = offsets.left + gd.offsetWidth - margin.r
+    const mx = (xy2 - xy1) / (xx2 - xx1)
+    const cx = -(mx * xx1) + xy1
 
     //Calculate linear function to convert y coord
-    let yy1 = gd.layout.yaxis.range[0]
-    let yy2 = gd.layout.yaxis.range[1]
-    let yx1 = offsets.top + gd.offsetHeight - margin.b
-    let yx2 = offsets.top + margin.t
-    let my = (yy2 - yy1) / (yx2 - yx1)
-    let cy = -(my * yx1) + yy1
+    const yy1 = gd.layout.yaxis.range[0]
+    const yy2 = gd.layout.yaxis.range[1]
+    const yx1 = offsets.top + gd.offsetHeight - margin.b
+    const yx2 = offsets.top + margin.t
+    const my = (yy2 - yy1) / (yx2 - yx1)
+    const cy = -(my * yx1) + yy1
 
-    let listener = function (e: MouseEvent) {
-      let xInDataCoord = mx * e.x + cx
-      let yInDataCoord = my * e.y + cy
+    const listener = function (e: MouseEvent) {
+      const xInDataCoord = mx * e.x + cx
+      const yInDataCoord = my * e.y + cy
       setMousePotistion([xInDataCoord, yInDataCoord])
     }
 
@@ -203,6 +198,33 @@ function ScatterPlot({ plotData }: Props) {
           title={"Toggle hover labels"}
         >
           <IconTooltip />
+        </button>
+        <button
+          onClick={() => {
+            const axisType = layout.yaxis!.type === "log" ? "linesar" : "log"
+            setLayout({
+              ...layout,
+              yaxis: {
+                ...layout.yaxis,
+                type: axisType as AxisType
+              }
+            })
+          }}
+          title={"Toggle log scale"}
+        >
+          <IconAxisY />
+        </button>
+        <button
+          onClick={() => {
+            const dragMode = layout.dragmode === "pan" ? "select" : "pan"
+            setLayout({
+              ...layout,
+              dragmode: dragMode
+            })
+          }}
+          title={"Toggle selection"}
+        >
+          <IconArrowAutofitContent />
         </button>
         <button
           onClick={savePlotImage}

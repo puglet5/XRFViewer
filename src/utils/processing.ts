@@ -1,5 +1,4 @@
-import { Peak } from "../common/interfaces"
-import { ParsedData } from "../common/interfaces"
+import { ParsedData, Peak } from "../common/interfaces"
 
 function blur(
   T: number[],

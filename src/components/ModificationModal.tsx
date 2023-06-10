@@ -1,37 +1,15 @@
-import { FileProps, Modification, PeakData } from "../common/interfaces"
-import { createId } from "@paralleldrive/cuid2"
-import { ScatterData } from "plotly.js"
-import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
+import { createId } from "@paralleldrive/cuid2"
 import { IconSquareMinus, IconSquarePlus } from "@tabler/icons-react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { Modification, XRFData } from "../common/interfaces"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
-  currentXRFData: Partial<ScatterData>[]
-  updateModifiedData: React.Dispatch<
-    React.SetStateAction<Partial<ScatterData>[]>
-  >
-  currentModifiedData: Partial<ScatterData>[]
-  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>
-  fileData: FileProps[]
-  selectedFiles: number[]
-  updatePeakData: React.Dispatch<React.SetStateAction<PeakData>>
-  peakData: PeakData
-  updatePlotRevision: React.Dispatch<React.SetStateAction<number>>
-  plotRevision: number
+  data: XRFData[]
+  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
 }
 
-function ModificationModal({
-  currentXRFData,
-  updateFileData,
-  updateXRFData,
-  fileData,
-  selectedFiles,
-  currentModifiedData,
-  updateModifiedData,
-  updatePeakData,
-  peakData
-}: Props) {
+function ModificationModal({ data, setData }: Props) {
   const [modifications, setModifications] = useState<Modification>({
     scalingFactor: 1,
     smoothingRadius: 0,
@@ -45,30 +23,39 @@ function ModificationModal({
   const baselineCheckboxRef = useRef<HTMLInputElement>(null)
   const peakCheckboxRef = useRef<HTMLInputElement>(null)
 
+  const selectedXRFPlotData = useMemo(
+    () => data.filter((e) => e.isSelected === true),
+    [data]
+  )
+
+  const modifiedData = useMemo(
+    () => data.filter((e) => e.isBeingModified === true),
+    [data]
+  )
+
+  const unmodifiedData = useMemo(
+    () => data.filter((e) => e.isBeingModified === false),
+    [data]
+  )
+
+  const anySelected = useMemo(
+    () => data.map((e) => e.isSelected).some((e) => e === true),
+    [data]
+  )
+
   useEffect(() => {
     modifyXRFData(modifications)
-  }, [modifications, selectedFiles])
+  }, [modifications, selectedXRFPlotData.length])
 
-  const selectedXRFPlotData = useMemo(
-    () =>
-      currentXRFData.flatMap((e, i) => (selectedFiles.includes(i) ? e : [])),
-    [currentXRFData, selectedFiles]
-  )
-
-  const dataToModify = useMemo(
-    () =>
-      selectedXRFPlotData.map((data) => {
-        const x = [...(data.x as number[])]
-        const y = [...(data.y as number[])]
-
-        return { x, y }
-      }),
-    [selectedXRFPlotData]
-  )
+  useEffect(() => {
+    if (!anySelected) {
+      setData([...unmodifiedData])
+    }
+  }, [anySelected])
 
   function modifyXRFData(modifications: Modification) {
-    const newXRFData = dataToModify.map((data, i) => {
-      let { x, y } = data
+    const newData: XRFData[] = selectedXRFPlotData.map((e, i) => {
+      let { x, y } = e.data
 
       if (modifications.smoothingRadius) {
         y = smooth(y, modifications.smoothingRadius)
@@ -81,7 +68,7 @@ function ModificationModal({
         y = removeBaseline({ x, y })
       }
 
-      const name = `${selectedXRFPlotData[i].name} [modified]`
+      const name = `${selectedXRFPlotData[i].file.name} [modified]`
 
       let peaks
       const meta: { annotations: any[] } = { annotations: [] }
@@ -110,62 +97,49 @@ function ModificationModal({
       }
 
       return {
-        x,
-        y,
-        name,
-        mode: "lines",
-        type: "scattergl",
-        line: { simplify: true },
-        meta
+        ...e,
+        id: "0",
+        data: { x, y },
+        plotData: {
+          x,
+          y,
+          name,
+          mode: "lines",
+          type: "scattergl",
+          line: { simplify: true },
+          meta
+        },
+        isModified: true,
+        isBeingModified: true,
+        isSelected: false,
+        modifications: modifications,
+        file: { ...e.file, type: ".mod", size: undefined }
       }
     })
 
     //@ts-ignore
-    updateModifiedData(newXRFData)
+    setData([...unmodifiedData, ...newData])
   }
 
   function applyModifications(modifications: Modification) {
-    const newXRFData = currentModifiedData.map((data) => {
+    const newXRFData = modifiedData.map((e) => {
       const isScaled = modifications.scalingFactor !== 1
       const isSmoothed = modifications.smoothingRadius !== 0
 
-      const name = `${data.name?.replace(" [modified]", "")} [${
+      const name = `${e.file.name?.replace(" [modified]", "")} [${
         isScaled ? "scaled " + modifications.scalingFactor?.toFixed(2) : ""
       }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
 
       return {
-        ...data,
-        name: name
-      }
-    })
-
-    const newFileData = selectedFiles.map((e) => {
-      const isScaled = modifications.scalingFactor !== 1
-      const isSmoothed = modifications.smoothingRadius !== 0
-
-      const name = `${fileData[e].name.replace(" [modified]", "")} [${
-        isScaled ? "scaled " + modifications.scalingFactor?.toFixed(2) : ""
-      }${isScaled && isSmoothed ? ", " : ""}${isSmoothed ? "smoothed" : ""}]`
-
-      return {
-        ...fileData[e],
-        name: name,
+        ...e,
         id: createId(),
-        type: "mod",
-        size: undefined,
-        isModified: true,
-        isSelected: false,
-        modifications: modifications
+        name,
+        isBeingModified: false,
+        isModified: true
       }
     })
 
-    updateXRFData([...currentXRFData, ...newXRFData])
-    updateFileData([...fileData, ...newFileData])
-    updatePeakData({
-      set: [...peakData.set, ...peakData.modified],
-      modified: []
-    })
-    updateModifiedData([])
+    setData([...data, ...newXRFData])
   }
 
   function resetModifications() {
@@ -183,13 +157,11 @@ function ModificationModal({
     modifyXRFData(modifications)
   }
 
-  const isVisible = !!selectedFiles.length
-
   return (
     <div
       className={
         "m-2 select-none" +
-        (isVisible ? " hidden @2xs/sidebar:block" : " hidden")
+        (anySelected ? " hidden @2xs/sidebar:block" : " hidden")
       }
     >
       <div className="flex flex-col">
@@ -279,8 +251,6 @@ function ModificationModal({
               onClick={(e) => {
                 e.preventDefault()
                 applyModifications(modifications)
-                updateModifiedData([])
-                updatePeakData({ ...peakData, modified: [] })
               }}
               title={"applyModifications"}
             >

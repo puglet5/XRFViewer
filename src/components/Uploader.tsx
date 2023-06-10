@@ -1,21 +1,19 @@
+import { createId } from "@paralleldrive/cuid2"
+import Uppy, { UppyFile } from "@uppy/core"
+import { FileInput } from "@uppy/react"
 import { memo, useEffect } from "react"
-import Uppy from "@uppy/core"
-import { convertData } from "../utils/converters"
 import {
   FileProps,
-  isValidFileType,
-  ValidFileTypes
+  ValidFileType,
+  ValidFileTypes,
+  XRFData,
+  isValidFileType
 } from "../common/interfaces"
-import { constructXRFData } from "../utils/converters"
-import { ScatterData } from "plotly.js"
-import { UppyFile } from "@uppy/core"
-import { createId } from "@paralleldrive/cuid2"
-import { FileInput } from "@uppy/react"
+import { constructXRFData, convertData } from "../utils/converters"
 
 interface Props {
-  updateXRFData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
-  updateFileData: React.Dispatch<React.SetStateAction<FileProps[]>>
-  fileData: FileProps[]
+  data: XRFData[]
+  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
 }
 
 const uppy = new Uppy({
@@ -27,7 +25,7 @@ const uppy = new Uppy({
   }
 })
 
-function Uploader({ updateXRFData, updateFileData, fileData }: Props) {
+function Uploader({ data, setData }: Props) {
   useEffect(() => {
     const handler = (files: UppyFile[]) => {
       files.map((e) => {
@@ -37,23 +35,27 @@ function Uploader({ updateXRFData, updateFileData, fileData }: Props) {
           const rawData = reader.result
           const fileType = `.${e.name.split(".").at(-1) ?? ""}`
           if (typeof rawData === "string" && isValidFileType(fileType)) {
-            const newFileData = {
-              id: createId(),
-              name: e.name.split(".")[0],
-              size: e.size,
-              type: fileType,
-              isDisplayed: true,
-              isSelected: false,
-              isModified: false
-            }
+            const parsedData = convertData(rawData, fileType)
 
-            const XRFData = convertData(rawData, fileType)
-            if (XRFData) {
-              updateXRFData((prevData) => [
-                ...prevData,
-                constructXRFData(XRFData, e.name.split(".")[0])
-              ])
-              updateFileData((prevData) => [...prevData, newFileData])
+            if (parsedData) {
+              const fileData: FileProps = {
+                name: e.name.split(".")[0],
+                size: e.size,
+                type: fileType as ValidFileType
+              }
+
+              const data: XRFData = {
+                id: createId(),
+                data: parsedData,
+                plotData: constructXRFData(parsedData, e.name.split(".")[0]),
+                file: fileData,
+                isModified: false,
+                isDisplayed: true,
+                isSelected: false,
+                isBeingModified: false
+              }
+
+              setData((prevData) => [...prevData, data])
             }
           }
         }
@@ -64,7 +66,7 @@ function Uploader({ updateXRFData, updateFileData, fileData }: Props) {
       uppy.off("files-added", handler)
       uppy.cancelAll()
     }
-  }, [updateXRFData, fileData])
+  }, [data, setData])
   return <FileInput uppy={uppy} />
 }
 
