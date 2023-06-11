@@ -11,10 +11,6 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? join(process.env.DIST_ELECTRON, "../public")
   : process.env.DIST
 
-const PYPATH = app.isPackaged
-  ? join(process.env.DIST, "../../../resources/app/py/dist")
-  : join(process.env.DIST, "../py/dist")
-
 // Disable GPU Acceleration for Windows 7
 // if (release().startsWith("6.1")) app.disableHardwareAcceleration()
 
@@ -24,33 +20,6 @@ if (process.platform === "win32") app.setAppUserModelId(app.getName())
 if (!app.requestSingleInstanceLock()) {
   app.quit()
   process.exit(0)
-}
-
-const PY_MODULE = "main"
-
-let pyProc: child.ChildProcess | null
-let pyPort: number | null
-
-const getScriptPath = () => {
-  if (!app.isPackaged) {
-    return join(PYPATH, PY_MODULE)
-  }
-  if (process.platform === "win32") {
-    return join(PYPATH, PY_MODULE + ".exe")
-  } else {
-    return join(PYPATH, PY_MODULE)
-  }
-}
-
-const selectPort = () => {
-  pyPort = 4242
-  return pyPort
-}
-
-const createPyProc = () => {
-  let script = getScriptPath()
-  let port = "" + selectPort()
-  pyProc = child.execFile(script, [port])
 }
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true"
@@ -149,34 +118,61 @@ ipcMain.handle("open-win", (_, arg) => {
   }
 })
 
-async function getPID() {
-  try {
-    const response = await axios.get("http://127.0.0.1:4242/pid")
-    return response.data.pid
-  } catch (error) {
-    console.log("Please ensure you manually killed python process")
+if (app.isPackaged) {
+  const PYPATH = join(process.env.DIST, "../../../resources/app/py/dist")
+  const PY_MODULE = "main"
+
+  let pyProc: child.ChildProcess | null
+  let pyPort: number | null
+
+  const getScriptPath = () => {
+    if (process.platform === "win32") {
+      return join(PYPATH, PY_MODULE + ".exe")
+    } else {
+      return join(PYPATH, PY_MODULE)
+    }
   }
-}
 
-async function exitPyProc() {
-  const pyPID = await getPID()
-  console.log("Python child process pid = " + pyProc?.pid)
-  console.log("Python child of child process pid = " + pyPID)
-
-  process.kill(parseInt(pyPID))
-  pyProc?.kill()
-  pyProc = null
-  pyPort = null
-}
-
-let pyKilled = false
-
-app.on("ready", createPyProc)
-app.on("before-quit", async (e) => {
-  if (pyKilled === false) {
-    e.preventDefault()
-    await exitPyProc()
-    pyKilled = true
-    app.quit()
+  const selectPort = () => {
+    pyPort = 4242
+    return pyPort
   }
-})
+
+  const createPyProc = () => {
+    let script = getScriptPath()
+    let port = "" + selectPort()
+    pyProc = child.execFile(script, [port])
+  }
+
+  async function getPID() {
+    try {
+      const response = await axios.get("http://127.0.0.1:4242/pid")
+      return response.data.pid
+    } catch (error) {
+      console.log("Please ensure you manually killed python process")
+    }
+  }
+
+  async function exitPyProc() {
+    const pyPID = await getPID()
+    console.log("Python child process pid = " + pyProc?.pid)
+    console.log("Python child of child process pid = " + pyPID)
+
+    process.kill(parseInt(pyPID))
+    pyProc?.kill()
+    pyProc = null
+    pyPort = null
+  }
+
+  let pyKilled = false
+
+  app.on("ready", createPyProc)
+  app.on("before-quit", async (e) => {
+    if (pyKilled === false) {
+      e.preventDefault()
+      await exitPyProc()
+      pyKilled = true
+      app.quit()
+    }
+  })
+}

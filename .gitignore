@@ -43,3 +43,6 @@ extensions
 
 py/build
 py/dist
+*__pycache__
+pid.txt
+build

@@ -1,10 +1,19 @@
 from typing import Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 import uvicorn
 import sys
 import os
+
+
+def setPort():
+    p = 4242
+    try:
+        p = sys.argv[1]
+    except:
+        print("error with sys.argv, assigned default port: 4242")
+    return p
+
 
 origins = [
     "http://localhost",
@@ -18,16 +27,6 @@ origins = [
     "http://127.0.0.1:80",
     "http://127.0.0.1:8080",
 ]
-
-
-def setPort():
-    p = 4242
-    try:
-        p = sys.argv[1]
-    except:
-        print("error with sys.argv, assigned default port: 4242")
-    return p
-
 
 app = FastAPI()
 port = setPort()
@@ -47,9 +46,9 @@ def read_root():
 
 
 @app.get("/pid")
-def read_root():
+def get_pid():
     return {"pid": str(os.getpid())}
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=port)
+    uvicorn.run("main:app", host="127.0.0.1", port=port, reload=True)
