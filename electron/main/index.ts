@@ -2,10 +2,8 @@ import { app, BrowserWindow, shell, ipcMain, session } from "electron"
 import { release } from "node:os"
 import path, { join } from "node:path"
 import { update } from "./update"
-
-const reactDevToolsPath = path.resolve(
-  "extensions/fmkadmapgofadopljbjfkapdkoienihi"
-)
+import axios from "axios"
+import * as child from "child_process"
 
 process.env.DIST_ELECTRON = join(__dirname, "../")
 process.env.DIST = join(process.env.DIST_ELECTRON, "../dist")
@@ -13,8 +11,12 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? join(process.env.DIST_ELECTRON, "../public")
   : process.env.DIST
 
+const PYPATH = app.isPackaged
+  ? join(process.env.DIST, "../../../resources/app/py/dist")
+  : join(process.env.DIST, "../py/dist")
+
 // Disable GPU Acceleration for Windows 7
-if (release().startsWith("6.1")) app.disableHardwareAcceleration()
+// if (release().startsWith("6.1")) app.disableHardwareAcceleration()
 
 // Set application name for Windows 10+ notifications
 if (process.platform === "win32") app.setAppUserModelId(app.getName())
@@ -24,13 +26,36 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0)
 }
 
-// Remove electron security warnings
-// This warning only shows in development mode
-// Read more on https://www.electronjs.org/docs/latest/tutorial/security
-// process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+const PY_MODULE = "main"
+
+let pyProc: child.ChildProcess | null
+let pyPort: number | null
+
+const getScriptPath = () => {
+  if (!app.isPackaged) {
+    return join(PYPATH, PY_MODULE)
+  }
+  if (process.platform === "win32") {
+    return join(PYPATH, PY_MODULE + ".exe")
+  } else {
+    return join(PYPATH, PY_MODULE)
+  }
+}
+
+const selectPort = () => {
+  pyPort = 4242
+  return pyPort
+}
+
+const createPyProc = () => {
+  let script = getScriptPath()
+  let port = "" + selectPort()
+  pyProc = child.execFile(script, [port])
+}
+
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true"
 
 let win: BrowserWindow | null = null
-// Here, you can also use other preload
 const preload = join(__dirname, "../preload/index.js")
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, "index.html")
@@ -51,9 +76,7 @@ async function createWindow() {
   })
 
   if (url) {
-    // electron-vite-vue#298
     win.loadURL(url)
-    // Open devTool if the app is not packaged
   } else {
     win.loadFile(indexHtml)
   }
@@ -73,11 +96,17 @@ async function createWindow() {
   update(win)
 }
 
-app.whenReady().then(async () => {
-  await session.defaultSession.loadExtension(reactDevToolsPath, {
-    allowFileAccess: true
+if (!app.isPackaged) {
+  const reactDevToolsPath = path.resolve(
+    "extensions/fmkadmapgofadopljbjfkapdkoienihi"
+  )
+
+  app.whenReady().then(async () => {
+    await session.defaultSession.loadExtension(reactDevToolsPath, {
+      allowFileAccess: true
+    })
   })
-})
+}
 
 app.whenReady().then(createWindow)
 
@@ -117,5 +146,37 @@ ipcMain.handle("open-win", (_, arg) => {
     childWindow.loadURL(`${url}#${arg}`)
   } else {
     childWindow.loadFile(indexHtml, { hash: arg })
+  }
+})
+
+async function getPID() {
+  try {
+    const response = await axios.get("http://127.0.0.1:4242/pid")
+    return response.data.pid
+  } catch (error) {
+    console.log("Please ensure you manually killed python process")
+  }
+}
+
+async function exitPyProc() {
+  const pyPID = await getPID()
+  console.log("Python child process pid = " + pyProc?.pid)
+  console.log("Python child of child process pid = " + pyPID)
+
+  process.kill(parseInt(pyPID))
+  pyProc?.kill()
+  pyProc = null
+  pyPort = null
+}
+
+let pyKilled = false
+
+app.on("ready", createPyProc)
+app.on("before-quit", async (e) => {
+  if (pyKilled === false) {
+    e.preventDefault()
+    await exitPyProc()
+    pyKilled = true
+    app.quit()
   }
 })

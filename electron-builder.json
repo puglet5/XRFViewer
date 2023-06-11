@@ -1,12 +1,13 @@
 {
   "appId": "com.electron.xrfviewer",
-  "asar": true,
+  "asar": false,
   "directories": {
     "output": "release/${version}"
   },
   "files": [
     "dist-electron",
-    "dist"
+    "dist",
+    "py/dist"
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",

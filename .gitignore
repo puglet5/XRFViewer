@@ -38,3 +38,8 @@ analyse.html
 src-tauri
 
 extensions
+
+# py
+
+py/build
+py/dist
