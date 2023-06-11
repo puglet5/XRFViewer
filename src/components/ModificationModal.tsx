@@ -2,7 +2,7 @@ import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
 import { createId } from "@paralleldrive/cuid2"
 import { IconSquareMinus, IconSquarePlus } from "@tabler/icons-react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
-import { Modification, XRFData } from "../common/interfaces"
+import { Modification, Peak, XRFData } from "../common/interfaces"
 
 interface Props {
   data: XRFData[]
@@ -70,30 +70,16 @@ function ModificationModal({ data, setData }: Props) {
 
       const name = `${selectedXRFPlotData[i].file.name} [modified]`
 
-      let peaks
-      const meta: { annotations: any[] } = { annotations: [] }
+      let peaks: Peak[] = []
+      let text = [" "]
 
       if (modifications.peakDetection) {
         peaks = peakDetect(y, x)
-        meta.annotations = peaks.map((e) => {
-          return {
-            ax: 0,
-            x: e.position,
-            y: e.intensity,
-            showarrow: true,
-            arrowhead: 3,
-            arrowside: "end",
-            arrowsize: 0.5,
-            visible: true,
-            clicktoshow: "onoff",
-            align: "center",
-            opacity: 1,
-            bgcolor: "rgba(255,255,255,1)",
-            bordercolor: "rgba(0,0,0,1)",
-            arrowwidth: 0.5,
-            text: e.position.toFixed(2).toString()
-          }
-        })
+        text = x.map((pos, i) =>
+          peaks.find((e) => e.position === pos)
+            ? pos.toFixed(2).toString()
+            : " "
+        )
       }
 
       return {
@@ -104,10 +90,20 @@ function ModificationModal({ data, setData }: Props) {
           x,
           y,
           name,
-          mode: "lines",
+          mode: "text+lines",
+          textinfo: "text",
+          textposition: "top center",
           type: "scattergl",
           line: { simplify: true },
-          meta
+          text,
+          hoverinfo: "x+y+name",
+          unselected: {
+            opacity: 1,
+            color: "black",
+            textfont: {
+              color: "black"
+            }
+          },
         },
         isModified: true,
         isBeingModified: true,
