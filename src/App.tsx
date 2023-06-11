@@ -98,16 +98,28 @@ export default function App() {
     }
   }
 
-  useHotkeys("esc", () => {
-    setPeriodicTableVisibility(false)
-  })
-  useHotkeys("ctrl+p", () =>
-    setPeriodicTableVisibility(!periodicTableVisibility)
+  useHotkeys(
+    "esc",
+    () => {
+      setPeriodicTableVisibility(false)
+    },
+    { enableOnContentEditable: true, enableOnFormTags: true }
   )
-  useHotkeys("ctrl+b", () => {
-    toggleSidebar()
-    window.dispatchEvent(new Event("resize"))
-  })
+  useHotkeys(
+    "ctrl+p",
+    () => {
+      setPeriodicTableVisibility(!periodicTableVisibility)
+    },
+    { enableOnContentEditable: true, enableOnFormTags: true }
+  )
+  useHotkeys(
+    "ctrl+b",
+    () => {
+      toggleSidebar()
+      window.dispatchEvent(new Event("resize"))
+    },
+    { enableOnContentEditable: true, enableOnFormTags: true }
+  )
 
   return (
     <main className="flex h-screen bg-pbg ">
