@@ -634,7 +634,7 @@
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
 
-"@types/node@*", "@types/node@^20.2.1":
+"@types/node@*":
   version "20.2.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.2.5.tgz#26d295f3570323b2837d322180dfbf1ba156fefb"
   integrity sha512-JJulVEQXmiY9Px5axXHeYGLSjhkZEnD+MDPDGbCbIAbMslkKwmygtZFy1X6s/075Yo94sf8GuSlFfPzysQrWZQ==
@@ -643,6 +643,11 @@
   version "16.18.34"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.34.tgz#62d2099b30339dec4b1b04a14c96266459d7c8b2"
   integrity sha512-VmVm7gXwhkUimRfBwVI1CHhwp86jDWR04B5FGebMMyxV90SlCmFujwUHrxTD4oO+SOYU86SoxvhgeRQJY7iXFg==
+
+"@types/node@^20.2.1":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.3.0.tgz#719498898d5defab83c3560f45d8498f58d11938"
+  integrity sha512-cumHmIAf6On83X7yP+LrsEyUOf/YlociZelmpRYaGFydoaPdxdt80MAbu6vWerQT2COCp2nPvHdsbD7tHn/YlQ==
 
 "@types/plist@^3.0.1":
   version "3.0.2"
@@ -687,9 +692,9 @@
     csstype "^3.0.2"
 
 "@types/react@^18.0.28":
-  version "18.2.9"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.9.tgz#9207f8571afdc59a9c9c30df50e8ad2591ecefaf"
-  integrity sha512-pL3JAesUkF7PEQGxh5XOwdXGV907te6m1/Qe1ERJLgomojS6Ne790QiA7GUl434JEkFA2aAaB6qJ5z4e1zJn/w==
+  version "18.2.11"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.11.tgz#168f7dbb421ed214fcf8c5fe8e587765a3e02fd1"
+  integrity sha512-+hsJr9hmwyDecSMQAmX7drgbDpyE+EgSF6t7+5QEBAn1tQK7kl1vWZ4iRf6SjQ8lk7dyEULxUmZOIpN0W5baZA==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -3302,9 +3307,9 @@ plist@^3.0.1, plist@^3.0.4:
     xmlbuilder "^15.1.1"
 
 plotly.js-strict-dist@^2.23.2:
-  version "2.24.1"
-  resolved "https://registry.yarnpkg.com/plotly.js-strict-dist/-/plotly.js-strict-dist-2.24.1.tgz#e38f6adcf869c4dfe8ab6ebba6e47ff536dff863"
-  integrity sha512-UCo9srSnp2lBoYFwYIVHUbYM/wJC5atdqxUUHTcJufEAQ6IsDs29wtbEtYe2Qg3LxXekzkDn5FFzWqVife0DUw==
+  version "2.24.2"
+  resolved "https://registry.yarnpkg.com/plotly.js-strict-dist/-/plotly.js-strict-dist-2.24.2.tgz#5aa5b77c66fe8f2c4ef6203a2152e89ac79674ce"
+  integrity sha512-vGaa9YH5XjhTabBvzupziuV3PGMUaNntfJI1S4an7dmlt018wzWWOi7D51QiJuT8iSwkBhZ14T6a5UvFfKNEdQ==
 
 postcss-import@^15.1.0:
   version "15.1.0"
@@ -3591,9 +3596,9 @@ roarr@^2.15.3:
     sprintf-js "^1.1.2"
 
 rollup-plugin-visualizer@^5.9.0:
-  version "5.9.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-visualizer/-/rollup-plugin-visualizer-5.9.0.tgz#013ac54fb6a9d7c9019e7eb77eced673399e5a0b"
-  integrity sha512-bbDOv47+Bw4C/cgs0czZqfm8L82xOZssk4ayZjG40y9zbXclNk7YikrZTDao6p7+HDiGxrN0b65SgZiVm9k1Cg==
+  version "5.9.2"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-visualizer/-/rollup-plugin-visualizer-5.9.2.tgz#f1aa2d9b1be8ebd6869223c742324897464d8891"
+  integrity sha512-waHktD5mlWrYFrhOLbti4YgQCn1uR24nYsNuXxg7LkPH8KdTXVWR9DNY1WU0QqokyMixVXJS4J04HNrVTMP01A==
   dependencies:
     open "^8.4.0"
     picomatch "^2.3.1"
