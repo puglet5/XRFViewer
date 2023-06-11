@@ -9,7 +9,6 @@
     "dev": "concurrently --kill-others --color -n \"py,js\" \"python ./py/main.py\" \"vite\"",
     "build": "yarn build:py && tsc && cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder -l --win=portable",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives",
-    "preview": "vite preview",
     "format": "yarn run lint --fix & yarn prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
     "build:py": "pyinstaller --distpath ./py/dist --workpath ./py/build ./py/main.spec"
   },
