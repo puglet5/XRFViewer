@@ -127,8 +127,8 @@ export function constructXRFData(
     x: parsedData.x,
     y: parsedData.y,
     type: "scattergl",
-    mode: "lines",
-    "line.simplify": true,
+    mode: "text+lines",
+    line: { simplify: true },
     textposition: "top center",
     name
   }

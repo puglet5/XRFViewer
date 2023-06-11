@@ -1,27 +1,35 @@
 import {
   IconAlignBoxRightMiddle,
   IconArrowAutofitContent,
+  IconArrowAutofitContentFilled,
+  IconAxisX,
   IconAxisY,
   IconCopy,
   IconDeviceFloppy,
   IconTooltip
 } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
-import { AxisType, Config, Layout, ScatterData } from "plotly.js"
+import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"
 //@ts-ignore
 import Plotly from "plotly.js-strict-dist"
-import { memo, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useHotkeys } from "react-hotkeys-hook"
 
 import createPlotlyComponent from "react-plotly.js/factory"
 
 interface Props {
   plotData: Partial<ScatterData>[]
 }
+
 const Plot = createPlotlyComponent(Plotly)
 
 function ScatterPlot({ plotData }: Props) {
   const dragLayerRef = useRef<HTMLElement | null>(null)
   const [mousePosition, setMousePotistion] = useState([0, 0])
+  const [selection, setSelection] = useState<SelectionRange | null>(null)
+  const [dragMode, setDragMode] = useState<"select" | "pan">("pan")
+  const [yAxisType, setYAxisType] = useState<"log" | "linear">("linear")
+
   const [layout, setLayout] = useState<Partial<Layout>>({
     margin: {
       l: 100,
@@ -34,6 +42,7 @@ function ScatterPlot({ plotData }: Props) {
     showlegend: true,
     autosize: true,
     dragmode: "pan",
+    selectdirection: "h",
     legend: {
       itemdoubleclick: false,
       borderwidth: 1,
@@ -110,14 +119,12 @@ function ScatterPlot({ plotData }: Props) {
   })
 
   useEffect(() => {
-    //@ts-expect-error
-    const annotations = plotData.flatMap((e) => e.meta?.annotations ?? [])
-    if (annotations.length) {
-      setLayout({ ...layout, annotations })
-    } else {
-      setLayout({ ...layout, annotations: [] })
-    }
-  }, [plotData])
+    setLayout({
+      ...layout,
+      dragmode: dragMode,
+      yaxis: { ...layout.yaxis, type: yAxisType }
+    })
+  }, [dragMode, yAxisType])
 
   function savePlotImage() {
     const plotDiv = document.getElementById("plotMain")!
@@ -144,6 +151,30 @@ function ScatterPlot({ plotData }: Props) {
       )
     )
   }
+
+  useHotkeys(
+    "ctrl+c",
+    () => {
+      copyPlotImage()
+    },
+    {
+      enableOnContentEditable: true,
+      enableOnFormTags: true,
+      preventDefault: true
+    }
+  )
+
+  useHotkeys(
+    "ctrl+s",
+    () => {
+      savePlotImage()
+    },
+    {
+      enableOnContentEditable: true,
+      enableOnFormTags: true,
+      preventDefault: true
+    }
+  )
 
   function attachPlotMouseListener() {
     // https://github.com/plotly/plotly.js/issues/1548
@@ -201,30 +232,24 @@ function ScatterPlot({ plotData }: Props) {
         </button>
         <button
           onClick={() => {
-            const axisType = layout.yaxis!.type === "log" ? "linesar" : "log"
-            setLayout({
-              ...layout,
-              yaxis: {
-                ...layout.yaxis,
-                type: axisType as AxisType
-              }
-            })
+            setYAxisType(yAxisType === "log" ? "linear" : "log")
           }}
           title={"Toggle log scale"}
         >
-          <IconAxisY />
+          {yAxisType === "linear" ? <IconAxisY /> : <IconAxisX />}
         </button>
         <button
           onClick={() => {
-            const dragMode = layout.dragmode === "pan" ? "select" : "pan"
-            setLayout({
-              ...layout,
-              dragmode: dragMode
-            })
+            setDragMode(dragMode === "pan" ? "select" : "pan")
+            setSelection(null)
           }}
           title={"Toggle selection"}
         >
-          <IconArrowAutofitContent />
+          {dragMode === "pan" ? (
+            <IconArrowAutofitContent />
+          ) : (
+            <IconArrowAutofitContentFilled />
+          )}
         </button>
         <button
           onClick={savePlotImage}
@@ -259,14 +284,23 @@ function ScatterPlot({ plotData }: Props) {
         onUpdate={() => {
           attachPlotMouseListener()
         }}
+        onSelecting={(e) => {
+          setSelection(e.range!)
+        }}
+        onSelected={() => {
+          Plotly.relayout("plotMain", { selections: [] })
+          setDragMode("pan")
+        }}
       />
       <div
         className={"h-full w-full border-t border-ptx"}
       >{`Energy: ${mousePosition[0].toFixed(
         2
-      )}, Intensity ${mousePosition[1].toFixed(2)}`}</div>
+      )}, Intensity ${mousePosition[1].toFixed(2)} Selection: ${JSON.stringify(
+        selection?.x
+      )}`}</div>
     </>
   )
 }
 
-export default memo(ScatterPlot)
+export default ScatterPlot
