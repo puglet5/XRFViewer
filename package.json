@@ -6,7 +6,7 @@
   "description": "xrfviewer",
   "main": "./dist-electron/main/index.js",
   "scripts": {
-    "dev": "vite & python ./py/main.py",
+    "dev": "concurrently --kill-others --color -n \"py,js\" \"python ./py/main.py\" \"vite\"",
     "build": "yarn build:py && tsc && cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build && electron-builder -l --win=portable",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives",
     "preview": "vite preview",
@@ -47,6 +47,7 @@
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.14",
     "buffer": "^6.0.3",
+    "concurrently": "^8.2.0",
     "cross-env": "^7.0.3",
     "electron": "22.3.12",
     "electron-builder": "latest",
