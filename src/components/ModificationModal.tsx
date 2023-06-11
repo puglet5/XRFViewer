@@ -1,8 +1,14 @@
 import { peakDetect, removeBaseline, smooth } from "@/utils/processing"
 import { createId } from "@paralleldrive/cuid2"
-import { IconSquareMinus, IconSquarePlus } from "@tabler/icons-react"
+import {
+  IconChartHistogram,
+  IconSquareMinus,
+  IconSquarePlus
+} from "@tabler/icons-react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { Modification, Peak, XRFData } from "../common/interfaces"
+import axios from "axios"
+import { sdpUrl, timeout } from "@/common/settings"
 
 interface Props {
   data: XRFData[]
@@ -103,7 +109,7 @@ function ModificationModal({ data, setData }: Props) {
             textfont: {
               color: "black"
             }
-          },
+          }
         },
         isModified: true,
         isBeingModified: true,
@@ -240,6 +246,25 @@ function ModificationModal({ data, setData }: Props) {
                 })
               }}
             />
+          </div>
+          <div id="baseline" className="flex space-x-2">
+            <button
+              title={"Deconvolve selected range"}
+              onClick={(e) => {
+                e.preventDefault()
+                axios({
+                  method: "POST",
+                  data: {
+                    data: data[0].data,
+                    range: [1.0, 2.0]
+                  },
+                  timeout,
+                  url: `${sdpUrl}/deconvolve`
+                }).then((res) => console.log(res))
+              }}
+            >
+              <IconChartHistogram></IconChartHistogram>
+            </button>
           </div>
 
           <menu className="mt-2 flex justify-center text-acc ">

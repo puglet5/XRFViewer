@@ -1,18 +1,13 @@
-from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import sys
-import os
+import os, time
+from pydantic import BaseModel
 
 
-def setPort():
-    p = 4242
-    try:
-        p = sys.argv[1]
-    except:
-        print("error with sys.argv, assigned default port: 4242")
-    return p
+class XRFPlotData(BaseModel):
+    data: dict[str, list[float]]
+    range: tuple[float, float]
 
 
 origins = [
@@ -29,7 +24,6 @@ origins = [
 ]
 
 app = FastAPI()
-port = setPort()
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,18 +31,27 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["x-response-time"],
 )
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    response.headers["x-response-time"] = str(time.time() - start_time)
+    return response
 
 
 @app.get("/pid")
-def get_pid():
+def get_pid() -> dict:
     return {"pid": str(os.getpid())}
 
 
+@app.post("/deconvolve")
+def deconvolve(data: XRFPlotData) -> dict:
+    return {"data": data}
+
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=port, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=4242, reload=True)
