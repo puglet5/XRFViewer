@@ -59,7 +59,7 @@ export default function App() {
   useEffect(() => {
     if (selectedElements.length) {
       const elementScaleFactor = calculateElementDataScaleFactor(
-        data.map((e) => e.data.y)
+        data.map((e) => e.data.original.y)
       )
       setElementScaleFactor(elementScaleFactor)
       setCurrentElementData(
@@ -74,7 +74,7 @@ export default function App() {
   useEffect(() => {
     if (selectedElements.length) {
       const elementScaleFactor = calculateElementDataScaleFactor(
-        data.map((e) => e.data.y)
+        data.map((e) => e.data.original.y)
       )
       setElementScaleFactor(elementScaleFactor)
       setCurrentElementData(

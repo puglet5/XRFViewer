@@ -39,7 +39,11 @@ export const isValidFileType = <ValidFileType>(
 
 export interface XRFData {
   readonly id: string
-  data: ParsedData
+  data: {
+    original: ParsedData
+    peaks?: Peak[]
+    deconvolved?: ParsedData[]
+  }
   plotData: Partial<ScatterData>
   file: FileProps
   isModified: boolean
@@ -47,7 +51,6 @@ export interface XRFData {
   isDisplayed: boolean
   isSelected: boolean
   modifications?: Modification
-  peaks?: Peak[]
 }
 
 export interface ElementData {

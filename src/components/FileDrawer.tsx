@@ -46,9 +46,9 @@ function FileDrawer({ data, setData }: Props) {
   function downloadCSV(id: string) {
     const toConvert = data.find((o) => o.id === id)
     if (toConvert) {
-      const csvData = toConvert.data.x
+      const csvData = toConvert.data.original.x
         .map((e, i) => {
-          return [e, toConvert.data.y[i]].join(",")
+          return [e, toConvert.data.original.y[i]].join(",")
         })
         .join("\n")
       const blob = new Blob([csvData], { type: "text/csv" })

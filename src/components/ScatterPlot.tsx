@@ -331,10 +331,7 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
           attachPlotMouseListener()
         }}
         onSelecting={(e) => {
-          try {
-            console.log(e)
-            setSelectedRange(e.range!)
-          } catch (error) {}
+          setSelectedRange(e.range!)
         }}
         onSelected={() => {
           Plotly.relayout("plotMain", { selections: [] })

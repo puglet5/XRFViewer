@@ -63,7 +63,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
 
   function modifyXRFData(modifications: Modification) {
     const newData: XRFData[] = selectedXRFPlotData.map((e, i) => {
-      let { x, y } = e.data
+      let { x, y } = e.data.original
 
       if (modifications.smoothingRadius) {
         y = smooth(y, modifications.smoothingRadius)
@@ -93,7 +93,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
       return {
         ...e,
         id: "0",
-        data: { x, y },
+        data: { original: { x, y } },
         plotData: {
           x,
           y,
@@ -167,15 +167,19 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
 
   function sendDeconvolveRequest() {
     if (selectedRange) {
-      axios({
-        method: "POST",
-        data: {
-          data: data.at(-1)!.data,
-          range: selectedRange.y
-        },
-        timeout,
-        url: `${sdpUrl}/deconvolve`
-      }).then((res) => console.log(res))
+      try {
+        axios({
+          method: "POST",
+          data: {
+            data: data.at(-1)!.data.original,
+            range: selectedRange.x
+          },
+          timeout,
+          url: `${sdpUrl}/deconvolve`
+        }).then((res) => console.log(res))
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 
