@@ -1,7 +1,7 @@
 import { MouseEvent, memo, useEffect, useRef } from "react"
 import Draggable from "react-draggable"
 
-interface Props {
+type Props = {
   visible: boolean
   updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>
   selectedElements: number[]

@@ -11,7 +11,7 @@ import {
 } from "../common/interfaces"
 import { constructXRFData, convertData } from "../utils/converters"
 
-interface Props {
+type Props = {
   data: XRFData[]
   setData: React.Dispatch<React.SetStateAction<XRFData[]>>
 }

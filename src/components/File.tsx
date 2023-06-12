@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { XRFData } from "../common/interfaces"
 
-interface Props {
+type Props = {
   data: XRFData
 }
 

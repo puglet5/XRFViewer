@@ -17,7 +17,7 @@ import { useHotkeys } from "react-hotkeys-hook"
 
 import createPlotlyComponent from "react-plotly.js/factory"
 
-interface Props {
+type Props = {
   plotData: Partial<ScatterData>[]
   selectedRange: SelectionRange | null
   setSelectedRange: React.Dispatch<React.SetStateAction<SelectionRange | null>>

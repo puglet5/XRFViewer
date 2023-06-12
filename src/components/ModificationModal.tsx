@@ -11,7 +11,7 @@ import axios from "axios"
 import { sdpUrl, timeout } from "@/common/settings"
 import { SelectionRange } from "plotly.js"
 
-interface Props {
+type Props = {
   data: XRFData[]
   setData: React.Dispatch<React.SetStateAction<XRFData[]>>
   selectedRange: SelectionRange | null

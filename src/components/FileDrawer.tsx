@@ -11,7 +11,7 @@ import {
 import { memo, useMemo } from "react"
 import File from "./File"
 
-interface Props {
+type Props = {
   data: XRFData[]
   setData: React.Dispatch<React.SetStateAction<XRFData[]>>
 }

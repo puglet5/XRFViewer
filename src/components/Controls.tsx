@@ -4,7 +4,7 @@ import { memo } from "react"
 import { XRFData } from "../common/interfaces"
 import Uploader from "./Uploader"
 
-interface Props {
+type Props = {
   updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>
   selectedElements: number[]
   periodicTableVisibility: boolean
