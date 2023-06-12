@@ -115,7 +115,7 @@ def deconvolve(data: XRFPlotData) -> dict:
     report = result.fit_report()
     return {
         "fittedData": {
-            "bestFit": best_fit,
+            "bestFit": {"x": x.tolist(), "y": best_fit},
             "peaks": {"x": filtered_pos["x"].tolist(), "y": filtered_pos["y"].tolist()},
         },
         "fitReport": report,

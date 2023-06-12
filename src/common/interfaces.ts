@@ -44,7 +44,7 @@ export interface XRFData {
     peaks?: Peak[]
     deconvolved?: ParsedData[]
   }
-  plotData: Partial<ScatterData>
+  plotData: Partial<ScatterData>[]
   file: FileProps
   isModified: boolean
   isBeingModified: boolean

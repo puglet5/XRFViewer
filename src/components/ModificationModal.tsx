@@ -6,10 +6,10 @@ import {
   IconSquarePlus
 } from "@tabler/icons-react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
-import { Modification, Peak, XRFData } from "../common/interfaces"
+import { Modification, ParsedData, Peak, XRFData } from "../common/interfaces"
 import axios from "axios"
 import { sdpUrl, timeout } from "@/common/settings"
-import { SelectionRange } from "plotly.js"
+import { SelectionRange, ScatterData } from "plotly.js"
 
 type Props = {
   data: XRFData[]
@@ -36,6 +36,13 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     [data]
   )
 
+  const deconvolvedDataLength = useMemo(
+    () =>
+      data.flatMap((e) => (e.data.deconvolved ? e.data.deconvolved : []))
+        .length,
+    [data]
+  )
+
   const modifiedData = useMemo(
     () => data.filter((e) => e.isBeingModified === true),
     [data]
@@ -50,6 +57,30 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     () => data.map((e) => e.isSelected).some((e) => e === true),
     [data]
   )
+
+  useEffect(() => {
+    if (deconvolvedDataLength) {
+      let { x, y } = modifiedData[0].data.deconvolved!.at(-1)!
+      let deconvolvedPlotData: Partial<ScatterData> = {
+        x,
+        y,
+        showlegend: false,
+        type: "scattergl",
+        name: "",
+        fill: "tozeroy",
+        hoverinfo: "none",
+        fillcolor: "gray",
+        line: {
+          color: "black"
+        },
+        opacity: 0.3
+      }
+      modifiedData[0].plotData = [
+        ...modifiedData[0].plotData,
+        deconvolvedPlotData
+      ]
+    }
+  }, [deconvolvedDataLength])
 
   useEffect(() => {
     modifyXRFData(modifications)
@@ -94,29 +125,31 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
         ...e,
         id: "0",
         data: { original: { x, y } },
-        plotData: {
-          x,
-          y,
-          name,
-          mode: "text+lines",
-          textinfo: "text",
-          type: "scattergl",
-          line: { simplify: true },
-          text,
-          hoverinfo: "x+y+name",
-          unselected: {
-            opacity: 1,
-            color: "black",
+        plotData: [
+          {
+            x,
+            y,
+            name,
+            mode: "text+lines",
+            textinfo: "text",
+            type: "scattergl",
+            line: { simplify: true },
+            text,
+            hoverinfo: "x+y+name",
+            unselected: {
+              opacity: 1,
+              color: "black",
+              textfont: {
+                color: "black"
+              }
+            },
             textfont: {
-              color: "black"
-            }
-          },
-          textfont: {
-            color: "black",
-            family: "FiraCode"
-          },
-          textposition: "top center"
-        },
+              color: "black",
+              family: "FiraCode"
+            },
+            textposition: "top center"
+          }
+        ],
         isModified: true,
         isBeingModified: true,
         isSelected: false,
@@ -165,22 +198,38 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     modifyXRFData(modifications)
   }
 
-  function sendDeconvolveRequest() {
+  async function sendDeconvolveRequest() {
     if (selectedRange) {
       try {
-        axios({
+        let res = await axios({
           method: "POST",
           data: {
-            data: data.at(-1)!.data.original,
+            data: modifiedData.at(-1)!.data.original,
             range: selectedRange.x
           },
           timeout,
           url: `${sdpUrl}/deconvolve`
-        }).then((res) => console.log(res))
+        })
+        return res.data
       } catch (error) {
         console.error(error)
       }
     }
+  }
+
+  function mergeFittedData(data: any) {
+    if (modifiedData.length !== 1) return
+
+    let currentDeconvolvedData = modifiedData[0].data.deconvolved
+    if (currentDeconvolvedData) {
+      modifiedData[0].data.deconvolved = [
+        ...currentDeconvolvedData,
+        data.fittedData.bestFit
+      ]
+    } else {
+      modifiedData[0].data.deconvolved = [data.fittedData.bestFit]
+    }
+    setData([...unmodifiedData, ...modifiedData])
   }
 
   return (
@@ -274,11 +323,12 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
           <div id="baseline" className="flex space-x-2">
             <button
               title={"Deconvolve selected range"}
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault()
-                sendDeconvolveRequest()
+                let fitted = await sendDeconvolveRequest()
+                mergeFittedData(fitted)
               }}
-              disabled={selectedXRFPlotData.length !== 1 || !selectedRange}
+              disabled={modifiedData.length !== 1 || !selectedRange}
               className={"disabled:text-gray-400"}
             >
               <IconChartHistogram></IconChartHistogram>
