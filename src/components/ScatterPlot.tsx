@@ -19,14 +19,15 @@ import createPlotlyComponent from "react-plotly.js/factory"
 
 interface Props {
   plotData: Partial<ScatterData>[]
+  selectedRange: SelectionRange | null
+  setSelectedRange: React.Dispatch<React.SetStateAction<SelectionRange | null>>
 }
 
 const Plot = createPlotlyComponent(Plotly)
 
-function ScatterPlot({ plotData }: Props) {
+function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
   const dragLayerRef = useRef<HTMLElement | null>(null)
   const [mousePosition, setMousePotistion] = useState([0, 0])
-  const [selection, setSelection] = useState<SelectionRange | null>(null)
   const [dragMode, setDragMode] = useState<"select" | "pan">("pan")
   const [yAxisType, setYAxisType] = useState<"log" | "linear">("linear")
 
@@ -152,30 +153,6 @@ function ScatterPlot({ plotData }: Props) {
     )
   }
 
-  useHotkeys(
-    "ctrl+c",
-    () => {
-      copyPlotImage()
-    },
-    {
-      enableOnContentEditable: true,
-      enableOnFormTags: true,
-      preventDefault: true
-    }
-  )
-
-  useHotkeys(
-    "ctrl+s",
-    () => {
-      savePlotImage()
-    },
-    {
-      enableOnContentEditable: true,
-      enableOnFormTags: true,
-      preventDefault: true
-    }
-  )
-
   function attachPlotMouseListener() {
     // https://github.com/plotly/plotly.js/issues/1548
     const gd = document.getElementById("plotMain") as any
@@ -208,6 +185,75 @@ function ScatterPlot({ plotData }: Props) {
     gd.addEventListener("mousemove", listener)
   }
 
+  function toggleDragMode() {
+    setDragMode(dragMode === "pan" ? "select" : "pan")
+    setSelectedRange(null)
+  }
+
+  function toggleHoverLabels() {
+    setLayout({ ...layout, hoverdistance: -1 - layout.hoverdistance! })
+  }
+
+  function toggleLegend() {
+    setLayout({ ...layout, showlegend: !layout.showlegend })
+  }
+
+  useHotkeys(
+    "ctrl+c",
+    () => {
+      copyPlotImage()
+    },
+    {
+      enableOnContentEditable: true,
+      enableOnFormTags: true,
+      preventDefault: true
+    }
+  )
+  useHotkeys(
+    "ctrl+s",
+    () => {
+      savePlotImage()
+    },
+    {
+      enableOnContentEditable: true,
+      enableOnFormTags: true,
+      preventDefault: true
+    }
+  )
+  useHotkeys(
+    "ctrl+d",
+    () => {
+      toggleDragMode()
+    },
+    {
+      enableOnContentEditable: true,
+      enableOnFormTags: true,
+      preventDefault: true
+    }
+  )
+  useHotkeys(
+    "ctrl+h",
+    () => {
+      toggleHoverLabels()
+    },
+    {
+      enableOnContentEditable: true,
+      enableOnFormTags: true,
+      preventDefault: true
+    }
+  )
+  useHotkeys(
+    "ctrl+l",
+    () => {
+      toggleLegend()
+    },
+    {
+      enableOnContentEditable: true,
+      enableOnFormTags: true,
+      preventDefault: true
+    }
+  )
+
   return (
     <>
       <div
@@ -216,7 +262,7 @@ function ScatterPlot({ plotData }: Props) {
       >
         <button
           onClick={() => {
-            setLayout({ ...layout, showlegend: !layout.showlegend })
+            toggleLegend()
           }}
           title={"Toggle legend"}
         >
@@ -224,7 +270,7 @@ function ScatterPlot({ plotData }: Props) {
         </button>
         <button
           onClick={() => {
-            setLayout({ ...layout, hoverdistance: -1 - layout.hoverdistance! })
+            toggleHoverLabels()
           }}
           title={"Toggle hover labels"}
         >
@@ -240,8 +286,7 @@ function ScatterPlot({ plotData }: Props) {
         </button>
         <button
           onClick={() => {
-            setDragMode(dragMode === "pan" ? "select" : "pan")
-            setSelection(null)
+            toggleDragMode()
           }}
           title={"Toggle selection"}
         >
@@ -280,12 +325,16 @@ function ScatterPlot({ plotData }: Props) {
             ".draglayer"
           ) as HTMLElement
           dragLayerRef.current.classList.add("!cursor-pointer")
+          Plotly.relayout("plotMain", { selections: [] })
         }}
         onUpdate={() => {
           attachPlotMouseListener()
         }}
         onSelecting={(e) => {
-          setSelection(e.range!)
+          try {
+            console.log(e)
+            setSelectedRange(e.range!)
+          } catch (error) {}
         }}
         onSelected={() => {
           Plotly.relayout("plotMain", { selections: [] })
@@ -297,7 +346,7 @@ function ScatterPlot({ plotData }: Props) {
       >{`Energy: ${mousePosition[0].toFixed(
         2
       )}, Intensity ${mousePosition[1].toFixed(2)} Selection: ${JSON.stringify(
-        selection?.x
+        selectedRange?.x
       )}`}</div>
     </>
   )

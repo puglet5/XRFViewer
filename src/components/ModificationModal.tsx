@@ -9,13 +9,15 @@ import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { Modification, Peak, XRFData } from "../common/interfaces"
 import axios from "axios"
 import { sdpUrl, timeout } from "@/common/settings"
+import { SelectionRange } from "plotly.js"
 
 interface Props {
   data: XRFData[]
   setData: React.Dispatch<React.SetStateAction<XRFData[]>>
+  selectedRange: SelectionRange | null
 }
 
-function ModificationModal({ data, setData }: Props) {
+function ModificationModal({ data, setData, selectedRange }: Props) {
   const [modifications, setModifications] = useState<Modification>({
     scalingFactor: 1,
     smoothingRadius: 0,
@@ -84,7 +86,7 @@ function ModificationModal({ data, setData }: Props) {
         text = x.map((pos, i) =>
           peaks.find((e) => e.position === pos)
             ? pos.toFixed(2).toString()
-            : " "
+            : "    "
         )
       }
 
@@ -98,7 +100,6 @@ function ModificationModal({ data, setData }: Props) {
           name,
           mode: "text+lines",
           textinfo: "text",
-          textposition: "top center",
           type: "scattergl",
           line: { simplify: true },
           text,
@@ -109,7 +110,12 @@ function ModificationModal({ data, setData }: Props) {
             textfont: {
               color: "black"
             }
-          }
+          },
+          textfont: {
+            color: "black",
+            family: "FiraCode"
+          },
+          textposition: "top center"
         },
         isModified: true,
         isBeingModified: true,
@@ -157,6 +163,20 @@ function ModificationModal({ data, setData }: Props) {
     baselineCheckboxRef.current!.checked = false
     setModifications(modifications)
     modifyXRFData(modifications)
+  }
+
+  function sendDeconvolveRequest() {
+    if (selectedRange) {
+      axios({
+        method: "POST",
+        data: {
+          data: data.at(-1)!.data,
+          range: selectedRange.y
+        },
+        timeout,
+        url: `${sdpUrl}/deconvolve`
+      }).then((res) => console.log(res))
+    }
   }
 
   return (
@@ -252,16 +272,10 @@ function ModificationModal({ data, setData }: Props) {
               title={"Deconvolve selected range"}
               onClick={(e) => {
                 e.preventDefault()
-                axios({
-                  method: "POST",
-                  data: {
-                    data: data[0].data,
-                    range: [1.0, 2.0]
-                  },
-                  timeout,
-                  url: `${sdpUrl}/deconvolve`
-                }).then((res) => console.log(res))
+                sendDeconvolveRequest()
               }}
+              disabled={selectedXRFPlotData.length !== 1 || !selectedRange}
+              className={"disabled:text-gray-400"}
             >
               <IconChartHistogram></IconChartHistogram>
             </button>

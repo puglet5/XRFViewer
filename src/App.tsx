@@ -1,5 +1,5 @@
 import { IconBorderAll } from "@tabler/icons-react"
-import { ScatterData } from "plotly.js"
+import { ScatterData, SelectionRange } from "plotly.js"
 import { Resizable } from "re-resizable"
 import { useEffect, useRef, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
@@ -25,13 +25,14 @@ export default function App() {
   const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
   const [periodicTableVisibility, setPeriodicTableVisibility] =
     useState<boolean>(false)
-
   const [data, setData] = useState<XRFData[]>(
     JSON.parse(localStorage.getItem("data") ?? "[]")
   )
-
   const [elementScaleFactor, setElementScaleFactor] = useState<number>(
     JSON.parse(localStorage.getItem("elementScaleFactor") ?? "1")
+  )
+  const [selectedRange, setSelectedRange] = useState<SelectionRange | null>(
+    null
   )
 
   const sidebarRef = useRef<Resizable>(null)
@@ -188,7 +189,11 @@ export default function App() {
             </div>
           </div>
 
-          <ModificationModal data={data} setData={setData} />
+          <ModificationModal
+            data={data}
+            setData={setData}
+            selectedRange={selectedRange}
+          />
 
           <div
             id="spacer"
@@ -216,7 +221,11 @@ export default function App() {
 
       <div className="h-full w-full overflow-hidden">
         <div className="h-full bg-pbg">
-          <ScatterPlot plotData={plotData} />
+          <ScatterPlot
+            plotData={plotData}
+            selectedRange={selectedRange}
+            setSelectedRange={setSelectedRange}
+          />
         </div>
       </div>
 

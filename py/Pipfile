@@ -10,6 +10,12 @@ pyinstaller = "*"
 pyinstaller-hooks-contrib = "==2022.10"
 pywin32-ctypes = "==0.2.0"
 uvicorn = "==0.18.3"
+numpy = "*"
+pandas = "*"
+scipy = "*"
+matplotlib = "*"
+findpeaks = "*"
+lmfit = "*"
 
 [dev-packages]
 "black" = "*"
