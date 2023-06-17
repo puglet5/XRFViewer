@@ -91,7 +91,7 @@ def deconvolve(data: XRFPlotData) -> dict:
             -smth[peak_detect_margin : data_length - peak_detect_margin] / np.max(smth)
         )
         if result is None:
-            return {"message": "Error. Counln't detect peaks in selected range"}
+            return {"message": "Error. Couldn't detect peaks in selected range"}
 
         df = result["df"]
 
