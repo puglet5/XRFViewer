@@ -101,15 +101,21 @@ def deconvolve(data: XRFPlotData) -> dict:
             n_peaks = 3
 
         filtered_pos = (
-            df.query("peak == True & rank != 0 & rank <= 20 & y > 0.01")
+            df.query("peak == True & rank != 0 & y > 0.01")
             .sort_values(by=["rank"])
             .head(n_peaks)
         )
         y_2d_peaks = [i + peak_detect_margin for i in filtered_pos["x"].to_numpy()]
 
+        if not len(y_2d_peaks):
+            return {
+                "fitReport": "No peaks found",
+            }
+
         peak_model_list = []
         params = Parameters()
         for i, e in enumerate(y_2d_peaks):
+            print(i)
             prefix = f"pv{i}"
             peak_model = PseudoVoigtModel(prefix=prefix)
             peak_model_list.append(peak_model)
@@ -122,7 +128,9 @@ def deconvolve(data: XRFPlotData) -> dict:
                 min=x[e] - data.center_offset_range / 2,
                 max=x[e] + data.center_offset_range / 2,
             )
-            params += peak_model.guess(y, x=x, center=x[e], amplitude=y[e] / 3, fraction=0)
+            params += peak_model.guess(
+                y, x=x, center=x[e], amplitude=y[e] / 3, fraction=0
+            )
 
         if data.fit_background == True:
             bkg_model = PolynomialModel()
