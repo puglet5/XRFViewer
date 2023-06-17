@@ -47,7 +47,9 @@ function Uploader({ data, setData }: Props) {
               const data: XRFData = {
                 id: createId(),
                 data: { original: parsedData },
-                plotData: [constructXRFData(parsedData, e.name.split(".")[0])],
+                plotData: {
+                  main: constructXRFData(parsedData, e.name.split(".")[0])
+                },
                 file: fileData,
                 isModified: false,
                 isDisplayed: true,

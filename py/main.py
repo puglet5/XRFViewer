@@ -127,19 +127,19 @@ def deconvolve(data: XRFPlotData) -> dict:
 
         result = model.fit(y, params, x=x, max_nfev=2_000)
 
-        comps = result.eval_components()
+        compsDict = result.eval_components()
 
-        for k, v in comps.items():
-            comps[k] = {f"x": x.tolist(), "y": v.tolist()}
+        compsList = []
+        for _, v in compsDict.items():
+            compsList.append({f"x": x.tolist(), "y": v.tolist()})
 
-        print(comps)
         best_fit = result.best_fit.tolist()
 
         report = result.fit_report()
         return {
             "fittedData": {
                 "bestFit": {"x": x.tolist(), "y": best_fit},
-                "components": comps,
+                "components": compsList,
                 "peaks": {
                     "x": filtered_pos["x"].tolist(),
                     "y": filtered_pos["y"].tolist(),

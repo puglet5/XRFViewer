@@ -66,28 +66,55 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
 
   // Plot deconvolved data
   useEffect(() => {
-    if (modifiedData && modifiedData[0] && modifiedData[0].data.deconvolved) {
-      let { x, y } = modifiedData[0].data.deconvolved!.at(-1)!
-      let deconvolvedPlotData: Partial<ScatterData> = {
-        x,
-        y,
-        showlegend: false,
-        type: "scattergl",
-        name: "",
-        fill: "tozeroy",
-        hoverinfo: "none",
-        fillcolor: "gray",
-        line: {
-          color: "black"
-        },
-        opacity: 0.3
+    if (
+      modifiedData &&
+      modifiedData[0] &&
+      modifiedData[0].data.deconvolved &&
+      modifiedData[0].data.deconvolvedComponents
+    ) {
+      if (deconvolutionPlotMode === "sum") {
+        let deconvolvedPlotData: Partial<ScatterData>[] =
+          modifiedData[0].data.deconvolved.map((e) => {
+            return {
+              x: e.x,
+              y: e.y,
+              showlegend: false,
+              type: "scattergl",
+              name: "",
+              fill: "tozeroy",
+              hoverinfo: "none",
+              fillcolor: "gray",
+              line: {
+                color: "black"
+              },
+              opacity: 0.3
+            }
+          })
+
+        modifiedData[0].plotData.deconvolutions = deconvolvedPlotData
+      } else if (deconvolutionPlotMode === "comps") {
+        console.log(modifiedData[0].data.deconvolvedComponents)
+        let deconvolvedPlotData: Partial<ScatterData>[] =
+          modifiedData[0].data.deconvolvedComponents.map((e) => {
+            return {
+              x: e.x,
+              y: e.y,
+              showlegend: false,
+              type: "scattergl",
+              name: "",
+              fill: "tozeroy",
+              hoverinfo: "none",
+              opacity: 0.3,
+              line: {
+                dash: "dash"
+              }
+            }
+          })
+        modifiedData[0].plotData.deconvolutions = deconvolvedPlotData
       }
-      modifiedData[0].plotData = [
-        ...modifiedData[0].plotData,
-        deconvolvedPlotData
-      ]
     }
-  }, [deconvolvedDataLength])
+    setData([...unmodifiedData, ...modifiedData])
+  }, [deconvolvedDataLength, deconvolutionPlotMode])
 
   useEffect(() => {
     modifyXRFData(modifications)
@@ -132,8 +159,8 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
         ...e,
         id: "0",
         data: { original: e.data.original, modified: { x, y } },
-        plotData: [
-          {
+        plotData: {
+          main: {
             x,
             y,
             name,
@@ -156,7 +183,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
             },
             textposition: "top center"
           }
-        ],
+        },
         isModified: true,
         isBeingModified: true,
         isSelected: false,
@@ -239,6 +266,9 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     if (modifiedData.length !== 1) return
 
     let currentDeconvolvedData = modifiedData[0].data.deconvolved
+    let currentDeconvolvedComponentsData =
+      modifiedData[0].data.deconvolvedComponents
+    console.log(currentDeconvolvedData)
     if (currentDeconvolvedData) {
       modifiedData[0].data.deconvolved = [
         ...currentDeconvolvedData,
@@ -246,6 +276,15 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
       ]
     } else {
       modifiedData[0].data.deconvolved = [data.fittedData.bestFit]
+    }
+
+    if (currentDeconvolvedComponentsData) {
+      modifiedData[0].data.deconvolvedComponents = [
+        ...currentDeconvolvedComponentsData,
+        ...data.fittedData.components
+      ]
+    } else {
+      modifiedData[0].data.deconvolvedComponents = data.fittedData.components
     }
     setData([...unmodifiedData, ...modifiedData])
   }

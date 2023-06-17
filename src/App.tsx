@@ -38,7 +38,13 @@ export default function App() {
   const sidebarRef = useRef<Resizable>(null)
 
   useEffect(() => {
-    setPlotData([...data.flatMap((e) => e.plotData), ...currentElementData])
+    setPlotData([
+      ...data.flatMap((e) => [
+        e.plotData.main,
+        ...(e.plotData.deconvolutions ?? [])
+      ]),
+      ...currentElementData
+    ])
   }, [data, currentElementData])
 
   useEffect(() => {
