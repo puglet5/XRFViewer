@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import os, time, json
+import os, time
 from pydantic import BaseModel
 import numpy as np
 from findpeaks import findpeaks
@@ -9,6 +9,13 @@ from scipy.ndimage import gaussian_filter1d  # type: ignore
 from scipy.interpolate import UnivariateSpline  # type: ignore
 from lmfit import Parameters
 from lmfit.models import PseudoVoigtModel, Model, PolynomialModel
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog="XRFViewer data processing server",
+)
+
+parser.add_argument("-d", "--dev", action="store_true")
 
 
 class XRFPlotData(BaseModel):
@@ -183,4 +190,8 @@ def deconvolve(data: XRFPlotData) -> dict:
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=4242, reload=True)
+    args = parser.parse_args()
+    if args.dev == True:
+        uvicorn.run("main:app", host="127.0.0.1", port=4242, reload=True)
+    else:
+        uvicorn.run(app, host="127.0.0.1", port=4242)

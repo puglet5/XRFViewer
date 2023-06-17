@@ -16,6 +16,8 @@ scipy = "*"
 matplotlib = "*"
 findpeaks = "*"
 lmfit = "*"
+chardet = "*"
+argparse = "*"
 
 [dev-packages]
 "black" = "*"
