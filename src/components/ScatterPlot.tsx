@@ -119,6 +119,8 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
     doubleClick: "reset+autosize"
   })
 
+  const gd = document.getElementById("plotMain") as any
+
   useEffect(() => {
     setLayout({
       ...layout,
@@ -152,10 +154,9 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
       )
     )
   }
-
+  
   function attachPlotMouseListener() {
     // https://github.com/plotly/plotly.js/issues/1548
-    const gd = document.getElementById("plotMain") as any
     const margin = gd._fullLayout.margin
     const offsets = gd.getBoundingClientRect()
 
@@ -328,7 +329,7 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
           Plotly.relayout("plotMain", { selections: [] })
         }}
         onUpdate={() => {
-          attachPlotMouseListener()
+          if (plotData.length) attachPlotMouseListener()
         }}
         onSelecting={(e) => {
           setSelectedRange(e.range!)

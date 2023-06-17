@@ -1,19 +1,24 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import os, time
+import os, time, json
 from pydantic import BaseModel
 import numpy as np
 from findpeaks import findpeaks
-from scipy.ndimage import gaussian_filter1d
-from scipy.interpolate import UnivariateSpline
+from scipy.ndimage import gaussian_filter1d  # type: ignore
+from scipy.interpolate import UnivariateSpline  # type: ignore
 from lmfit import Parameters
-from lmfit.models import PseudoVoigtModel, Model
+from lmfit.models import PseudoVoigtModel, Model, PolynomialModel
 
 
 class XRFPlotData(BaseModel):
     data: dict[str, list[float]]
     range: list[float]
+    n_peaks: int
+    sigma_max: float
+    center_offset_range: float
+    fit_background: bool
+    fit_to_peaks: bool
 
 
 origins = [
@@ -65,61 +70,116 @@ def deconvolve(data: XRFPlotData) -> dict:
 
     x, y = data_to_deconvolve
 
-    spl = UnivariateSpline(x, y)
-    spl_2d = spl.derivative(n=2)
-    spl_2d_y = spl_2d(x)
+    if data.fit_to_peaks == True:
+        spl = UnivariateSpline(x, y)
+        spl_2d = spl.derivative(n=2)
+        spl_2d_y = spl_2d(x)
 
-    smth = gaussian_filter1d(spl_2d_y, 2)
-    data_length = len(x)
-    peak_detect_margin = 10
+        smth = gaussian_filter1d(spl_2d_y, 2)
+        data_length = len(x)
+        peak_detect_margin = 10
 
-    fp = findpeaks(method="topology", lookahead=3, denoise="bilateral")
-    result = fp.fit(
-        -smth[peak_detect_margin : data_length - peak_detect_margin] / np.max(smth)
-    )
-    if result is None:
-        return {"message": "Error. Counln't detect peaks in selected range"}
+        fp = findpeaks(method="topology", lookahead=3, denoise="bilateral")
+        result = fp.fit(
+            -smth[peak_detect_margin : data_length - peak_detect_margin] / np.max(smth)
+        )
+        if result is None:
+            return {"message": "Error. Counln't detect peaks in selected range"}
 
-    df = result["df"]
+        df = result["df"]
 
-    filtered_pos = (
-        df.query("peak == True & rank != 0 & rank <= 20 & y > 0.01")
-        .sort_values(by=["rank"])
-        .head(5)
-    )
-    y_2d_peaks = [i + peak_detect_margin for i in filtered_pos["x"].to_numpy()]
+        if data.n_peaks >= 1:
+            n_peaks = data.n_peaks
+        else:
+            n_peaks = 3
 
-    peak_model_list = []
-    params = Parameters()
-    for i, e in enumerate(y_2d_peaks):
-        prefix = f"v{i}_"
-        peak_model = PseudoVoigtModel(prefix=prefix)
-        peak_model_list.append(peak_model)
-        peak_model.set_param_hint("sigma", min=0, max=0.2)
-        peak_model.set_param_hint("fraction", min=0, max=1)
-        peak_model.set_param_hint("amplitude", min=0)
-        peak_model.set_param_hint("height", min=0.8 * y[e], max=1.2 * y[e])
-        peak_model.set_param_hint("center", min=x[e] - 0.1, max=x[e] + 0.1)
-        params += peak_model.guess(y, x=x, center=x[e], amplitude=y[e] / 3)
+        filtered_pos = (
+            df.query("peak == True & rank != 0 & rank <= 20 & y > 0.01")
+            .sort_values(by=["rank"])
+            .head(n_peaks)
+        )
+        y_2d_peaks = [i + peak_detect_margin for i in filtered_pos["x"].to_numpy()]
 
-    # bkg_model = PolynomialModel()
-    # bkg_params = bkg_model.guess(y, x=x)
-    # params += bkg_params
+        peak_model_list = []
+        params = Parameters()
+        for i, e in enumerate(y_2d_peaks):
+            prefix = f"pv{i}"
+            peak_model = PseudoVoigtModel(prefix=prefix)
+            peak_model_list.append(peak_model)
+            peak_model.set_param_hint("sigma", min=0, max=data.sigma_max)
+            peak_model.set_param_hint("fraction", min=0, max=1)
+            peak_model.set_param_hint("amplitude", min=0)
+            peak_model.set_param_hint("height", min=0.8 * y[e], max=1.2 * y[e])
+            peak_model.set_param_hint(
+                "center",
+                min=x[e] - data.center_offset_range / 2,
+                max=x[e] + data.center_offset_range / 2,
+            )
+            params += peak_model.guess(y, x=x, center=x[e], amplitude=y[e] / 3)
 
-    model: Model = np.sum(peak_model_list)
-    result = model.fit(y, params, x=x, max_nfev=2000)
+        if data.fit_background == True:
+            bkg_model = PolynomialModel()
+            bkg_params = bkg_model.guess(y, x=x)
+            params += bkg_params
+            model: Model = np.sum(peak_model_list) + bkg_model
+        else:
+            model: Model = np.sum(peak_model_list)
 
-    comps = result.eval_components()
-    best_fit = result.best_fit.tolist()
+        result = model.fit(y, params, x=x, max_nfev=2_000)
 
-    report = result.fit_report()
-    return {
-        "fittedData": {
-            "bestFit": {"x": x.tolist(), "y": best_fit},
-            "peaks": {"x": filtered_pos["x"].tolist(), "y": filtered_pos["y"].tolist()},
-        },
-        "fitReport": report,
-    }
+        comps = result.eval_components()
+
+        for k, v in comps.items():
+            comps[k] = {f"x": x.tolist(), "y": v.tolist()}
+
+        print(comps)
+        best_fit = result.best_fit.tolist()
+
+        report = result.fit_report()
+        return {
+            "fittedData": {
+                "bestFit": {"x": x.tolist(), "y": best_fit},
+                "components": comps,
+                "peaks": {
+                    "x": filtered_pos["x"].tolist(),
+                    "y": filtered_pos["y"].tolist(),
+                },
+            },
+            "fitReport": report,
+        }
+    else:
+        peak_model_list = []
+        params = Parameters()
+        for i in range(data.n_peaks):
+            prefix = f"pv{i}"
+            peak_model = PseudoVoigtModel(prefix=prefix)
+            peak_model_list.append(peak_model)
+            peak_model.set_param_hint("sigma", min=0, max=data.sigma_max)
+            peak_model.set_param_hint("fraction", min=0, max=1)
+            peak_model.set_param_hint("amplitude", min=0, max=100_000)
+            peak_model.set_param_hint("center", min=x[0], max=x[-1])
+            params += peak_model.guess(y, x=x)
+
+        if data.fit_background == True:
+            bkg_model = PolynomialModel()
+            bkg_params = bkg_model.guess(y, x=x)
+            params += bkg_params
+            model: Model = np.sum(peak_model_list) + bkg_model
+        else:
+            model: Model = np.sum(peak_model_list)
+
+        result = model.fit(y, params, x=x, max_nfev=20_000, method="least_squares")
+
+        comps = result.eval_components()
+        best_fit = result.best_fit.tolist()
+
+        report = result.fit_report()
+        return {
+            "fittedData": {
+                "bestFit": {"x": x.tolist(), "y": best_fit},
+            },
+            "fitReport": report,
+        }
 
 
 if __name__ == "__main__":

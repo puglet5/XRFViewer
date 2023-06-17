@@ -20,8 +20,51 @@ type ProcessByFileTypeTable = {
 
 const parseTable: ProcessByFileTypeTable = {
   ".dat": { parse: parseDat, validate: validateDat },
-  ".csv": { parse: parseCsv, validate: validateCsv }
+  ".csv": { parse: parseCsv, validate: validateCsv },
+  ".txt": { parse: parseTxt, validate: validateTxt }
 } as const
+
+function parseTxt(data: string): ParsedData {
+  // 0                  channelCount
+  // 1::channelCount    channels
+  // channelCount+1::-1 metadata
+
+  const parsedData: string[] = data
+    .split("\n")
+    .map((e) => e.trim())
+    .filter((e) => e ?? "0")
+
+  const channelCount: number = +parsedData[0]
+  const xRange: [number, number] = [0, 40]
+  const xLinspace: number[] = generateLinspace(...xRange, channelCount)
+  const metadata = parsedData.slice(1 + channelCount, -1)
+
+  const plotData = {
+    x: xLinspace,
+    y: parsedData
+      .flatMap((e, i) => {
+        return i >= 1 ? parseFloat(e.trim()) : []
+      })
+      .slice(0, channelCount)
+  }
+
+  return plotData
+}
+
+function validateTxt(data: string): boolean {
+  const parsedData: string[] = data
+    .split("\n")
+    .map((e) => e.trim())
+    .filter((e) => e ?? "0")
+  const hasHeaderString: boolean = parsedData[0].split(" ").length === 1
+  const bodyData = parsedData.slice(1, +parsedData[0])
+  const hasValidFormat: boolean =
+    hasHeaderString &&
+    bodyData.every((e) => typeof e === "string") &&
+    !bodyData.map((e) => +e).includes(NaN)
+
+  return hasValidFormat
+}
 
 function generateLinspace(
   startValue: number,

@@ -25,11 +25,17 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     peakDetection: false
   })
 
+  const [deconvolutionPlotMode, setDeconvolutionPlotMode] = useState<
+    "comps" | "sum"
+  >("sum")
+
   const scalingSliderRef = useRef<HTMLSpanElement>(null)
   const smoothingSliderRef = useRef<HTMLSpanElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
-  const baselineCheckboxRef = useRef<HTMLInputElement>(null)
-  const peakCheckboxRef = useRef<HTMLInputElement>(null)
+  const baselineToggleRef = useRef<HTMLInputElement>(null)
+  const peakToggleRef = useRef<HTMLInputElement>(null)
+  const nPeaksInputRef = useRef<HTMLInputElement>(null)
+  const plotCompsToggleRef = useRef<HTMLInputElement>(null)
 
   const selectedXRFPlotData = useMemo(
     () => data.filter((e) => e.isSelected === true),
@@ -58,8 +64,9 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     [data]
   )
 
+  // Plot deconvolved data
   useEffect(() => {
-    if (deconvolvedDataLength) {
+    if (modifiedData && modifiedData[0] && modifiedData[0].data.deconvolved) {
       let { x, y } = modifiedData[0].data.deconvolved!.at(-1)!
       let deconvolvedPlotData: Partial<ScatterData> = {
         x,
@@ -124,7 +131,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
       return {
         ...e,
         id: "0",
-        data: { original: { x, y } },
+        data: { original: e.data.original, modified: { x, y } },
         plotData: [
           {
             x,
@@ -158,7 +165,6 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
       }
     })
 
-    //@ts-ignore
     setData([...unmodifiedData, ...newData])
   }
 
@@ -192,20 +198,32 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     }
     scalingSliderRef.current!.innerText = "1.00"
     smoothingSliderRef.current!.innerText = "0"
-    peakCheckboxRef.current!.checked = false
-    baselineCheckboxRef.current!.checked = false
+    peakToggleRef.current!.checked = false
+    baselineToggleRef.current!.checked = false
     setModifications(modifications)
     modifyXRFData(modifications)
   }
 
-  async function sendDeconvolveRequest() {
+  async function sendDeconvolveRequest(
+    range: number[],
+    nPeaks: number,
+    sigmaMax = 0.2,
+    centerOffsetRange = 0.2,
+    fitBackground = false,
+    fitToPeaks = true
+  ) {
     if (selectedRange) {
       try {
         let res = await axios({
           method: "POST",
           data: {
-            data: modifiedData.at(-1)!.data.original,
-            range: selectedRange.x
+            data: modifiedData.at(-1)!.data.modified,
+            range,
+            n_peaks: nPeaks,
+            sigma_max: sigmaMax,
+            center_offset_range: centerOffsetRange,
+            fit_background: fitBackground,
+            fit_to_peaks: fitToPeaks
           },
           timeout,
           url: `${sdpUrl}/deconvolve`
@@ -230,6 +248,14 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
       modifiedData[0].data.deconvolved = [data.fittedData.bestFit]
     }
     setData([...unmodifiedData, ...modifiedData])
+  }
+
+  function toggleDeconvolutionPlotMode() {
+    if (deconvolutionPlotMode === "comps") {
+      setDeconvolutionPlotMode("sum")
+    } else {
+      setDeconvolutionPlotMode("comps")
+    }
   }
 
   return (
@@ -297,7 +323,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
             <input
               type="checkbox"
               defaultChecked={false}
-              ref={peakCheckboxRef}
+              ref={peakToggleRef}
               onChange={(e) => {
                 setModifications({
                   ...modifications,
@@ -311,7 +337,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
             <input
               type="checkbox"
               defaultChecked={false}
-              ref={baselineCheckboxRef}
+              ref={baselineToggleRef}
               onChange={(e) => {
                 setModifications({
                   ...modifications,
@@ -320,12 +346,15 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
               }}
             />
           </div>
-          <div id="baseline" className="flex space-x-2">
+          <div id="deconvolve" className="flex space-x-2">
             <button
               title={"Deconvolve selected range"}
               onClick={async (e) => {
                 e.preventDefault()
-                let fitted = await sendDeconvolveRequest()
+                let fitted = await sendDeconvolveRequest(
+                  selectedRange!.x,
+                  +nPeaksInputRef.current!.value ?? 3
+                )
                 mergeFittedData(fitted)
               }}
               disabled={modifiedData.length !== 1 || !selectedRange}
@@ -333,6 +362,23 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
             >
               <IconChartHistogram></IconChartHistogram>
             </button>
+            <input
+              type="number"
+              defaultValue={3}
+              min={-1}
+              max={20}
+              step={1}
+              ref={nPeaksInputRef}
+              className={
+                "block w-24 rounded border border-ptx bg-transparent px-3 py-0.5 outline-none"
+              }
+            />
+            <input
+              type="checkbox"
+              defaultChecked={false}
+              ref={plotCompsToggleRef}
+              onChange={() => toggleDeconvolutionPlotMode()}
+            />
           </div>
 
           <menu className="mt-2 flex justify-center text-acc ">

@@ -4,6 +4,7 @@ export interface FileProps {
   name: string
   size?: number
   type: ValidFileType | ".mod"
+  metadata?: object
 }
 
 export interface ParsedData {
@@ -29,7 +30,8 @@ export interface Peak {
 
 export enum ValidFileTypes {
   CSV = ".csv",
-  DAT = ".dat"
+  DAT = ".dat",
+  TXT = ".txt"
 }
 
 export type ValidFileType = `${ValidFileTypes}`
@@ -41,8 +43,10 @@ export interface XRFData {
   readonly id: string
   data: {
     original: ParsedData
+    modified?: ParsedData
     peaks?: Peak[]
     deconvolved?: ParsedData[]
+    deconvolvedComponents?: ParsedData[]
   }
   plotData: Partial<ScatterData>[]
   file: FileProps
