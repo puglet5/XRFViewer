@@ -9,7 +9,7 @@ import {
   IconCopy,
   IconDeviceFloppy,
   IconLocation,
-  IconLocationOff,
+  IconLocationOff
 } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
 import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"
@@ -216,11 +216,12 @@ function ScatterPlot({
   }
 
   function selectPoint(pointIndex: number | undefined) {
-    if (data.at(-1)?.isBeingModified) {
-      let selectedPoints = data.at(-1)?.selectedPoints!
+    const trace = data.at(-1)
+    if (trace && trace.isBeingModified) {
+      const selectedPoints = trace.selectedPoints
       if (pointIndex) {
-        if (selectedPoints?.includes(pointIndex)) {
-          let point = selectedPoints.findIndex((e) => e === pointIndex)
+        if (selectedPoints.includes(pointIndex)) {
+          const point = selectedPoints.findIndex((e) => e === pointIndex)
           selectedPoints.splice(point, 1)
         } else {
           selectedPoints.push(pointIndex)
@@ -364,13 +365,13 @@ function ScatterPlot({
           dragLayerRef.current.classList.add("!cursor-pointer")
           Plotly.relayout("plotMain", { selections: [] })
         }}
-        onUpdate={(e) => {
+        onUpdate={() => {
           if (plotData.length) attachPlotMouseListener()
         }}
         onSelecting={(e) => {
           setSelectedRange(e.range!)
         }}
-        onSelected={(e) => {
+        onSelected={() => {
           Plotly.relayout("plotMain", { selections: [] })
           setDragMode("pan")
         }}

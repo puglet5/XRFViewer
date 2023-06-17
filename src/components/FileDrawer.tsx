@@ -76,7 +76,7 @@ function FileDrawer({ data, setData }: Props) {
   }
 
   const constructFileDrawer = useMemo(() => {
-    return unmodifiedData.map((e, i) => {
+    return unmodifiedData.map((e) => {
       return (
         <div key={e.id}>
           <div className="flex h-full w-full select-none flex-nowrap">

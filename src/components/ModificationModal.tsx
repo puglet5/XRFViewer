@@ -6,7 +6,7 @@ import {
   IconSquarePlus
 } from "@tabler/icons-react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
-import { Modification, ParsedData, Peak, XRFData } from "../common/interfaces"
+import { Modification, Peak, XRFData } from "../common/interfaces"
 import axios from "axios"
 import { sdpUrl, timeout } from "@/common/settings"
 import { SelectionRange, ScatterData } from "plotly.js"
@@ -80,7 +80,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
       modifiedData[0].data.deconvolvedComponents
     ) {
       if (deconvolutionPlotMode === "sum") {
-        let deconvolvedPlotData: Partial<ScatterData>[] =
+        const deconvolvedPlotData: Partial<ScatterData>[] =
           modifiedData[0].data.deconvolved.map((e) => {
             return {
               x: e.x,
@@ -100,7 +100,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
 
         modifiedData[0].plotData.deconvolutions = deconvolvedPlotData
       } else if (deconvolutionPlotMode === "comps") {
-        let deconvolvedPlotData: Partial<ScatterData>[] =
+        const deconvolvedPlotData: Partial<ScatterData>[] =
           modifiedData[0].data.deconvolvedComponents.map((e) => {
             return {
               x: e.x,
@@ -134,7 +134,8 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
 
   function modifyXRFData(modifications: Modification) {
     const newData: XRFData[] = selectedXRFPlotData.map((e, i) => {
-      let { x, y } = e.data.original
+      const x = e.data.original.x
+      let y = e.data.original.y
 
       if (modifications.smoothingRadius) {
         y = smooth(y, modifications.smoothingRadius)
@@ -154,7 +155,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
 
       if (modifications.peakDetection) {
         peaks = peakDetect(y, x)
-        text = x.map((pos, i) =>
+        text = x.map((pos) =>
           peaks.find((e) => e.position === pos)
             ? pos.toFixed(2).toString()
             : "    "
@@ -248,7 +249,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
   ) {
     if (selectedRange) {
       try {
-        let res = await axios({
+        const res = await axios({
           method: "POST",
           data: {
             data: modifiedData.at(-1)!.data.modified,
@@ -272,8 +273,8 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
   function mergeFittedData(data: any) {
     if (modifiedData.length !== 1) return
 
-    let currentDeconvolvedData = modifiedData[0].data.deconvolved
-    let currentDeconvolvedComponentsData =
+    const currentDeconvolvedData = modifiedData[0].data.deconvolved
+    const currentDeconvolvedComponentsData =
       modifiedData[0].data.deconvolvedComponents
     if (currentDeconvolvedData) {
       modifiedData[0].data.deconvolved = [
@@ -412,7 +413,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
               title={"Deconvolve selected range"}
               onClick={async (e) => {
                 e.preventDefault()
-                let fitted = await sendDeconvolveRequest(
+                const fitted = await sendDeconvolveRequest(
                   selectedRange!.x,
                   +nPeaksInputRef.current!.value ?? 3
                 )
