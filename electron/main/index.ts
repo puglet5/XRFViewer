@@ -11,6 +11,8 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? join(process.env.DIST_ELECTRON, "../public")
   : process.env.DIST
 
+console.log(process.env.DIST)
+
 // Disable GPU Acceleration for Windows 7
 // if (release().startsWith("6.1")) app.disableHardwareAcceleration()
 
@@ -133,15 +135,9 @@ if (app.isPackaged) {
     }
   }
 
-  const selectPort = () => {
-    pyPort = 4242
-    return pyPort
-  }
-
   const createPyProc = () => {
     let script = getScriptPath()
-    let port = "" + selectPort()
-    pyProc = child.execFile(script, [port])
+    pyProc = child.execFile(script)
   }
 
   async function getPID() {
