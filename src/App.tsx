@@ -228,6 +228,8 @@ export default function App() {
       <div className="h-full w-full overflow-hidden">
         <div className="h-full bg-pbg">
           <ScatterPlot
+            data={data}
+            setData={setData}
             plotData={plotData}
             selectedRange={selectedRange}
             setSelectedRange={setSelectedRange}

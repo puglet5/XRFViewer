@@ -58,6 +58,7 @@ export interface XRFData {
   isDisplayed: boolean
   isSelected: boolean
   modifications?: Modification
+  selectedPoints: number[]
 }
 
 export interface ElementData {

@@ -1,3 +1,4 @@
+import { XRFData } from "@/common/interfaces"
 import {
   IconAlignBoxRightMiddle,
   IconAlignBoxRightMiddleFilled,
@@ -9,7 +10,6 @@ import {
   IconDeviceFloppy,
   IconLocation,
   IconLocationOff,
-  IconTooltip
 } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
 import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"
@@ -24,17 +24,26 @@ type Props = {
   plotData: Partial<ScatterData>[]
   selectedRange: SelectionRange | null
   setSelectedRange: React.Dispatch<React.SetStateAction<SelectionRange | null>>
+  data: XRFData[]
+  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
 }
 
 const Plot = createPlotlyComponent(Plotly)
 
-function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
+function ScatterPlot({
+  plotData,
+  selectedRange,
+  setSelectedRange,
+  data,
+  setData
+}: Props) {
   const dragLayerRef = useRef<HTMLElement | null>(null)
   const [mousePosition, setMousePotistion] = useState([0, 0])
   const [dragMode, setDragMode] = useState<"select" | "pan">("pan")
   const [hoverLabelsVisibility, setHoverLabelsVisibility] = useState(false)
   const [yAxisType, setYAxisType] = useState<"log" | "linear">("linear")
   const [plotLegendVisibility, setPlotLegendVisibility] = useState(true)
+  const [selectionRevision, setSelectionRevision] = useState(0)
 
   const [layout, setLayout] = useState<Partial<Layout>>({
     margin: {
@@ -206,6 +215,22 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
     setLayout({ ...layout, showlegend: !layout.showlegend })
   }
 
+  function selectPoint(pointIndex: number | undefined) {
+    if (data.at(-1)?.isBeingModified) {
+      let selectedPoints = data.at(-1)?.selectedPoints!
+      if (pointIndex) {
+        if (selectedPoints?.includes(pointIndex)) {
+          let point = selectedPoints.findIndex((e) => e === pointIndex)
+          selectedPoints.splice(point, 1)
+        } else {
+          selectedPoints.push(pointIndex)
+        }
+      }
+      setData([...data])
+      setSelectionRevision(selectionRevision + 1)
+    }
+  }
+
   useHotkeys(
     "ctrl+c",
     () => {
@@ -339,15 +364,18 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
           dragLayerRef.current.classList.add("!cursor-pointer")
           Plotly.relayout("plotMain", { selections: [] })
         }}
-        onUpdate={() => {
+        onUpdate={(e) => {
           if (plotData.length) attachPlotMouseListener()
         }}
         onSelecting={(e) => {
           setSelectedRange(e.range!)
         }}
-        onSelected={() => {
+        onSelected={(e) => {
           Plotly.relayout("plotMain", { selections: [] })
           setDragMode("pan")
+        }}
+        onClick={(e) => {
+          selectPoint(e.points.at(-1)?.pointIndex)
         }}
       />
       <div
