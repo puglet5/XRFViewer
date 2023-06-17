@@ -1,11 +1,14 @@
 import {
   IconAlignBoxRightMiddle,
+  IconAlignBoxRightMiddleFilled,
   IconArrowAutofitContent,
   IconArrowAutofitContentFilled,
   IconAxisX,
   IconAxisY,
   IconCopy,
   IconDeviceFloppy,
+  IconLocation,
+  IconLocationOff,
   IconTooltip
 } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
@@ -29,7 +32,9 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
   const dragLayerRef = useRef<HTMLElement | null>(null)
   const [mousePosition, setMousePotistion] = useState([0, 0])
   const [dragMode, setDragMode] = useState<"select" | "pan">("pan")
+  const [hoverLabelsVisibility, setHoverLabelsVisibility] = useState(false)
   const [yAxisType, setYAxisType] = useState<"log" | "linear">("linear")
+  const [plotLegendVisibility, setPlotLegendVisibility] = useState(true)
 
   const [layout, setLayout] = useState<Partial<Layout>>({
     margin: {
@@ -154,7 +159,7 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
       )
     )
   }
-  
+
   function attachPlotMouseListener() {
     // https://github.com/plotly/plotly.js/issues/1548
     const margin = gd._fullLayout.margin
@@ -192,10 +197,12 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
   }
 
   function toggleHoverLabels() {
+    setHoverLabelsVisibility(!hoverLabelsVisibility)
     setLayout({ ...layout, hoverdistance: -1 - layout.hoverdistance! })
   }
 
   function toggleLegend() {
+    setPlotLegendVisibility(!plotLegendVisibility)
     setLayout({ ...layout, showlegend: !layout.showlegend })
   }
 
@@ -267,7 +274,11 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
           }}
           title={"Toggle legend"}
         >
-          <IconAlignBoxRightMiddle />
+          {plotLegendVisibility ? (
+            <IconAlignBoxRightMiddle />
+          ) : (
+            <IconAlignBoxRightMiddleFilled />
+          )}
         </button>
         <button
           onClick={() => {
@@ -275,7 +286,7 @@ function ScatterPlot({ plotData, selectedRange, setSelectedRange }: Props) {
           }}
           title={"Toggle hover labels"}
         >
-          <IconTooltip />
+          {hoverLabelsVisibility ? <IconLocationOff /> : <IconLocation />}
         </button>
         <button
           onClick={() => {
