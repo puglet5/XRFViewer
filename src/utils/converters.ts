@@ -173,6 +173,7 @@ export function constructXRFData(
     mode: "text+lines",
     line: { simplify: true },
     textposition: "top center",
+    selectedpoints: [],
     name
   }
 }

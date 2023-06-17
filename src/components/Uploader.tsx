@@ -54,7 +54,8 @@ function Uploader({ data, setData }: Props) {
                 isModified: false,
                 isDisplayed: true,
                 isSelected: false,
-                isBeingModified: false
+                isBeingModified: false,
+                selectedPoints: []
               }
 
               setData((prevData) => [...prevData, data])

@@ -100,7 +100,6 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
 
         modifiedData[0].plotData.deconvolutions = deconvolvedPlotData
       } else if (deconvolutionPlotMode === "comps") {
-        console.log(modifiedData[0].data.deconvolvedComponents)
         let deconvolvedPlotData: Partial<ScatterData>[] =
           modifiedData[0].data.deconvolvedComponents.map((e) => {
             return {
@@ -188,7 +187,8 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
               color: "black",
               family: "FiraCode"
             },
-            textposition: "top center"
+            textposition: "top center",
+            selectedpoints: []
           }
         },
         isModified: true,
@@ -275,7 +275,6 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     let currentDeconvolvedData = modifiedData[0].data.deconvolved
     let currentDeconvolvedComponentsData =
       modifiedData[0].data.deconvolvedComponents
-    console.log(currentDeconvolvedData)
     if (currentDeconvolvedData) {
       modifiedData[0].data.deconvolved = [
         ...currentDeconvolvedData,
