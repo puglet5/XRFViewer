@@ -10,6 +10,8 @@ import { Modification, ParsedData, Peak, XRFData } from "../common/interfaces"
 import axios from "axios"
 import { sdpUrl, timeout } from "@/common/settings"
 import { SelectionRange, ScatterData } from "plotly.js"
+import Draggable from "react-draggable"
+import { useHotkeys } from "react-hotkeys-hook"
 
 type Props = {
   data: XRFData[]
@@ -24,10 +26,11 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     baselineCorrection: false,
     peakDetection: false
   })
-
   const [deconvolutionPlotMode, setDeconvolutionPlotMode] = useState<
     "comps" | "sum"
   >("sum")
+
+  const [fitReportVisibility, setFitReportVisibility] = useState<boolean>(false)
 
   const scalingSliderRef = useRef<HTMLSpanElement>(null)
   const smoothingSliderRef = useRef<HTMLSpanElement>(null)
@@ -36,6 +39,10 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
   const peakToggleRef = useRef<HTMLInputElement>(null)
   const nPeaksInputRef = useRef<HTMLInputElement>(null)
   const plotCompsToggleRef = useRef<HTMLInputElement>(null)
+  const fitReportContentDivRef = useRef<HTMLDivElement>(
+    document.getElementById("fitReportContentDiv") as HTMLDivElement
+  )
+  const nodeRef = useRef(null)
 
   const selectedXRFPlotData = useMemo(
     () => data.filter((e) => e.isSelected === true),
@@ -297,6 +304,22 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     }
   }
 
+  useHotkeys(
+    "esc",
+    () => {
+      setFitReportVisibility(false)
+    },
+    { enableOnContentEditable: true, enableOnFormTags: true }
+  )
+
+  useHotkeys(
+    "ctrl+f",
+    () => {
+      setFitReportVisibility(!fitReportVisibility)
+    },
+    { enableOnContentEditable: true, enableOnFormTags: true }
+  )
+
   return (
     <div
       className={
@@ -394,6 +417,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
                   selectedRange!.x,
                   +nPeaksInputRef.current!.value ?? 3
                 )
+                fitReportContentDivRef.current.innerText = fitted.fitReport
                 mergeFittedData(fitted)
               }}
               disabled={modifiedData.length !== 1 || !selectedRange}
@@ -442,6 +466,27 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
             </button>
           </menu>
         </form>
+      </div>
+      <div
+        className={
+          "z-40 m-4 text-sm " + (fitReportVisibility ? "absolute" : "hidden")
+        }
+        id={"fitReport"}
+      >
+        <Draggable handle=".handle" nodeRef={nodeRef}>
+          <div ref={nodeRef} className={""}>
+            <div className="handle h-4 w-full cursor-move border border-ptx bg-white"></div>
+            <div
+              id="fitReportContent"
+              ref={fitReportContentDivRef}
+              className={
+                "h-64 overflow-y-scroll border border-t-0 border-ptx bg-white"
+              }
+            >
+              Fit Report
+            </div>
+          </div>
+        </Draggable>
       </div>
     </div>
   )

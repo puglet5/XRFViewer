@@ -122,7 +122,7 @@ def deconvolve(data: XRFPlotData) -> dict:
                 min=x[e] - data.center_offset_range / 2,
                 max=x[e] + data.center_offset_range / 2,
             )
-            params += peak_model.guess(y, x=x, center=x[e], amplitude=y[e] / 3)
+            params += peak_model.guess(y, x=x, center=x[e], amplitude=y[e] / 3, fraction=0)
 
         if data.fit_background == True:
             bkg_model = PolynomialModel()
