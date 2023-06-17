@@ -140,7 +140,7 @@ def deconvolve(data: XRFPlotData) -> dict:
         else:
             model: Model = np.sum(peak_model_list)
 
-        result = model.fit(y, params, x=x, max_nfev=2_000)
+        result = model.fit(y, params, x=x, max_nfev=2_000, method="least_squares")
 
         compsDict = result.eval_components()
 
