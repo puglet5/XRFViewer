@@ -46,7 +46,7 @@ function Uploader({ data, setData }: Props) {
 
               const data: XRFData = {
                 id: createId(),
-                data: { original: parsedData },
+                data: { original: parsedData, selectedPoints: [] },
                 plotData: {
                   main: constructXRFData(parsedData, e.name.split(".")[0])
                 },
@@ -54,8 +54,7 @@ function Uploader({ data, setData }: Props) {
                 isModified: false,
                 isDisplayed: true,
                 isSelected: false,
-                isBeingModified: false,
-                selectedPoints: []
+                isBeingModified: false
               }
 
               setData((prevData) => [...prevData, data])

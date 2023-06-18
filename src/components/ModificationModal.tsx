@@ -6,7 +6,7 @@ import {
   IconSquarePlus
 } from "@tabler/icons-react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
-import { Modification, Peak, XRFData } from "../common/interfaces"
+import { Modification, ParsedData, Peak, XRFData } from "../common/interfaces"
 import axios from "axios"
 import { sdpUrl, timeout } from "@/common/settings"
 import { SelectionRange, ScatterData } from "plotly.js"
@@ -17,6 +17,16 @@ type Props = {
   data: XRFData[]
   setData: React.Dispatch<React.SetStateAction<XRFData[]>>
   selectedRange: SelectionRange | null
+}
+
+interface DeconvolveAPIResponse {
+  message?: string
+  fitReport: string
+  fittedData: {
+    bestFit: ParsedData
+    components: ParsedData[]
+    peaks: ParsedData
+  }
 }
 
 function ModificationModal({ data, setData, selectedRange }: Props) {
@@ -165,7 +175,11 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
       return {
         ...e,
         id: "0",
-        data: { original: e.data.original, modified: { x, y } },
+        data: {
+          original: e.data.original,
+          modified: { x, y },
+          selectedPoints: e.data.selectedPoints
+        },
         plotData: {
           main: {
             x,
@@ -270,7 +284,7 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     }
   }
 
-  function mergeFittedData(data: any) {
+  function mergeFittedData(data: DeconvolveAPIResponse["fittedData"]) {
     if (modifiedData.length !== 1) return
 
     const currentDeconvolvedData = modifiedData[0].data.deconvolved
@@ -279,19 +293,19 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
     if (currentDeconvolvedData) {
       modifiedData[0].data.deconvolved = [
         ...currentDeconvolvedData,
-        data.fittedData.bestFit
+        data.bestFit
       ]
     } else {
-      modifiedData[0].data.deconvolved = [data.fittedData.bestFit]
+      modifiedData[0].data.deconvolved = [data.bestFit]
     }
 
     if (currentDeconvolvedComponentsData) {
       modifiedData[0].data.deconvolvedComponents = [
         ...currentDeconvolvedComponentsData,
-        ...data.fittedData.components
+        ...data.components
       ]
     } else {
-      modifiedData[0].data.deconvolvedComponents = data.fittedData.components
+      modifiedData[0].data.deconvolvedComponents = data.components
     }
     setData([...unmodifiedData, ...modifiedData])
   }
@@ -413,12 +427,12 @@ function ModificationModal({ data, setData, selectedRange }: Props) {
               title={"Deconvolve selected range"}
               onClick={async (e) => {
                 e.preventDefault()
-                const fitted = await sendDeconvolveRequest(
+                const res = (await sendDeconvolveRequest(
                   selectedRange!.x,
                   +nPeaksInputRef.current!.value ?? 3
-                )
-                fitReportContentDivRef.current.innerText = fitted.fitReport
-                mergeFittedData(fitted)
+                )) as DeconvolveAPIResponse
+                fitReportContentDivRef.current.innerText = res.fitReport
+                mergeFittedData(res.fittedData)
               }}
               disabled={modifiedData.length !== 1 || !selectedRange}
               className={"disabled:text-gray-400"}

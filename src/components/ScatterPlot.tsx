@@ -218,7 +218,7 @@ function ScatterPlot({
   function selectPoint(pointIndex: number | undefined) {
     const trace = data.at(-1)
     if (trace && trace.isBeingModified) {
-      const selectedPoints = trace.selectedPoints
+      const selectedPoints = trace.data.selectedPoints
       if (pointIndex) {
         if (selectedPoints.includes(pointIndex)) {
           const point = selectedPoints.findIndex((e) => e === pointIndex)

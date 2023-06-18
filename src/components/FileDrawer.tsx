@@ -75,6 +75,12 @@ function FileDrawer({ data, setData }: Props) {
     }
   }
 
+  function setTraceColor(trace: XRFData, color: string) {
+    trace.traceColor = color
+    trace.plotData.main.line!.color = color
+    setData([...data])
+  }
+
   const constructFileDrawer = useMemo(() => {
     return unmodifiedData.map((e) => {
       return (
@@ -84,7 +90,6 @@ function FileDrawer({ data, setData }: Props) {
               onClick={() => toggleFileSelection(e.id)}
               className="my-auto font-medium"
             >
-              {/* <IconFile className="w-4 h-4 my-auto col-span-1 mx-auto" /> */}
               <span
                 className={`${
                   e.isSelected ? " !bg-neutral-300" : ""
@@ -118,6 +123,15 @@ function FileDrawer({ data, setData }: Props) {
                   </Menu.Item>
                 </Menu.Items>
               </Menu>
+              <input
+                id="nativeColorPicker1"
+                type="color"
+                value={e.traceColor ?? "#000000"}
+                className={"w-6"}
+                onChange={(event) => {
+                  setTraceColor(e, event.target.value)
+                }}
+              />
             </div>
           </div>
         </div>

@@ -47,6 +47,7 @@ export interface XRFData {
     peaks?: Peak[]
     deconvolved?: ParsedData[]
     deconvolvedComponents?: ParsedData[]
+    selectedPoints: number[]
   }
   plotData: {
     main: Partial<ScatterData>
@@ -58,7 +59,7 @@ export interface XRFData {
   isDisplayed: boolean
   isSelected: boolean
   modifications?: Modification
-  selectedPoints: number[]
+  traceColor?: string
 }
 
 export interface ElementData {

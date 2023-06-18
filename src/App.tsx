@@ -49,7 +49,7 @@ export default function App() {
 
   useEffect(() => {
     localStorage.setItem("data", JSON.stringify(data))
-  }, [data.length])
+  }, [data])
 
   useEffect(() => {
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
