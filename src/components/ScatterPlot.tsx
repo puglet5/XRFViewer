@@ -6,10 +6,14 @@ import {
   IconArrowAutofitContentFilled,
   IconAxisX,
   IconAxisY,
+  IconClearAll,
   IconCopy,
   IconDeviceFloppy,
   IconLocation,
-  IconLocationOff
+  IconLocationOff,
+  IconPencil,
+  IconPencilOff,
+  IconPencilPlus
 } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
 import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"
@@ -40,10 +44,13 @@ function ScatterPlot({
   const dragLayerRef = useRef<HTMLElement | null>(null)
   const [mousePosition, setMousePotistion] = useState([0, 0])
   const [dragMode, setDragMode] = useState<"select" | "pan">("pan")
-  const [hoverLabelsVisibility, setHoverLabelsVisibility] = useState(false)
+  const [hoverLabelsVisibility, setHoverLabelsVisibility] = useState(true)
   const [yAxisType, setYAxisType] = useState<"log" | "linear">("linear")
   const [plotLegendVisibility, setPlotLegendVisibility] = useState(true)
-  const [selectionRevision, setSelectionRevision] = useState(0)
+  const [plotEditMode, setPlotEditMode] = useState(false)
+  const [selectedPoints, setSelectedPoints] = useState<number[]>(
+    JSON.parse(localStorage.getItem("selectedPoints")!) ?? []
+  )
 
   const [layout, setLayout] = useState<Partial<Layout>>({
     margin: {
@@ -105,13 +112,13 @@ function ScatterPlot({
       }
     },
     hovermode: "x",
-    hoverdistance: -1
+    hoverdistance: 0
   })
   const [config, setConfig] = useState<Partial<Config>>({
     showTips: false,
     scrollZoom: true,
     displaylogo: false,
-    editable: true,
+    editable: false,
     modeBarButtonsToRemove: [
       "zoom2d",
       "autoScale2d",
@@ -142,6 +149,41 @@ function ScatterPlot({
       yaxis: { ...layout.yaxis, type: yAxisType }
     })
   }, [dragMode, yAxisType])
+
+  useEffect(() => {
+    const trace = data.at(-1)
+    if (trace && trace.isBeingModified) {
+      let shapes = selectedPoints.map((e) => {
+        let x = trace.plotData.main.x![e] as number
+        let y = trace.plotData.main.y![e] as number
+        console.log(x, y)
+        return {
+          type: "path",
+          editable: false,
+          path: `M ${x} ${y} L ${x - 0.02} ${y + 2} L ${x + 0.02} ${y + 2} Z`,
+          line: {
+            color: "rgb(44, 160, 101)",
+            width: 2
+          },
+          fillcolor: "rgba(44, 160, 101, 0.5)",
+          label: {
+            text: `${x.toFixed(2)}`,
+            textposition: "top center",
+            xanchor: "middle",
+            yanchor: "top"
+          }
+        }
+      })
+      // @ts-ignore
+      setLayout({ ...layout, shapes })
+    } else {
+      setLayout({ ...layout, shapes: [] })
+    }
+  }, [selectedPoints, data])
+
+  useEffect(() => {
+    localStorage.setItem("selectedPoints", JSON.stringify(selectedPoints))
+  }, [selectedPoints])
 
   function savePlotImage() {
     const plotDiv = document.getElementById("plotMain")!
@@ -217,8 +259,8 @@ function ScatterPlot({
 
   function selectPoint(pointIndex: number | undefined) {
     const trace = data.at(-1)
+
     if (trace && trace.isBeingModified) {
-      const selectedPoints = trace.data.selectedPoints
       if (pointIndex) {
         if (selectedPoints.includes(pointIndex)) {
           const point = selectedPoints.findIndex((e) => e === pointIndex)
@@ -227,8 +269,7 @@ function ScatterPlot({
           selectedPoints.push(pointIndex)
         }
       }
-      setData([...data])
-      setSelectionRevision(selectionRevision + 1)
+      setSelectedPoints([...selectedPoints])
     }
   }
 
@@ -312,7 +353,15 @@ function ScatterPlot({
           }}
           title={"Toggle hover labels"}
         >
-          {hoverLabelsVisibility ? <IconLocationOff /> : <IconLocation />}
+          {hoverLabelsVisibility ? <IconLocation /> : <IconLocationOff />}
+        </button>
+        <button
+          onClick={() => {
+            setSelectedPoints([])
+          }}
+          title={"Clear selected points"}
+        >
+          <IconClearAll />
         </button>
         <button
           onClick={() => {
@@ -349,6 +398,21 @@ function ScatterPlot({
           disabled={plotData.flat().length ? false : true}
         >
           <IconCopy></IconCopy>
+        </button>
+        <button
+          onClick={() => {
+            setConfig({ ...config, editable: !config.editable })
+            setPlotEditMode(!plotEditMode)
+          }}
+          title="Toggle plot editing"
+          className={plotData.flat().length ? "" : "!text-gray-300"}
+          disabled={plotData.flat().length ? false : true}
+        >
+          {plotEditMode ? (
+            <IconPencil></IconPencil>
+          ) : (
+            <IconPencilOff></IconPencilOff>
+          )}
         </button>
       </div>
       <Plot

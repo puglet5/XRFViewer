@@ -126,6 +126,7 @@ function FileDrawer({ data, setData }: Props) {
               <input
                 id="nativeColorPicker1"
                 type="color"
+                title={"Set trace color"}
                 value={e.traceColor ?? "#000000"}
                 className={"w-6"}
                 onChange={(event) => {
