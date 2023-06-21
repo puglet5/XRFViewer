@@ -8,15 +8,13 @@ import {
   IconSelectAll,
   IconX
 } from "@tabler/icons-react"
-import { memo, useMemo } from "react"
+import { memo, useContext, useMemo } from "react"
 import File from "./File"
+import { DataContext } from "@/App"
 
-type Props = {
-  data: XRFData[]
-  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
-}
+function FileDrawer() {
+  const { data, setData } = useContext(DataContext)
 
-function FileDrawer({ data, setData }: Props) {
   const anySelected = useMemo(
     () => data.map((e) => e.isSelected).some((e) => e === true),
     [data]

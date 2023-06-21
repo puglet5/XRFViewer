@@ -1,3 +1,4 @@
+import { DataContext } from "@/App"
 import { XRFData } from "@/common/interfaces"
 import {
   IconAlignBoxRightMiddle,
@@ -19,7 +20,7 @@ import html2canvas from "html2canvas"
 import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"
 //@ts-ignore
 import Plotly from "plotly.js-strict-dist"
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
 
 import createPlotlyComponent from "react-plotly.js/factory"
@@ -28,8 +29,8 @@ type Props = {
   plotData: Partial<ScatterData>[]
   selectedRange: SelectionRange | null
   setSelectedRange: React.Dispatch<React.SetStateAction<SelectionRange | null>>
-  data: XRFData[]
-  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
+  selectedPoints: number[]
+  setSelectedPoints: React.Dispatch<React.SetStateAction<number[]>>
 }
 
 const Plot = createPlotlyComponent(Plotly)
@@ -38,8 +39,8 @@ function ScatterPlot({
   plotData,
   selectedRange,
   setSelectedRange,
-  data,
-  setData
+  selectedPoints,
+  setSelectedPoints
 }: Props) {
   const dragLayerRef = useRef<HTMLElement | null>(null)
   const [mousePosition, setMousePotistion] = useState([0, 0])
@@ -48,9 +49,7 @@ function ScatterPlot({
   const [yAxisType, setYAxisType] = useState<"log" | "linear">("linear")
   const [plotLegendVisibility, setPlotLegendVisibility] = useState(true)
   const [plotEditMode, setPlotEditMode] = useState(false)
-  const [selectedPoints, setSelectedPoints] = useState<number[]>(
-    JSON.parse(localStorage.getItem("selectedPoints")!) ?? []
-  )
+  const { data, setData } = useContext(DataContext)
 
   const [layout, setLayout] = useState<Partial<Layout>>({
     margin: {
@@ -156,7 +155,6 @@ function ScatterPlot({
       let shapes = selectedPoints.map((e) => {
         let x = trace.plotData.main.x![e] as number
         let y = trace.plotData.main.y![e] as number
-        console.log(x, y)
         return {
           type: "path",
           editable: false,
@@ -259,7 +257,6 @@ function ScatterPlot({
 
   function selectPoint(pointIndex: number | undefined) {
     const trace = data.at(-1)
-
     if (trace && trace.isBeingModified) {
       if (pointIndex) {
         if (selectedPoints.includes(pointIndex)) {
@@ -269,6 +266,8 @@ function ScatterPlot({
           selectedPoints.push(pointIndex)
         }
       }
+      trace.data.selectedPoints = selectedPoints
+      setData([...data])
       setSelectedPoints([...selectedPoints])
     }
   }
@@ -440,7 +439,11 @@ function ScatterPlot({
           setDragMode("pan")
         }}
         onClick={(e) => {
-          selectPoint(e.points.at(-1)?.pointIndex)
+          let trace = e.points.filter(
+            // @ts-ignore
+            (el) => el.data.meta === "isBeingModified"
+          )[0]
+          selectPoint(trace.pointIndex)
         }}
       />
       <div

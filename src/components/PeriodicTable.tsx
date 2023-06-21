@@ -7,13 +7,6 @@ type Props = {
   selectedElements: number[]
 }
 
-const selectedElementClasses = [
-  "font-bold",
-  "!bg-opacity-100",
-  "z-100",
-  "sticky"
-]
-
 function PeriodicTable({
   visible,
   updateSelectedElements,
@@ -21,6 +14,12 @@ function PeriodicTable({
 }: Props) {
   const tableRef = useRef(null)
   const nodeRef = useRef(null)
+  const selectedElementClasses = [
+    "font-bold",
+    "!bg-opacity-100",
+    "z-100",
+    "sticky"
+  ]
 
   function handleClick(e: MouseEvent) {
     const elementId: string = (e.target as HTMLElement).id

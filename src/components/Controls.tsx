@@ -1,25 +1,16 @@
 import { IconReload } from "@tabler/icons-react"
-import { ScatterData } from "plotly.js"
-import { memo } from "react"
-import { XRFData } from "../common/interfaces"
+import { memo, useContext } from "react"
 import Uploader from "./Uploader"
+import { DataContext } from "@/App"
 
 type Props = {
   updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>
   selectedElements: number[]
-  periodicTableVisibility: boolean
-  updatePlotData: React.Dispatch<React.SetStateAction<Partial<ScatterData>[]>>
-  updatePeriodicTableVisibility: React.Dispatch<React.SetStateAction<boolean>>
-  data: XRFData[]
-  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
 }
 
-function Controls({
-  updateSelectedElements,
-  selectedElements,
-  data,
-  setData
-}: Props) {
+function Controls({ updateSelectedElements, selectedElements }: Props) {
+  const { data, setData } = useContext(DataContext)
+
   function resetPlotData() {
     localStorage.clear()
     updateSelectedElements([])
@@ -41,7 +32,7 @@ function Controls({
         title={"Upload files"}
         className="hidden h-full items-center justify-center @2xs/sidebar:flex"
       >
-        <Uploader data={data} setData={setData} />
+        <Uploader />
       </div>
     </div>
   )

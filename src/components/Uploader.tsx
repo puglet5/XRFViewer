@@ -1,7 +1,7 @@
 import { createId } from "@paralleldrive/cuid2"
 import Uppy, { UppyFile } from "@uppy/core"
 import { FileInput } from "@uppy/react"
-import { memo, useEffect } from "react"
+import { memo, useContext, useEffect } from "react"
 import {
   FileProps,
   ValidFileType,
@@ -10,11 +10,7 @@ import {
   isValidFileType
 } from "../common/interfaces"
 import { constructXRFData, convertData } from "../utils/converters"
-
-type Props = {
-  data: XRFData[]
-  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
-}
+import { DataContext } from "@/App"
 
 const uppy = new Uppy({
   autoProceed: false,
@@ -25,7 +21,9 @@ const uppy = new Uppy({
   }
 })
 
-function Uploader({ data, setData }: Props) {
+function Uploader() {
+  const { data, setData } = useContext(DataContext)
+
   useEffect(() => {
     const handler = (files: UppyFile[]) => {
       files.map((e) => {
@@ -57,7 +55,7 @@ function Uploader({ data, setData }: Props) {
                 isBeingModified: false
               }
 
-              setData((prevData) => [...prevData, data])
+              setData((d) => [...d, data])
             }
           }
         }
