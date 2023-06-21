@@ -12,7 +12,6 @@ import { memo, useContext, useMemo } from "react"
 import File from "./File"
 import { DataContext } from "@/common/DataContext"
 
-
 function FileDrawer() {
   const { data, setData } = useContext(DataContext)
 
@@ -20,6 +19,8 @@ function FileDrawer() {
     () => data.map((e) => e.isSelected).some((e) => e === true),
     [data]
   )
+
+  const fileData = useMemo(() => data.map((e) => e.file), [data])
 
   const unmodifiedData = useMemo(
     () => data.filter((e) => e.isBeingModified === false),
@@ -137,7 +138,7 @@ function FileDrawer() {
         </div>
       )
     })
-  }, [data])
+  }, [fileData])
 
   return (
     <div>

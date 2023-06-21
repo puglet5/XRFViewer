@@ -136,119 +136,110 @@ export default function App() {
   return (
     <main className="flex h-screen bg-pbg ">
       <DataContext.Provider value={dataContextState}>
-        {useMemo(
-          () => (
-            <>
-              <Resizable
-                className="overflow-visible"
-                bounds={"window"}
-                enable={{
-                  top: false,
-                  right: true,
-                  bottom: false,
-                  left: false,
-                  topRight: false,
-                  bottomRight: false,
-                  bottomLeft: false,
-                  topLeft: false
-                }}
-                minWidth={0}
-                snap={{
-                  x: [
-                    0,
-                    remToPx(4),
-                    ...Array.from({ length: 200 }, (_, i) => i + 200)
-                  ]
-                }}
-                defaultSize={{ width: 300, height: "100%" }}
-                maxWidth={400}
-                handleStyles={{
-                  right: {
-                    position: "absolute",
-                    width: "20px",
-                    height: "100%",
-                    top: "0px",
-                    cursor: "col-resize",
-                    right: "-20px"
-                  }
-                }}
-                handleClasses={{ right: "select-none z-20" }}
-                onResizeStop={() => window.dispatchEvent(new Event("resize"))}
-                ref={sidebarRef}
-              >
-                <div className="z-20 flex h-full flex-col border-r border-ptx bg-neutral-100 @container/sidebar">
-                  <div className="mt-2 hidden w-full flex-col items-center justify-center text-acc @2xs/sidebar:flex ">
-                    <span className="select-none text-center">
-                      Showing {pluralize(data.length, "file")}
-                    </span>
-                    {data.length ? (
-                      <span className="select-none text-center text-xs text-gray-600">
-                        {data.filter((e) => e.isSelected === true).length}{" "}
-                        selected
-                      </span>
-                    ) : (
-                      <div className="pb-4"></div>
-                    )}
-                  </div>
-                  <div
-                    id="files"
-                    className="max-h-[50%] overflow-scroll border-ptx @2xs/sidebar:border-b"
-                  >
-                    <FileDrawer />
-                  </div>
+        <Resizable
+          className="overflow-visible"
+          bounds={"window"}
+          enable={{
+            top: false,
+            right: true,
+            bottom: false,
+            left: false,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+          minWidth={0}
+          snap={{
+            x: [
+              0,
+              remToPx(4),
+              ...Array.from({ length: 200 }, (_, i) => i + 200)
+            ]
+          }}
+          defaultSize={{ width: 300, height: "100%" }}
+          maxWidth={400}
+          handleStyles={{
+            right: {
+              position: "absolute",
+              width: "20px",
+              height: "100%",
+              top: "0px",
+              cursor: "col-resize",
+              right: "-20px"
+            }
+          }}
+          handleClasses={{ right: "select-none z-20" }}
+          onResizeStop={() => window.dispatchEvent(new Event("resize"))}
+          ref={sidebarRef}
+        >
+          <div className="z-20 flex h-full flex-col border-r border-ptx bg-neutral-100 @container/sidebar">
+            <div className="mt-2 hidden w-full flex-col items-center justify-center text-acc @2xs/sidebar:flex ">
+              <span className="select-none text-center">
+                Showing {pluralize(data.length, "file")}
+              </span>
+              {data.length ? (
+                <span className="select-none text-center text-xs text-gray-600">
+                  {data.filter((e) => e.isSelected === true).length} selected
+                </span>
+              ) : (
+                <div className="pb-4"></div>
+              )}
+            </div>
+            <div
+              id="files"
+              className="max-h-[50%] overflow-scroll border-ptx @2xs/sidebar:border-b"
+            >
+              <FileDrawer />
+            </div>
 
-                  <div id="table" className="mt-2">
-                    <div className="hidden items-center justify-center @[1px]/sidebar:flex @2xs/sidebar:hidden">
-                      <button
-                        onClick={() => setPeriodicTableVisibility(true)}
-                        disabled={periodicTableVisibility}
-                        className="text-acc disabled:text-sfg"
-                      >
-                        <IconBorderAll className="h-8 w-8" />
-                      </button>
-                    </div>
-                  </div>
+            <div id="table" className="mt-2">
+              <div className="hidden items-center justify-center @[1px]/sidebar:flex @2xs/sidebar:hidden">
+                <button
+                  onClick={() => setPeriodicTableVisibility(true)}
+                  disabled={periodicTableVisibility}
+                  className="text-acc disabled:text-sfg"
+                >
+                  <IconBorderAll className="h-8 w-8" />
+                </button>
+              </div>
+            </div>
 
-                  <ModificationModal
-                    selectedRange={selectedRange}
-                    selectedPoints={selectedPoints}
-                  />
+            <ModificationModal
+              selectedRange={selectedRange}
+              selectedPoints={selectedPoints}
+            />
 
-                  <div
-                    id="spacer"
-                    className="hidden flex-grow items-center justify-center @[1px]/sidebar:flex"
-                  ></div>
+            <div
+              id="spacer"
+              className="hidden flex-grow items-center justify-center @[1px]/sidebar:flex"
+            ></div>
 
-                  <div
-                    id="reset"
-                    className="mt-4 hidden border-t border-ptx py-4 @[1px]/sidebar:block"
-                  >
-                    <div className="flex items-center justify-center">
-                      <Controls
-                        updateSelectedElements={setSelectedElements}
-                        selectedElements={selectedElements}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Resizable>
-            </>
-          ),
-          []
-        )}
-      </DataContext.Provider>
-
-      <div className="h-full w-full overflow-hidden">
-        <div className="h-full bg-pbg">
-          <ScatterPlot
-            plotData={plotData}
-            selectedRange={selectedRange}
-            setSelectedRange={setSelectedRange}
-            selectedPoints={selectedPoints}
-            setSelectedPoints={setSelectedPoints}
-          />
+            <div
+              id="reset"
+              className="mt-4 hidden border-t border-ptx py-4 @[1px]/sidebar:block"
+            >
+              <div className="flex items-center justify-center">
+                <Controls
+                  updateSelectedElements={setSelectedElements}
+                  selectedElements={selectedElements}
+                />
+              </div>
+            </div>
+          </div>
+        </Resizable>
+        <div className="h-full w-full overflow-hidden">
+          <div className="h-full bg-pbg">
+            <ScatterPlot
+              plotData={plotData}
+              selectedRange={selectedRange}
+              setSelectedRange={setSelectedRange}
+              selectedPoints={selectedPoints}
+              setSelectedPoints={setSelectedPoints}
+            />
+          </div>
         </div>
-      </div>
+      </DataContext.Provider>
 
       <PeriodicTable
         visible={periodicTableVisibility}

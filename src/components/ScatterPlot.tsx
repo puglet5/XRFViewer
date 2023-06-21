@@ -12,7 +12,7 @@ import {
   IconLocation,
   IconLocationOff,
   IconPencil,
-  IconPencilOff,
+  IconPencilOff
 } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
 import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"
