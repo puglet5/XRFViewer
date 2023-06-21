@@ -26,6 +26,7 @@ class XRFPlotData(BaseModel):
     center_offset_range: float
     fit_background: bool
     fit_to_peaks: bool
+    peak_positions: list[float] | None
 
 
 origins = [
@@ -77,7 +78,9 @@ def deconvolve(data: XRFPlotData) -> dict:
 
     x, y = data_to_deconvolve
 
-    if data.fit_to_peaks == True:
+    print(data.peak_positions is None)
+
+    if (data.fit_to_peaks == True) & (data.peak_positions is None):
         spl = UnivariateSpline(x, y)
         spl_2d = spl.derivative(n=2)
         spl_2d_y = spl_2d(x)
@@ -115,7 +118,6 @@ def deconvolve(data: XRFPlotData) -> dict:
         peak_model_list = []
         params = Parameters()
         for i, e in enumerate(y_2d_peaks):
-            print(i)
             prefix = f"pv{i}"
             peak_model = PseudoVoigtModel(prefix=prefix)
             peak_model_list.append(peak_model)
@@ -162,7 +164,7 @@ def deconvolve(data: XRFPlotData) -> dict:
             },
             "fitReport": report,
         }
-    else:
+    elif (data.fit_to_peaks == False) & (data.peak_positions is None):
         peak_model_list = []
         params = Parameters()
         for i in range(data.n_peaks):
@@ -192,6 +194,50 @@ def deconvolve(data: XRFPlotData) -> dict:
         return {
             "fittedData": {
                 "bestFit": {"x": x.tolist(), "y": best_fit},
+            },
+            "fitReport": report,
+        }
+    elif (data.fit_to_peaks == True) & (data.peak_positions is not None):
+        peak_model_list = []
+        params = Parameters()
+        for i, e in enumerate(data.peak_positions):
+            prefix = f"pv{i}"
+            peak_model = PseudoVoigtModel(prefix=prefix)
+            peak_model_list.append(peak_model)
+            peak_model.set_param_hint("sigma", min=0, max=data.sigma_max)
+            peak_model.set_param_hint("fraction", min=0, max=1)
+            peak_model.set_param_hint("amplitude", min=0)
+            # peak_model.set_param_hint("height", min=0.8 * y[e], max=1.2 * y[e])
+            peak_model.set_param_hint(
+                "center",
+                min=e - 0.01,
+                max=e + 0.01,
+            )
+            params += peak_model.guess(y, x=x, center=e, fraction=0)
+
+        if data.fit_background == True:
+            bkg_model = PolynomialModel()
+            bkg_params = bkg_model.guess(y, x=x)
+            params += bkg_params
+            model: Model = np.sum(peak_model_list) + bkg_model
+        else:
+            model: Model = np.sum(peak_model_list)
+
+        result = model.fit(y, params, x=x, max_nfev=2_000, method="least_squares")
+
+        compsDict = result.eval_components()
+
+        compsList = []
+        for _, v in compsDict.items():
+            compsList.append({f"x": x.tolist(), "y": v.tolist()})
+
+        best_fit = result.best_fit.tolist()
+
+        report = result.fit_report()
+        return {
+            "fittedData": {
+                "bestFit": {"x": x.tolist(), "y": best_fit},
+                "components": compsList,
             },
             "fitReport": report,
         }
