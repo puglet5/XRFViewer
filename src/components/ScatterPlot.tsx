@@ -458,17 +458,17 @@ function ScatterPlot({
                 selectPoint(trace.pointIndex)
               }}
             />
-            <div
-              className={"h-full w-full border-t border-ptx"}
-            >{`Energy: ${mousePosition[0].toFixed(
-              2
-            )}, Intensity ${mousePosition[1].toFixed(
-              2
-            )} Selection: ${JSON.stringify(selectedRange?.x)}`}</div>
           </>
         ),
         [plotData, layout, config]
       )}
+      <div className={"h-full w-full border-t border-ptx"}>
+        {`Energy: ${mousePosition[0].toFixed(
+          2
+        )}, Intensity ${mousePosition[1].toFixed(
+          2
+        )} Selection: ${JSON.stringify(selectedRange?.x)}`}
+      </div>
     </>
   )
 }

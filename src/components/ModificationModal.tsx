@@ -562,7 +562,7 @@ function ModificationModal({ selectedRange, selectedPoints }: Props) {
             </div>
           </div>
         ),
-        [data, selectedRange, selectedPoints, deconvolutionPlotMode]
+        [data, selectedRange, selectedPoints, deconvolutionPlotMode, fitReportVisibility]
       )}
     </>
   )
