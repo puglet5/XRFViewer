@@ -18,13 +18,13 @@ import html2canvas from "html2canvas"
 import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"
 //@ts-ignore
 import Plotly from "plotly.js-strict-dist"
-import { useContext, useEffect, useRef, useState } from "react"
+import { memo, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
 
 import createPlotlyComponent from "react-plotly.js/factory"
 
 type Props = {
-  plotData: Partial<ScatterData>[]
+  elementData: Partial<ScatterData>[]
   selectedRange: SelectionRange | null
   setSelectedRange: React.Dispatch<React.SetStateAction<SelectionRange | null>>
   selectedPoints: number[]
@@ -34,7 +34,7 @@ type Props = {
 const Plot = createPlotlyComponent(Plotly)
 
 function ScatterPlot({
-  plotData,
+  elementData,
   selectedRange,
   setSelectedRange,
   selectedPoints,
@@ -48,6 +48,7 @@ function ScatterPlot({
   const [plotLegendVisibility, setPlotLegendVisibility] = useState(true)
   const [plotEditMode, setPlotEditMode] = useState(false)
   const { data, setData } = useContext(DataContext)
+  const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
 
   const [layout, setLayout] = useState<Partial<Layout>>({
     margin: {
@@ -146,6 +147,16 @@ function ScatterPlot({
       yaxis: { ...layout.yaxis, type: yAxisType }
     })
   }, [dragMode, yAxisType])
+
+  useEffect(() => {
+    setPlotData([
+      ...data.flatMap((e) => [
+        e.plotData.main,
+        ...(e.plotData.deconvolutions ?? [])
+      ]),
+      ...elementData
+    ])
+  }, [data, elementData])
 
   useEffect(() => {
     const trace = data.at(-1)
@@ -328,131 +339,138 @@ function ScatterPlot({
 
   return (
     <>
-      <div
-        id="plotControls"
-        className="sticky z-20 flex w-full space-x-1 border-b border-ptx p-3 text-acc"
-      >
-        <button
-          onClick={() => {
-            toggleLegend()
-          }}
-          title={"Toggle legend"}
-        >
-          {plotLegendVisibility ? (
-            <IconAlignBoxRightMiddle />
-          ) : (
-            <IconAlignBoxRightMiddleFilled />
-          )}
-        </button>
-        <button
-          onClick={() => {
-            toggleHoverLabels()
-          }}
-          title={"Toggle hover labels"}
-        >
-          {hoverLabelsVisibility ? <IconLocation /> : <IconLocationOff />}
-        </button>
-        <button
-          onClick={() => {
-            setSelectedPoints([])
-          }}
-          title={"Clear selected points"}
-        >
-          <IconClearAll />
-        </button>
-        <button
-          onClick={() => {
-            setYAxisType(yAxisType === "log" ? "linear" : "log")
-          }}
-          title={"Toggle log scale"}
-        >
-          {yAxisType === "linear" ? <IconAxisY /> : <IconAxisX />}
-        </button>
-        <button
-          onClick={() => {
-            toggleDragMode()
-          }}
-          title={"Toggle selection"}
-        >
-          {dragMode === "pan" ? (
-            <IconArrowAutofitContent />
-          ) : (
-            <IconArrowAutofitContentFilled />
-          )}
-        </button>
-        <button
-          onClick={savePlotImage}
-          title="Save plot as .png"
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
-        >
-          <IconDeviceFloppy></IconDeviceFloppy>
-        </button>
-        <button
-          onClick={copyPlotImage}
-          title="Copy plot image to clipboard"
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
-        >
-          <IconCopy></IconCopy>
-        </button>
-        <button
-          onClick={() => {
-            setConfig({ ...config, editable: !config.editable })
-            setPlotEditMode(!plotEditMode)
-          }}
-          title="Toggle plot editing"
-          className={plotData.flat().length ? "" : "!text-gray-300"}
-          disabled={plotData.flat().length ? false : true}
-        >
-          {plotEditMode ? (
-            <IconPencil></IconPencil>
-          ) : (
-            <IconPencilOff></IconPencilOff>
-          )}
-        </button>
-      </div>
-      <Plot
-        divId="plotMain"
-        data={plotData}
-        layout={layout}
-        config={config}
-        className="h-[calc(100vh-6.6rem)] w-full"
-        style={{ clipPath: "none" }}
-        onInitialized={() => {
-          dragLayerRef.current = document.querySelector(
-            ".draglayer"
-          ) as HTMLElement
-          dragLayerRef.current.classList.add("!cursor-pointer")
-          Plotly.relayout("plotMain", { selections: [] })
-        }}
-        onUpdate={() => {
-          if (plotData.length) attachPlotMouseListener()
-        }}
-        onSelecting={(e) => {
-          setSelectedRange(e.range!)
-        }}
-        onSelected={() => {
-          Plotly.relayout("plotMain", { selections: [] })
-          setDragMode("pan")
-        }}
-        onClick={(e) => {
-          let trace = e.points.filter(
-            // @ts-ignore
-            (el) => el.data.meta === "isBeingModified"
-          )[0]
-          selectPoint(trace.pointIndex)
-        }}
-      />
-      <div
-        className={"h-full w-full border-t border-ptx"}
-      >{`Energy: ${mousePosition[0].toFixed(
-        2
-      )}, Intensity ${mousePosition[1].toFixed(2)} Selection: ${JSON.stringify(
-        selectedRange?.x
-      )}`}</div>
+      {useMemo(
+        () => (
+          <>
+            <div
+              id="plotControls"
+              className="sticky z-20 flex w-full space-x-1 border-b border-ptx p-3 text-acc"
+            >
+              <button
+                onClick={() => {
+                  toggleLegend()
+                }}
+                title={"Toggle legend"}
+              >
+                {plotLegendVisibility ? (
+                  <IconAlignBoxRightMiddle />
+                ) : (
+                  <IconAlignBoxRightMiddleFilled />
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  toggleHoverLabels()
+                }}
+                title={"Toggle hover labels"}
+              >
+                {hoverLabelsVisibility ? <IconLocation /> : <IconLocationOff />}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedPoints([])
+                }}
+                title={"Clear selected points"}
+              >
+                <IconClearAll />
+              </button>
+              <button
+                onClick={() => {
+                  setYAxisType(yAxisType === "log" ? "linear" : "log")
+                }}
+                title={"Toggle log scale"}
+              >
+                {yAxisType === "linear" ? <IconAxisY /> : <IconAxisX />}
+              </button>
+              <button
+                onClick={() => {
+                  toggleDragMode()
+                }}
+                title={"Toggle selection"}
+              >
+                {dragMode === "pan" ? (
+                  <IconArrowAutofitContent />
+                ) : (
+                  <IconArrowAutofitContentFilled />
+                )}
+              </button>
+              <button
+                onClick={savePlotImage}
+                title="Save plot as .png"
+                className={plotData.flat().length ? "" : "!text-gray-300"}
+                disabled={plotData.flat().length ? false : true}
+              >
+                <IconDeviceFloppy></IconDeviceFloppy>
+              </button>
+              <button
+                onClick={copyPlotImage}
+                title="Copy plot image to clipboard"
+                className={plotData.flat().length ? "" : "!text-gray-300"}
+                disabled={plotData.flat().length ? false : true}
+              >
+                <IconCopy></IconCopy>
+              </button>
+              <button
+                onClick={() => {
+                  setConfig({ ...config, editable: !config.editable })
+                  setPlotEditMode(!plotEditMode)
+                }}
+                title="Toggle plot editing"
+                className={plotData.flat().length ? "" : "!text-gray-300"}
+                disabled={plotData.flat().length ? false : true}
+              >
+                {plotEditMode ? (
+                  <IconPencil></IconPencil>
+                ) : (
+                  <IconPencilOff></IconPencilOff>
+                )}
+              </button>
+            </div>
+            <Plot
+              divId="plotMain"
+              data={plotData}
+              layout={layout}
+              config={config}
+              className="h-[calc(100vh-6.6rem)] w-full"
+              style={{ clipPath: "none" }}
+              onInitialized={() => {
+                dragLayerRef.current = document.querySelector(
+                  ".draglayer"
+                ) as HTMLElement
+                dragLayerRef.current.classList.add("!cursor-pointer")
+                Plotly.relayout("plotMain", { selections: [] })
+              }}
+              onUpdate={() => {
+                if (plotData.length) attachPlotMouseListener()
+              }}
+              onSelecting={(e) => {
+                setSelectedRange(e.range!)
+              }}
+              onSelected={() => {
+                Plotly.relayout("plotMain", { selections: [] })
+                setDragMode("pan")
+              }}
+              onClick={(e) => {
+                let trace = e.points.filter(
+                  // @ts-ignore
+                  (el) => el.data.meta === "isBeingModified"
+                )[0]
+                selectPoint(trace.pointIndex)
+              }}
+            />
+            <div
+              className={"h-full w-full border-t border-ptx"}
+            >{`Energy: ${mousePosition[0].toFixed(
+              2
+            )}, Intensity ${mousePosition[1].toFixed(
+              2
+            )} Selection: ${JSON.stringify(selectedRange?.x)}`}</div>
+          </>
+        ),
+        [plotData, layout, config]
+      )}
     </>
   )
 }
 
-export default ScatterPlot
+export default memo(ScatterPlot)

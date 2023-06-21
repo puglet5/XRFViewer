@@ -23,7 +23,6 @@ export default function App() {
   const [currentElementData, setCurrentElementData] = useState<
     Partial<ScatterData>[]
   >([])
-  const [plotData, setPlotData] = useState<Partial<ScatterData>[]>([])
   const [periodicTableVisibility, setPeriodicTableVisibility] =
     useState<boolean>(false)
   const [data, setData] = useState<XRFData[]>(
@@ -43,18 +42,8 @@ export default function App() {
   const sidebarRef = useRef<Resizable>(null)
 
   useEffect(() => {
-    setPlotData([
-      ...data.flatMap((e) => [
-        e.plotData.main,
-        ...(e.plotData.deconvolutions ?? [])
-      ]),
-      ...currentElementData
-    ])
-  }, [data, currentElementData])
-
-  useEffect(() => {
     localStorage.setItem("data", JSON.stringify(data))
-  }, [data])
+  }, [data.length])
 
   useEffect(() => {
     localStorage.setItem("selectedElements", JSON.stringify(selectedElements))
@@ -98,7 +87,7 @@ export default function App() {
       setElementScaleFactor(1)
       setCurrentElementData([])
     }
-  }, [selectedElements])
+  }, [selectedElements.length])
 
   function toggleSidebar() {
     if (sidebarRef.current) {
@@ -231,7 +220,7 @@ export default function App() {
         <div className="h-full w-full overflow-hidden">
           <div className="h-full bg-pbg">
             <ScatterPlot
-              plotData={plotData}
+              elementData={currentElementData}
               selectedRange={selectedRange}
               setSelectedRange={setSelectedRange}
               selectedPoints={selectedPoints}

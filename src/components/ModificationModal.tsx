@@ -14,7 +14,6 @@ import Draggable from "react-draggable"
 import { useHotkeys } from "react-hotkeys-hook"
 import { DataContext } from "@/common/DataContext"
 
-
 type Props = {
   selectedRange: SelectionRange | null
   selectedPoints: number[]
@@ -341,213 +340,231 @@ function ModificationModal({ selectedRange, selectedPoints }: Props) {
   )
 
   return (
-    <div
-      className={
-        "m-2 select-none" +
-        (anySelected ? " hidden @2xs/sidebar:block" : " hidden")
-      }
-    >
-      <div className="flex flex-col">
-        <form
-          onReset={() => {
-            resetModifications()
-          }}
-          id={"mainForm"}
-          className="flex flex-col items-center"
-          ref={formRef}
-        >
-          <div className={"mb-4 flex w-full flex-col items-center"}>
-            <span className={"mb-2 border-b font-bold"}>Data modification</span>
-            <div id="scaling" className="flex space-x-2">
-              <span>SF</span>
-              <input
-                type="range"
-                id="scalingFactorSlider"
-                min={0.02}
-                max={5.0}
-                step={0.01}
-                defaultValue={1.0}
-                onChange={(e) => {
-                  ;(e.target.nextSibling as HTMLSpanElement).innerText = (+e
-                    .target.value).toFixed(2)
-                  setModifications({
-                    ...modifications,
-                    scalingFactor: +e.target.value
-                  })
+    <>
+      {useMemo(
+        () => (
+          <div
+            className={
+              "m-2 select-none" +
+              (anySelected ? " hidden @2xs/sidebar:block" : " hidden")
+            }
+          >
+            <div className="flex flex-col">
+              <form
+                onReset={() => {
+                  resetModifications()
                 }}
-              ></input>
-              <span ref={scalingSliderRef} id="scalingFactorSliderValue">
-                1.00
-              </span>
-            </div>
-            <div id="smoothing" className="flex space-x-2">
-              <span>SR</span>
-              <input
-                type="range"
-                id="smoothingRadiusSlider"
-                min={0}
-                max={3}
-                step={1}
-                defaultValue={0}
-                onChange={(e) => {
-                  ;(e.target.nextSibling as HTMLSpanElement).innerText =
-                    e.target.value
-                  setModifications({
-                    ...modifications,
-                    smoothingRadius: +e.target.value
-                  })
-                }}
-              ></input>
-              <span ref={smoothingSliderRef} id="smoothingRadiusSliderValue">
-                0
-              </span>
-            </div>
-            <div id="peaks" className="flex space-x-2">
-              <span>Peaks</span>
-              <input
-                type="checkbox"
-                defaultChecked={false}
-                ref={peakToggleRef}
-                onChange={(e) => {
-                  setModifications({
-                    ...modifications,
-                    peakDetection: e.target.checked
-                  })
-                }}
-              />
-            </div>
-            <div id="baseline" className="flex space-x-2">
-              <span>Baseline</span>
-              <input
-                type="checkbox"
-                defaultChecked={false}
-                ref={baselineToggleRef}
-                onChange={(e) => {
-                  setModifications({
-                    ...modifications,
-                    baselineCorrection: e.target.checked
-                  })
-                }}
-              />
-            </div>
-          </div>
-          <div className={"mb-4 flex w-full flex-col items-center"}>
-            <span className={"mb-2 border-b font-bold"}>Deconvolution</span>
-            <div
-              id="deconvolve"
-              className="flex flex-col items-center justify-center space-x-2"
-            >
-              <div className="flex select-none space-x-2">
-                <button
-                  title={"Deconvolve selected range"}
-                  onClick={async (e) => {
-                    e.preventDefault()
-                    const range = selectedRange!.x
-                    const nPeaks = +nPeaksInputRef.current!.value ?? 3
-                    let peakPositions
-                    if (
-                      deconvolutionModeRef.current?.checked &&
-                      selectedPoints
-                    ) {
-                      peakPositions = selectedPoints.map(
-                        (e) => modifiedData.at(-1)!.data.modified!.x[e]
-                      )
-                    }
-                    const res = (await sendDeconvolveRequest(
-                      range,
-                      nPeaks,
-                      peakPositions
-                    )) as DeconvolveAPIResponse
-                    fitReportContentDivRef.current.innerText = res.fitReport
-                    mergeFittedData(res.fittedData)
-                  }}
-                  disabled={modifiedData.length !== 1 || !selectedRange}
-                  className={"disabled:text-gray-400"}
-                >
-                  <IconChartHistogram></IconChartHistogram>
-                </button>
-                <input
-                  type="number"
-                  defaultValue={3}
-                  min={-1}
-                  max={20}
-                  step={1}
-                  ref={nPeaksInputRef}
-                  className={
-                    "block w-24 rounded border border-ptx bg-transparent px-3 py-0.5 outline-none disabled:text-gray-400"
-                  }
-                />
-                <input
-                  type="checkbox"
-                  title={"Show deconvolution components"}
-                  defaultChecked={false}
-                  ref={plotCompsToggleRef}
-                  onChange={() => toggleDeconvolutionPlotMode()}
-                />
-              </div>
-              <div className={"flex space-x-2"}>
-                <span>Use selected peaks</span>
-                <input
-                  type="checkbox"
-                  title={"Show deconvolution components"}
-                  defaultChecked={false}
-                  ref={deconvolutionModeRef}
-                  onChange={(e) => {
-                    nPeaksInputRef.current!.disabled = e.target.checked
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+                id={"mainForm"}
+                className="flex flex-col items-center"
+                ref={formRef}
+              >
+                <div className={"mb-4 flex w-full flex-col items-center"}>
+                  <span className={"mb-2 border-b font-bold"}>
+                    Data modification
+                  </span>
+                  <div id="scaling" className="flex space-x-2">
+                    <span>SF</span>
+                    <input
+                      type="range"
+                      id="scalingFactorSlider"
+                      min={0.02}
+                      max={5.0}
+                      step={0.01}
+                      defaultValue={1.0}
+                      onChange={(e) => {
+                        ;(e.target.nextSibling as HTMLSpanElement).innerText =
+                          (+e.target.value).toFixed(2)
+                        setModifications({
+                          ...modifications,
+                          scalingFactor: +e.target.value
+                        })
+                      }}
+                    ></input>
+                    <span ref={scalingSliderRef} id="scalingFactorSliderValue">
+                      1.00
+                    </span>
+                  </div>
+                  <div id="smoothing" className="flex space-x-2">
+                    <span>SR</span>
+                    <input
+                      type="range"
+                      id="smoothingRadiusSlider"
+                      min={0}
+                      max={3}
+                      step={1}
+                      defaultValue={0}
+                      onChange={(e) => {
+                        ;(e.target.nextSibling as HTMLSpanElement).innerText =
+                          e.target.value
+                        setModifications({
+                          ...modifications,
+                          smoothingRadius: +e.target.value
+                        })
+                      }}
+                    ></input>
+                    <span
+                      ref={smoothingSliderRef}
+                      id="smoothingRadiusSliderValue"
+                    >
+                      0
+                    </span>
+                  </div>
+                  <div id="peaks" className="flex space-x-2">
+                    <span>Peaks</span>
+                    <input
+                      type="checkbox"
+                      defaultChecked={false}
+                      ref={peakToggleRef}
+                      onChange={(e) => {
+                        setModifications({
+                          ...modifications,
+                          peakDetection: e.target.checked
+                        })
+                      }}
+                    />
+                  </div>
+                  <div id="baseline" className="flex space-x-2">
+                    <span>Baseline</span>
+                    <input
+                      type="checkbox"
+                      defaultChecked={false}
+                      ref={baselineToggleRef}
+                      onChange={(e) => {
+                        setModifications({
+                          ...modifications,
+                          baselineCorrection: e.target.checked
+                        })
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className={"mb-4 flex w-full flex-col items-center"}>
+                  <span className={"mb-2 border-b font-bold"}>
+                    Deconvolution
+                  </span>
+                  <div
+                    id="deconvolve"
+                    className="flex flex-col items-center justify-center space-x-2"
+                  >
+                    <div className="flex select-none space-x-2">
+                      <button
+                        title={"Deconvolve selected range"}
+                        onClick={async (e) => {
+                          e.preventDefault()
+                          const range = selectedRange!.x
+                          const nPeaks = +nPeaksInputRef.current!.value ?? 3
+                          let peakPositions
+                          if (
+                            deconvolutionModeRef.current?.checked &&
+                            selectedPoints
+                          ) {
+                            peakPositions = selectedPoints.map(
+                              (e) => modifiedData.at(-1)!.data.modified!.x[e]
+                            )
+                          }
+                          const res = (await sendDeconvolveRequest(
+                            range,
+                            nPeaks,
+                            peakPositions
+                          )) as DeconvolveAPIResponse
+                          fitReportContentDivRef.current.innerText =
+                            res.fitReport
+                          mergeFittedData(res.fittedData)
+                        }}
+                        disabled={modifiedData.length !== 1 || !selectedRange}
+                        className={"disabled:text-gray-400"}
+                      >
+                        <IconChartHistogram></IconChartHistogram>
+                      </button>
+                      <input
+                        type="number"
+                        defaultValue={3}
+                        min={-1}
+                        max={20}
+                        step={1}
+                        ref={nPeaksInputRef}
+                        className={
+                          "block w-24 rounded border border-ptx bg-transparent px-3 py-0.5 outline-none disabled:text-gray-400"
+                        }
+                      />
+                      <input
+                        type="checkbox"
+                        title={"Show deconvolution components"}
+                        defaultChecked={false}
+                        ref={plotCompsToggleRef}
+                        onChange={() => toggleDeconvolutionPlotMode()}
+                      />
+                    </div>
+                    <div className={"flex space-x-2"}>
+                      <span>Use selected peaks</span>
+                      <input
+                        type="checkbox"
+                        title={"Show deconvolution components"}
+                        defaultChecked={false}
+                        ref={deconvolutionModeRef}
+                        onChange={(e) => {
+                          nPeaksInputRef.current!.disabled = e.target.checked
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
 
-          <menu className="mb-4 mt-2 flex w-full flex-col items-center text-acc ">
-            <span className={"mb-2 border-b font-bold"}>Form controls</span>
-            <div className={"flex"}>
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  applyModifications(modifications)
-                }}
-                title={"applyModifications"}
-              >
-                <IconSquarePlus />
-              </button>
-              <button
-                title={"Reset"}
-                id={"resetModifications"}
-                onClick={(e) => {
-                  e.preventDefault()
-                  formRef.current!.reset()
-                }}
-              >
-                <IconSquareMinus></IconSquareMinus>
-              </button>
+                <menu className="mb-4 mt-2 flex w-full flex-col items-center text-acc ">
+                  <span className={"mb-2 border-b font-bold"}>
+                    Form controls
+                  </span>
+                  <div className={"flex"}>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        applyModifications(modifications)
+                      }}
+                      title={"applyModifications"}
+                    >
+                      <IconSquarePlus />
+                    </button>
+                    <button
+                      title={"Reset"}
+                      id={"resetModifications"}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        formRef.current!.reset()
+                      }}
+                    >
+                      <IconSquareMinus></IconSquareMinus>
+                    </button>
+                  </div>
+                </menu>
+              </form>
             </div>
-          </menu>
-        </form>
-      </div>
-      <div
-        className={
-          "z-40 m-4 text-sm " + (fitReportVisibility ? "absolute" : "hidden")
-        }
-        id={"fitReport"}
-      >
-        <Draggable handle=".handle" nodeRef={nodeRef}>
-          <div ref={nodeRef} className={""}>
-            <div className="handle h-4 w-full cursor-move border border-ptx bg-white"></div>
             <div
-              id="fitReportContent"
-              ref={fitReportContentDivRef}
               className={
-                "h-64 overflow-y-scroll border border-t-0 border-ptx bg-white"
+                "z-40 m-4 text-sm " +
+                (fitReportVisibility ? "absolute" : "hidden")
               }
+              id={"fitReport"}
             >
-              Fit Report
+              <Draggable handle=".handle" nodeRef={nodeRef}>
+                <div ref={nodeRef} className={""}>
+                  <div className="handle h-4 w-full cursor-move border border-ptx bg-white"></div>
+                  <div
+                    id="fitReportContent"
+                    ref={fitReportContentDivRef}
+                    className={
+                      "h-64 overflow-y-scroll border border-t-0 border-ptx bg-white"
+                    }
+                  >
+                    Fit Report
+                  </div>
+                </div>
+              </Draggable>
             </div>
           </div>
-        </Draggable>
-      </div>
-    </div>
+        ),
+        [data, selectedRange, selectedPoints, deconvolutionPlotMode]
+      )}
+    </>
   )
 }
 
