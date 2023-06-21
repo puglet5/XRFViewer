@@ -10,7 +10,8 @@ import {
 } from "@tabler/icons-react"
 import { memo, useContext, useMemo } from "react"
 import File from "./File"
-import { DataContext } from "@/App"
+import { DataContext } from "@/common/DataContext"
+
 
 function FileDrawer() {
   const { data, setData } = useContext(DataContext)

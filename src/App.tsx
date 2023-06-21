@@ -14,18 +14,7 @@ import {
   constructElementData
 } from "./utils/converters"
 import { pluralize, remToPx } from "./utils/ui"
-
-type DataContextType = {
-  data: XRFData[]
-  setData: React.Dispatch<React.SetStateAction<XRFData[]>>
-}
-
-const IDataContext = {
-  data: [],
-  setData: () => {}
-}
-
-export const DataContext = createContext<DataContextType>(IDataContext)
+import { DataContext } from "./common/DataContext"
 
 export default function App() {
   const [selectedElements, setSelectedElements] = useState<number[]>(

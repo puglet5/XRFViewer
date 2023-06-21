@@ -12,7 +12,8 @@ import { sdpUrl, timeout } from "@/common/settings"
 import { SelectionRange, ScatterData } from "plotly.js"
 import Draggable from "react-draggable"
 import { useHotkeys } from "react-hotkeys-hook"
-import { DataContext } from "@/App"
+import { DataContext } from "@/common/DataContext"
+
 
 type Props = {
   selectedRange: SelectionRange | null

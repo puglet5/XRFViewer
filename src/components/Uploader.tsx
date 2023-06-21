@@ -10,7 +10,7 @@ import {
   isValidFileType
 } from "../common/interfaces"
 import { constructXRFData, convertData } from "../utils/converters"
-import { DataContext } from "@/App"
+import { DataContext } from "@/common/DataContext"
 
 const uppy = new Uppy({
   autoProceed: false,

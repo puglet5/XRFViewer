@@ -1,5 +1,4 @@
-import { DataContext } from "@/App"
-import { XRFData } from "@/common/interfaces"
+import { DataContext } from "@/common/DataContext"
 import {
   IconAlignBoxRightMiddle,
   IconAlignBoxRightMiddleFilled,
@@ -14,7 +13,6 @@ import {
   IconLocationOff,
   IconPencil,
   IconPencilOff,
-  IconPencilPlus
 } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
 import { Config, Layout, ScatterData, SelectionRange } from "plotly.js"

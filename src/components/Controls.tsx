@@ -1,7 +1,7 @@
 import { IconReload } from "@tabler/icons-react"
 import { memo, useContext } from "react"
 import Uploader from "./Uploader"
-import { DataContext } from "@/App"
+import { DataContext } from "@/common/DataContext"
 
 type Props = {
   updateSelectedElements: React.Dispatch<React.SetStateAction<number[]>>
