@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "==0.85.0"
-pydantic = "==1.10.2"
+fastapi = "==0.98.0"
+pydantic = "==1.10.9"
 pyinstaller = "*"
-pyinstaller-hooks-contrib = "==2022.10"
-pywin32-ctypes = "==0.2.0"
-uvicorn = "==0.18.3"
+pyinstaller-hooks-contrib = "==2023.3"
+pywin32-ctypes = "==0.2.1"
+uvicorn = "==0.22.0"
 numpy = "*"
 pandas = "*"
 scipy = "*"
